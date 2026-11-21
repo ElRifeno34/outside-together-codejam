@@ -1,0 +1,312 @@
+<?xml version='1.0' encoding='utf-8'?>
+<diagram program="umlet" version="15.1">
+  <zoom_level>10</zoom_level>
+  <element>
+    <id>Text</id>
+    <coordinates>
+      <x>20</x>
+      <y>12</y>
+      <w>560</w>
+      <h>32</h>
+    </coordinates>
+    <panel_attributes>*02 · Classes — cercles, sorties et points*
+fontsize=17
+halign=left
+fg=#18334a</panel_attributes>
+    <additional_attributes />
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>295</x>
+      <y>90</y>
+      <w>205</w>
+      <h>125</h>
+    </coordinates>
+    <panel_attributes>Membre
+--
++ id : UUID
++ nomAffiche : string
++ zones : string[]
++ interets : string[]
++ activitesFavorites : UUID[]
+bg=#eaf3f8
+fg=#18334a</panel_attributes>
+    <additional_attributes />
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>585</x>
+      <y>105</y>
+      <w>220</w>
+      <h>70</h>
+    </coordinates>
+    <panel_attributes>Adhesion
+--
++ dateAdhesion : datetime
+bg=#eaf3f8
+fg=#18334a</panel_attributes>
+    <additional_attributes />
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>960</x>
+      <y>90</y>
+      <w>205</w>
+      <h>110</h>
+    </coordinates>
+    <panel_attributes>Cercle
+--
++ id : UUID
++ nom : string
++ interets : string[]
+bg=#eaf3f8
+fg=#18334a</panel_attributes>
+    <additional_attributes />
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>20</x>
+      <y>90</y>
+      <w>195</w>
+      <h>100</h>
+    </coordinates>
+    <panel_attributes>Disponibilite
+--
++ debut : datetime
++ fin : datetime
+bg=#eaf3f8
+fg=#18334a</panel_attributes>
+    <additional_attributes />
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>295</x>
+      <y>350</y>
+      <w>205</w>
+      <h>120</h>
+    </coordinates>
+    <panel_attributes>Participation
+--
++ inscritLe : datetime
++ presenceLe : datetime?
++ organisateur : bool
+bg=#eaf3f8
+fg=#18334a</panel_attributes>
+    <additional_attributes />
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>585</x>
+      <y>328</y>
+      <w>220</w>
+      <h>162</h>
+    </coordinates>
+    <panel_attributes>Sortie
+--
++ id : UUID
++ debut / fin : datetime
++ lieuPublic : string
++ dehors : bool
++ capacite : int
++ statut : StatutSortie
+bg=#eaf3f8
+fg=#18334a</panel_attributes>
+    <additional_attributes />
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>960</x>
+      <y>355</y>
+      <w>205</w>
+      <h>90</h>
+    </coordinates>
+    <panel_attributes>Activite
+--
++ id : UUID
++ nom : string
+bg=#eaf3f8
+fg=#18334a</panel_attributes>
+    <additional_attributes />
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>295</x>
+      <y>570</y>
+      <w>205</w>
+      <h>105</h>
+    </coordinates>
+    <panel_attributes>AttributionPoints
+--
++ montant : int
++ attribueLe : datetime
+bg=#eaf5ef
+fg=#18334a</panel_attributes>
+    <additional_attributes />
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>585</x>
+      <y>570</y>
+      <w>220</w>
+      <h>125</h>
+    </coordinates>
+    <panel_attributes>« enumeration »
+StatutSortie
+--
+PUBLIEE
+EN_ATTENTE
+VALIDEE
+ANNULEE
+bg=#f2f5f8
+fg=#18334a</panel_attributes>
+    <additional_attributes />
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>185</x>
+      <y>110</y>
+      <w>140</w>
+      <h>60</h>
+    </coordinates>
+    <panel_attributes>lt=-
+m1=1
+m2=0..*
+fg=#18334a</panel_attributes>
+    <additional_attributes>110.0;30.0;30.0;30.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>470</x>
+      <y>110</y>
+      <w>145</w>
+      <h>60</h>
+    </coordinates>
+    <panel_attributes>lt=-
+m1=1
+m2=0..*
+fg=#18334a</panel_attributes>
+    <additional_attributes>30.0;30.0;115.0;30.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>775</x>
+      <y>110</y>
+      <w>215</w>
+      <h>60</h>
+    </coordinates>
+    <panel_attributes>lt=-
+m1=1
+m2=0..*
+fg=#18334a</panel_attributes>
+    <additional_attributes>185.0;30.0;30.0;30.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>350</x>
+      <y>36</y>
+      <w>740</w>
+      <h>84</h>
+    </coordinates>
+    <panel_attributes>lt=-
+m1=1
+m2=0..*
+créateur du cercle
+fg=#18334a</panel_attributes>
+    <additional_attributes>30.0;54.0;30.0;30.0;710.0;30.0;710.0;54.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>370</x>
+      <y>185</y>
+      <w>60</w>
+      <h>195</h>
+    </coordinates>
+    <panel_attributes>lt=-
+m1=1
+m2=0..*
+fg=#18334a</panel_attributes>
+    <additional_attributes>30.0;30.0;30.0;165.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>775</x>
+      <y>147</y>
+      <w>215</w>
+      <h>233</h>
+    </coordinates>
+    <panel_attributes>lt=-
+m1=1
+m2=0..*
+fg=#18334a</panel_attributes>
+    <additional_attributes>185.0;30.0;110.0;30.0;110.0;203.0;30.0;203.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>775</x>
+      <y>370</y>
+      <w>215</w>
+      <h>60</h>
+    </coordinates>
+    <panel_attributes>lt=-
+m1=1
+m2=0..*
+fg=#18334a</panel_attributes>
+    <additional_attributes>185.0;30.0;30.0;30.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>470</x>
+      <y>370</y>
+      <w>145</w>
+      <h>60</h>
+    </coordinates>
+    <panel_attributes>lt=-
+m1=1
+m2=0..*
+fg=#18334a</panel_attributes>
+    <additional_attributes>115.0;30.0;30.0;30.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>370</x>
+      <y>440</y>
+      <w>60</w>
+      <h>160</h>
+    </coordinates>
+    <panel_attributes>lt=-
+m1=1
+m2=0..1
+fg=#18334a</panel_attributes>
+    <additional_attributes>30.0;30.0;30.0;130.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>665</x>
+      <y>460</y>
+      <w>60</w>
+      <h>140</h>
+    </coordinates>
+    <panel_attributes>lt=.&gt;
+fg=#18334a</panel_attributes>
+    <additional_attributes>30.0;30.0;30.0;110.0</additional_attributes>
+  </element>
+</diagram>

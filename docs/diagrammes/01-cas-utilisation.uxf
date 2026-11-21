@@ -1,0 +1,268 @@
+<?xml version='1.0' encoding='utf-8'?>
+<diagram program="umlet" version="15.1">
+  <zoom_level>10</zoom_level>
+  <element>
+    <id>Text</id>
+    <coordinates>
+      <x>20</x>
+      <y>12</y>
+      <w>560</w>
+      <h>32</h>
+    </coordinates>
+    <panel_attributes>*01 · Cas d’utilisation*
+fontsize=17
+halign=left
+fg=#18334a</panel_attributes>
+    <additional_attributes />
+  </element>
+  <element>
+    <id>UMLGeneric</id>
+    <coordinates>
+      <x>240</x>
+      <y>65</y>
+      <w>560</w>
+      <h>640</h>
+    </coordinates>
+    <panel_attributes>*Outside Together*
+halign=left
+fg=#18334a</panel_attributes>
+    <additional_attributes />
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>52</x>
+      <y>102</y>
+      <w>302</w>
+      <h>276</h>
+    </coordinates>
+    <panel_attributes>lt=-
+fg=#18334a</panel_attributes>
+    <additional_attributes>30.0;246.0;272.0;30.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLUseCase</id>
+    <coordinates>
+      <x>324</x>
+      <y>105</y>
+      <w>390</w>
+      <h>54</h>
+    </coordinates>
+    <panel_attributes>Se connecter et gérer son profil
+bg=#eaf3f8
+fg=#18334a</panel_attributes>
+    <additional_attributes />
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>52</x>
+      <y>174</y>
+      <w>302</w>
+      <h>204</h>
+    </coordinates>
+    <panel_attributes>lt=-
+fg=#18334a</panel_attributes>
+    <additional_attributes>30.0;174.0;272.0;30.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLUseCase</id>
+    <coordinates>
+      <x>324</x>
+      <y>177</y>
+      <w>390</w>
+      <h>54</h>
+    </coordinates>
+    <panel_attributes>Créer ou rejoindre un cercle
+bg=#eaf5ef
+fg=#18334a</panel_attributes>
+    <additional_attributes />
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>52</x>
+      <y>246</y>
+      <w>302</w>
+      <h>132</h>
+    </coordinates>
+    <panel_attributes>lt=-
+fg=#18334a</panel_attributes>
+    <additional_attributes>30.0;102.0;272.0;30.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLUseCase</id>
+    <coordinates>
+      <x>324</x>
+      <y>249</y>
+      <w>390</w>
+      <h>54</h>
+    </coordinates>
+    <panel_attributes>Découvrir des cercles et des sorties
+bg=#eaf3f8
+fg=#18334a</panel_attributes>
+    <additional_attributes />
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>52</x>
+      <y>318</y>
+      <w>302</w>
+      <h>60</h>
+    </coordinates>
+    <panel_attributes>lt=-
+fg=#18334a</panel_attributes>
+    <additional_attributes>30.0;30.0;272.0;30.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLUseCase</id>
+    <coordinates>
+      <x>324</x>
+      <y>321</y>
+      <w>390</w>
+      <h>54</h>
+    </coordinates>
+    <panel_attributes>Demander une recommandation
+ou une quête intercercles
+bg=#eaf5ef
+fg=#18334a</panel_attributes>
+    <additional_attributes />
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>52</x>
+      <y>318</y>
+      <w>302</w>
+      <h>132</h>
+    </coordinates>
+    <panel_attributes>lt=-
+fg=#18334a</panel_attributes>
+    <additional_attributes>30.0;30.0;272.0;102.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLUseCase</id>
+    <coordinates>
+      <x>324</x>
+      <y>393</y>
+      <w>390</w>
+      <h>54</h>
+    </coordinates>
+    <panel_attributes>Publier ou annuler une sortie
+bg=#eaf3f8
+fg=#18334a</panel_attributes>
+    <additional_attributes />
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>52</x>
+      <y>318</y>
+      <w>302</w>
+      <h>204</h>
+    </coordinates>
+    <panel_attributes>lt=-
+fg=#18334a</panel_attributes>
+    <additional_attributes>30.0;30.0;272.0;174.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLUseCase</id>
+    <coordinates>
+      <x>324</x>
+      <y>465</y>
+      <w>390</w>
+      <h>54</h>
+    </coordinates>
+    <panel_attributes>S’inscrire à une sortie
+bg=#eaf3f8
+fg=#18334a</panel_attributes>
+    <additional_attributes />
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>52</x>
+      <y>318</y>
+      <w>302</w>
+      <h>276</h>
+    </coordinates>
+    <panel_attributes>lt=-
+fg=#18334a</panel_attributes>
+    <additional_attributes>30.0;30.0;272.0;246.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLUseCase</id>
+    <coordinates>
+      <x>324</x>
+      <y>537</y>
+      <w>390</w>
+      <h>54</h>
+    </coordinates>
+    <panel_attributes>Confirmer sa présence
+bg=#eaf5ef
+fg=#18334a</panel_attributes>
+    <additional_attributes />
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>52</x>
+      <y>318</y>
+      <w>302</w>
+      <h>348</h>
+    </coordinates>
+    <panel_attributes>lt=-
+fg=#18334a</panel_attributes>
+    <additional_attributes>30.0;30.0;272.0;318.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLUseCase</id>
+    <coordinates>
+      <x>324</x>
+      <y>609</y>
+      <w>390</w>
+      <h>54</h>
+    </coordinates>
+    <panel_attributes>Consulter ses points
+bg=#eaf5ef
+fg=#18334a</panel_attributes>
+    <additional_attributes />
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>684</x>
+      <y>318</y>
+      <w>294</w>
+      <h>60</h>
+    </coordinates>
+    <panel_attributes>lt=-
+fg=#18334a</panel_attributes>
+    <additional_attributes>30.0;30.0;264.0;30.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLActor</id>
+    <coordinates>
+      <x>32</x>
+      <y>305</y>
+      <w>100</w>
+      <h>90</h>
+    </coordinates>
+    <panel_attributes>Membre
+fg=#18334a</panel_attributes>
+    <additional_attributes />
+  </element>
+  <element>
+    <id>UMLActor</id>
+    <coordinates>
+      <x>898</x>
+      <y>305</y>
+      <w>100</w>
+      <h>90</h>
+    </coordinates>
+    <panel_attributes>Modèle de langage
+fg=#18334a</panel_attributes>
+    <additional_attributes />
+  </element>
+</diagram>

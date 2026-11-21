@@ -1,0 +1,213 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<diagram program="umlet" version="15.1">
+  <zoom_level>10</zoom_level>
+  <element>
+    <id>Text</id>
+    <coordinates>
+      <x>20</x>
+      <y>12</y>
+      <w>560</w>
+      <h>32</h>
+    </coordinates>
+    <panel_attributes>*04 · États d’une sortie*
+fontsize=17
+halign=left
+fg=#18334a</panel_attributes>
+    <additional_attributes />
+  </element>
+  <element>
+    <id>UMLSpecialState</id>
+    <coordinates>
+      <x>40</x>
+      <y>217</y>
+      <w>28</w>
+      <h>28</h>
+    </coordinates>
+    <panel_attributes>type=initial
+fg=#18334a</panel_attributes>
+    <additional_attributes />
+  </element>
+  <element>
+    <id>UMLState</id>
+    <coordinates>
+      <x>220</x>
+      <y>200</y>
+      <w>180</w>
+      <h>60</h>
+    </coordinates>
+    <panel_attributes>Publiée
+bg=#eaf3f8
+fg=#18334a</panel_attributes>
+    <additional_attributes />
+  </element>
+  <element>
+    <id>UMLState</id>
+    <coordinates>
+      <x>558</x>
+      <y>200</y>
+      <w>205</w>
+      <h>60</h>
+    </coordinates>
+    <panel_attributes>En attente
+de confirmations
+bg=#eaf3f8
+fg=#18334a</panel_attributes>
+    <additional_attributes />
+  </element>
+  <element>
+    <id>UMLState</id>
+    <coordinates>
+      <x>990</x>
+      <y>200</y>
+      <w>185</w>
+      <h>60</h>
+    </coordinates>
+    <panel_attributes>Validée
+bg=#eaf5ef
+fg=#18334a</panel_attributes>
+    <additional_attributes />
+  </element>
+  <element>
+    <id>UMLState</id>
+    <coordinates>
+      <x>558</x>
+      <y>380</y>
+      <w>205</w>
+      <h>60</h>
+    </coordinates>
+    <panel_attributes>Annulée
+bg=#f2f5f8
+fg=#18334a</panel_attributes>
+    <additional_attributes />
+  </element>
+  <element>
+    <id>UMLSpecialState</id>
+    <coordinates>
+      <x>985</x>
+      <y>394</y>
+      <w>30</w>
+      <h>30</h>
+    </coordinates>
+    <panel_attributes>type=final
+fg=#18334a</panel_attributes>
+    <additional_attributes />
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>38</x>
+      <y>200</y>
+      <w>212</w>
+      <h>60</h>
+    </coordinates>
+    <panel_attributes>lt=-&gt;
+Publication
+fg=#18334a</panel_attributes>
+    <additional_attributes>30.0;30.0;182.0;30.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>370</x>
+      <y>200</y>
+      <w>218</w>
+      <h>60</h>
+    </coordinates>
+    <panel_attributes>lt=-&gt;
+Heure de fin atteinte
+fg=#18334a</panel_attributes>
+    <additional_attributes>30.0;30.0;188.0;30.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>733</x>
+      <y>200</y>
+      <w>287</w>
+      <h>60</h>
+    </coordinates>
+    <panel_attributes>lt=-&gt;
+Deuxième confirmation
+fg=#18334a</panel_attributes>
+    <additional_attributes>30.0;30.0;257.0;30.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>628</x>
+      <y>102</y>
+      <w>135</w>
+      <h>128</h>
+    </coordinates>
+    <panel_attributes>lt=-&gt;
+Première confirmation
+fg=#18334a</panel_attributes>
+    <additional_attributes>30.0;98.0;30.0;30.0;105.0;30.0;105.0;98.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>1000</x>
+      <y>102</y>
+      <w>175</w>
+      <h>128</h>
+    </coordinates>
+    <panel_attributes>lt=-&gt;
+Confirmation tardive
+fg=#18334a</panel_attributes>
+    <additional_attributes>30.0;98.0;30.0;30.0;145.0;30.0;145.0;98.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>280</x>
+      <y>230</y>
+      <w>308</w>
+      <h>210</h>
+    </coordinates>
+    <panel_attributes>lt=-&gt;
+L’organisateur annule [avant le début]
+fg=#18334a</panel_attributes>
+    <additional_attributes>30.0;30.0;30.0;180.0;278.0;180.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>733</x>
+      <y>380</y>
+      <w>282</w>
+      <h>60</h>
+    </coordinates>
+    <panel_attributes>lt=-&gt;
+fg=#18334a</panel_attributes>
+    <additional_attributes>30.0;30.0;252.0;30.0</additional_attributes>
+  </element>
+  <element>
+    <id>Text</id>
+    <coordinates>
+      <x>565</x>
+      <y>275</y>
+      <w>185</w>
+      <h>47</h>
+    </coordinates>
+    <panel_attributes>Enregistre la présence.
+0 point à ce stade.
+halign=center
+fg=#18334a</panel_attributes>
+    <additional_attributes />
+  </element>
+  <element>
+    <id>Text</id>
+    <coordinates>
+      <x>945</x>
+      <y>275</y>
+      <w>285</w>
+      <h>75</h>
+    </coordinates>
+    <panel_attributes>Crédite les deux membres à la validation.
+Crédite les autres à leur confirmation.
+halign=center
+fg=#18334a</panel_attributes>
+    <additional_attributes />
+  </element>
+</diagram>

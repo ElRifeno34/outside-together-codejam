@@ -1,0 +1,485 @@
+<?xml version='1.0' encoding='utf-8'?>
+<diagram program="umlet" version="15.1">
+  <zoom_level>10</zoom_level>
+  <element>
+    <id>Text</id>
+    <coordinates>
+      <x>20</x>
+      <y>12</y>
+      <w>560</w>
+      <h>32</h>
+    </coordinates>
+    <panel_attributes>*03 · Séquence — de la quête aux points*
+fontsize=17
+halign=left
+fg=#18334a</panel_attributes>
+    <additional_attributes />
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>63</x>
+      <y>67</y>
+      <w>60</w>
+      <h>921</h>
+    </coordinates>
+    <panel_attributes>lt=.
+fg=#18334a</panel_attributes>
+    <additional_attributes>30.0;30.0;30.0;891.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLGeneric</id>
+    <coordinates>
+      <x>9</x>
+      <y>60</y>
+      <w>168</w>
+      <h>37</h>
+    </coordinates>
+    <panel_attributes>*Léa · organisatrice*
+valign=center
+bg=#eaf3f8
+fg=#18334a</panel_attributes>
+    <additional_attributes />
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>319</x>
+      <y>67</y>
+      <w>60</w>
+      <h>921</h>
+    </coordinates>
+    <panel_attributes>lt=.
+fg=#18334a</panel_attributes>
+    <additional_attributes>30.0;30.0;30.0;891.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLGeneric</id>
+    <coordinates>
+      <x>265</x>
+      <y>60</y>
+      <w>168</w>
+      <h>37</h>
+    </coordinates>
+    <panel_attributes>*Application*
+valign=center
+bg=#eaf3f8
+fg=#18334a</panel_attributes>
+    <additional_attributes />
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>627</x>
+      <y>67</y>
+      <w>60</w>
+      <h>921</h>
+    </coordinates>
+    <panel_attributes>lt=.
+fg=#18334a</panel_attributes>
+    <additional_attributes>30.0;30.0;30.0;891.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLGeneric</id>
+    <coordinates>
+      <x>573</x>
+      <y>60</y>
+      <w>168</w>
+      <h>37</h>
+    </coordinates>
+    <panel_attributes>*Serveur*
+valign=center
+bg=#eaf3f8
+fg=#18334a</panel_attributes>
+    <additional_attributes />
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>940</x>
+      <y>67</y>
+      <w>60</w>
+      <h>921</h>
+    </coordinates>
+    <panel_attributes>lt=.
+fg=#18334a</panel_attributes>
+    <additional_attributes>30.0;30.0;30.0;891.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLGeneric</id>
+    <coordinates>
+      <x>886</x>
+      <y>60</y>
+      <w>168</w>
+      <h>37</h>
+    </coordinates>
+    <panel_attributes>*Modèle de langage*
+valign=center
+bg=#eaf3f8
+fg=#18334a</panel_attributes>
+    <additional_attributes />
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>1231</x>
+      <y>67</y>
+      <w>60</w>
+      <h>921</h>
+    </coordinates>
+    <panel_attributes>lt=.
+fg=#18334a</panel_attributes>
+    <additional_attributes>30.0;30.0;30.0;891.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLGeneric</id>
+    <coordinates>
+      <x>1177</x>
+      <y>60</y>
+      <w>168</w>
+      <h>37</h>
+    </coordinates>
+    <panel_attributes>*Base de données*
+valign=center
+bg=#eaf3f8
+fg=#18334a</panel_attributes>
+    <additional_attributes />
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>1520</x>
+      <y>67</y>
+      <w>60</w>
+      <h>921</h>
+    </coordinates>
+    <panel_attributes>lt=.
+fg=#18334a</panel_attributes>
+    <additional_attributes>30.0;30.0;30.0;891.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLGeneric</id>
+    <coordinates>
+      <x>1466</x>
+      <y>60</y>
+      <w>168</w>
+      <h>37</h>
+    </coordinates>
+    <panel_attributes>*Sami · participant*
+valign=center
+bg=#eaf3f8
+fg=#18334a</panel_attributes>
+    <additional_attributes />
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>63</x>
+      <y>98</y>
+      <w>316</w>
+      <h>60</h>
+    </coordinates>
+    <panel_attributes>lt=-&gt;
+Décrit sa sortie idéale
+fg=#18334a</panel_attributes>
+    <additional_attributes>30.0;30.0;286.0;30.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>319</x>
+      <y>131</y>
+      <w>368</w>
+      <h>60</h>
+    </coordinates>
+    <panel_attributes>lt=-&gt;
+Demande des suggestions
+fg=#18334a</panel_attributes>
+    <additional_attributes>30.0;30.0;338.0;30.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>627</x>
+      <y>164</y>
+      <w>373</w>
+      <h>60</h>
+    </coordinates>
+    <panel_attributes>lt=-&gt;
+Extrait les critères
+fg=#18334a</panel_attributes>
+    <additional_attributes>30.0;30.0;343.0;30.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>627</x>
+      <y>197</y>
+      <w>373</w>
+      <h>60</h>
+    </coordinates>
+    <panel_attributes>lt=.&gt;
+Retourne les critères structurés
+fg=#18334a</panel_attributes>
+    <additional_attributes>343.0;30.0;30.0;30.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>627</x>
+      <y>230</y>
+      <w>664</w>
+      <h>60</h>
+    </coordinates>
+    <panel_attributes>lt=-&gt;
+Recherche les cercles et les créneaux
+fg=#18334a</panel_attributes>
+    <additional_attributes>30.0;30.0;634.0;30.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>627</x>
+      <y>263</y>
+      <w>664</w>
+      <h>60</h>
+    </coordinates>
+    <panel_attributes>lt=.&gt;
+Retourne les options compatibles
+fg=#18334a</panel_attributes>
+    <additional_attributes>634.0;30.0;30.0;30.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>627</x>
+      <y>296</y>
+      <w>373</w>
+      <h>60</h>
+    </coordinates>
+    <panel_attributes>lt=-&gt;
+Transmet les options validées
+fg=#18334a</panel_attributes>
+    <additional_attributes>30.0;30.0;343.0;30.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>627</x>
+      <y>329</y>
+      <w>373</w>
+      <h>60</h>
+    </coordinates>
+    <panel_attributes>lt=.&gt;
+Formule une quête intercercles
+fg=#18334a</panel_attributes>
+    <additional_attributes>343.0;30.0;30.0;30.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>319</x>
+      <y>362</y>
+      <w>368</w>
+      <h>60</h>
+    </coordinates>
+    <panel_attributes>lt=.&gt;
+Affiche la proposition
+fg=#18334a</panel_attributes>
+    <additional_attributes>338.0;30.0;30.0;30.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>63</x>
+      <y>395</y>
+      <w>316</w>
+      <h>60</h>
+    </coordinates>
+    <panel_attributes>lt=-&gt;
+Publie la sortie dans un cercle
+fg=#18334a</panel_attributes>
+    <additional_attributes>30.0;30.0;286.0;30.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>319</x>
+      <y>428</y>
+      <w>368</w>
+      <h>60</h>
+    </coordinates>
+    <panel_attributes>lt=-&gt;
+Crée la sortie
+fg=#18334a</panel_attributes>
+    <additional_attributes>30.0;30.0;338.0;30.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>627</x>
+      <y>461</y>
+      <w>664</w>
+      <h>60</h>
+    </coordinates>
+    <panel_attributes>lt=-&gt;
+Enregistre la sortie et son organisatrice
+fg=#18334a</panel_attributes>
+    <additional_attributes>30.0;30.0;634.0;30.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>319</x>
+      <y>499</y>
+      <w>1261</w>
+      <h>60</h>
+    </coordinates>
+    <panel_attributes>lt=-&gt;
+S’inscrit à la sortie
+fg=#18334a</panel_attributes>
+    <additional_attributes>1231.0;30.0;30.0;30.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>319</x>
+      <y>532</y>
+      <w>368</w>
+      <h>60</h>
+    </coordinates>
+    <panel_attributes>lt=-&gt;
+Demande l’inscription
+fg=#18334a</panel_attributes>
+    <additional_attributes>30.0;30.0;338.0;30.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>627</x>
+      <y>565</y>
+      <w>664</w>
+      <h>60</h>
+    </coordinates>
+    <panel_attributes>lt=-&gt;
+Vérifie les places et inscrit Sami
+fg=#18334a</panel_attributes>
+    <additional_attributes>30.0;30.0;634.0;30.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLFrame</id>
+    <coordinates>
+      <x>28</x>
+      <y>630</y>
+      <w>1594</w>
+      <h>310</h>
+    </coordinates>
+    <panel_attributes>Après la fin de la sortie
+fg=#18334a</panel_attributes>
+    <additional_attributes />
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>63</x>
+      <y>654</y>
+      <w>316</w>
+      <h>60</h>
+    </coordinates>
+    <panel_attributes>lt=-&gt;
+Confirme sa présence
+fg=#18334a</panel_attributes>
+    <additional_attributes>30.0;30.0;286.0;30.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>319</x>
+      <y>687</y>
+      <w>368</w>
+      <h>60</h>
+    </coordinates>
+    <panel_attributes>lt=-&gt;
+Envoie la confirmation de Léa
+fg=#18334a</panel_attributes>
+    <additional_attributes>30.0;30.0;338.0;30.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>627</x>
+      <y>720</y>
+      <w>664</w>
+      <h>60</h>
+    </coordinates>
+    <panel_attributes>lt=-&gt;
+Enregistre la première confirmation
+fg=#18334a</panel_attributes>
+    <additional_attributes>30.0;30.0;634.0;30.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>627</x>
+      <y>753</y>
+      <w>664</w>
+      <h>60</h>
+    </coordinates>
+    <panel_attributes>lt=.&gt;
+Une seule confirmation · 0 point
+fg=#18334a</panel_attributes>
+    <additional_attributes>634.0;30.0;30.0;30.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>319</x>
+      <y>786</y>
+      <w>1261</w>
+      <h>60</h>
+    </coordinates>
+    <panel_attributes>lt=-&gt;
+Confirme sa présence
+fg=#18334a</panel_attributes>
+    <additional_attributes>1231.0;30.0;30.0;30.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>319</x>
+      <y>819</y>
+      <w>368</w>
+      <h>60</h>
+    </coordinates>
+    <panel_attributes>lt=-&gt;
+Envoie la confirmation de Sami
+fg=#18334a</panel_attributes>
+    <additional_attributes>30.0;30.0;338.0;30.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>627</x>
+      <y>852</y>
+      <w>664</w>
+      <h>60</h>
+    </coordinates>
+    <panel_attributes>lt=-&gt;
+Valide et crédite les deux membres
+fg=#18334a</panel_attributes>
+    <additional_attributes>30.0;30.0;634.0;30.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>319</x>
+      <y>885</y>
+      <w>368</w>
+      <h>60</h>
+    </coordinates>
+    <panel_attributes>lt=.&gt;
+Actualise les soldes · +15 chacun dehors
+fg=#18334a</panel_attributes>
+    <additional_attributes>338.0;30.0;30.0;30.0</additional_attributes>
+  </element>
+</diagram>
