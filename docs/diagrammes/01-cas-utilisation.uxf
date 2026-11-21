@@ -6,349 +6,299 @@
     <coordinates>
       <x>20</x>
       <y>12</y>
-      <w>660</w>
+      <w>710</w>
       <h>40</h>
     </coordinates>
-    <panel_attributes>*01 · Cas d’utilisation — se retrouver, explorer et construire*
+    <panel_attributes>*01 · Use cases — Montréal web demo*
 fontsize=17
 halign=left
-fg=#18334a</panel_attributes>
+fg=#20394b</panel_attributes>
     <additional_attributes />
   </element>
   <element>
     <id>UMLGeneric</id>
     <coordinates>
-      <x>245</x>
-      <y>70</y>
-      <w>615</w>
-      <h>900</h>
+      <x>270</x>
+      <y>64</y>
+      <w>650</w>
+      <h>567</h>
     </coordinates>
     <panel_attributes>*Outside Together*
 halign=left
-fg=#18334a</panel_attributes>
+fg=#20394b</panel_attributes>
     <additional_attributes />
   </element>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>126</x>
-      <y>112</y>
-      <w>237</w>
-      <h>212</h>
+      <x>127</x>
+      <y>103</y>
+      <w>253</w>
+      <h>96</h>
     </coordinates>
     <panel_attributes>lt=-
-fg=#18334a</panel_attributes>
-    <additional_attributes>30.0;182.0;207.0;30.0</additional_attributes>
+fg=#20394b</panel_attributes>
+    <additional_attributes>30.0;66.0;223.0;30.0</additional_attributes>
   </element>
   <element>
     <id>UMLUseCase</id>
     <coordinates>
-      <x>333</x>
-      <y>115</y>
-      <w>440</w>
-      <h>54</h>
+      <x>350</x>
+      <y>108</y>
+      <w>420</w>
+      <h>50</h>
     </coordinates>
-    <panel_attributes>Indiquer activités, intérêts et disponibilités
-bg=#eaf3f8
-fg=#18334a</panel_attributes>
+    <panel_attributes>Browse and filter activities
+bg=#eaf5ed
+fg=#20394b</panel_attributes>
     <additional_attributes />
   </element>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>126</x>
-      <y>188</y>
-      <w>237</w>
-      <h>136</h>
+      <x>127</x>
+      <y>139</y>
+      <w>253</w>
+      <h>92</h>
     </coordinates>
     <panel_attributes>lt=-
-fg=#18334a</panel_attributes>
-    <additional_attributes>30.0;106.0;207.0;30.0</additional_attributes>
+fg=#20394b</panel_attributes>
+    <additional_attributes>30.0;30.0;223.0;62.0</additional_attributes>
   </element>
   <element>
     <id>UMLUseCase</id>
     <coordinates>
-      <x>333</x>
-      <y>191</y>
-      <w>440</w>
-      <h>54</h>
+      <x>350</x>
+      <y>176</y>
+      <w>420</w>
+      <h>50</h>
     </coordinates>
-    <panel_attributes>Décrire son humeur ou chercher un partenaire
-bg=#eaf3f8
-fg=#18334a</panel_attributes>
+    <panel_attributes>Sign up or log in
+bg=#eaf2f8
+fg=#20394b</panel_attributes>
     <additional_attributes />
   </element>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>126</x>
-      <y>264</y>
-      <w>237</w>
+      <x>127</x>
+      <y>239</y>
+      <w>303</w>
+      <h>194</h>
+    </coordinates>
+    <panel_attributes>lt=-
+fg=#20394b</panel_attributes>
+    <additional_attributes>30.0;164.0;273.0;30.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLUseCase</id>
+    <coordinates>
+      <x>400</x>
+      <y>244</y>
+      <w>420</w>
+      <h>50</h>
+    </coordinates>
+    <panel_attributes>Ask for an activity
+bg=#eaf2f8
+fg=#20394b</panel_attributes>
+    <additional_attributes />
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>127</x>
+      <y>307</y>
+      <w>303</w>
+      <h>126</h>
+    </coordinates>
+    <panel_attributes>lt=-
+fg=#20394b</panel_attributes>
+    <additional_attributes>30.0;96.0;273.0;30.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLUseCase</id>
+    <coordinates>
+      <x>400</x>
+      <y>312</y>
+      <w>420</w>
+      <h>50</h>
+    </coordinates>
+    <panel_attributes>Join an activity
+bg=#eaf5ed
+fg=#20394b</panel_attributes>
+    <additional_attributes />
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>127</x>
+      <y>373</y>
+      <w>303</w>
+      <h>62</h>
+    </coordinates>
+    <panel_attributes>lt=-
+fg=#20394b</panel_attributes>
+    <additional_attributes>30.0;30.0;273.0;32.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLUseCase</id>
+    <coordinates>
+      <x>400</x>
+      <y>380</y>
+      <w>420</w>
+      <h>50</h>
+    </coordinates>
+    <panel_attributes>Review and publish a draft
+bg=#eaf2f8
+fg=#20394b</panel_attributes>
+    <additional_attributes />
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>127</x>
+      <y>373</y>
+      <w>303</w>
+      <h>130</h>
+    </coordinates>
+    <panel_attributes>lt=-
+fg=#20394b</panel_attributes>
+    <additional_attributes>30.0;30.0;273.0;100.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLUseCase</id>
+    <coordinates>
+      <x>400</x>
+      <y>448</y>
+      <w>420</w>
+      <h>50</h>
+    </coordinates>
+    <panel_attributes>Confirm attendance
+bg=#eaf5ed
+fg=#20394b</panel_attributes>
+    <additional_attributes />
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>127</x>
+      <y>373</y>
+      <w>303</w>
+      <h>198</h>
+    </coordinates>
+    <panel_attributes>lt=-
+fg=#20394b</panel_attributes>
+    <additional_attributes>30.0;30.0;273.0;168.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLUseCase</id>
+    <coordinates>
+      <x>400</x>
+      <y>516</y>
+      <w>420</w>
+      <h>50</h>
+    </coordinates>
+    <panel_attributes>View my points
+bg=#eaf2f8
+fg=#20394b</panel_attributes>
+    <additional_attributes />
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>79</x>
+      <y>139</y>
+      <w>108</w>
       <h>60</h>
     </coordinates>
     <panel_attributes>lt=-
-fg=#18334a</panel_attributes>
-    <additional_attributes>30.0;30.0;207.0;30.0</additional_attributes>
-  </element>
-  <element>
-    <id>UMLUseCase</id>
-    <coordinates>
-      <x>333</x>
-      <y>267</y>
-      <w>440</w>
-      <h>54</h>
-    </coordinates>
-    <panel_attributes>Obtenir une quête et un défi photo
-bg=#eaf5ef
-fg=#18334a</panel_attributes>
-    <additional_attributes />
+fg=#20394b</panel_attributes>
+    <additional_attributes>30.0;30.0;78.0;30.0</additional_attributes>
   </element>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>126</x>
-      <y>264</y>
-      <w>237</w>
-      <h>136</h>
-    </coordinates>
-    <panel_attributes>lt=-
-fg=#18334a</panel_attributes>
-    <additional_attributes>30.0;30.0;207.0;106.0</additional_attributes>
-  </element>
-  <element>
-    <id>UMLUseCase</id>
-    <coordinates>
-      <x>333</x>
-      <y>343</y>
-      <w>440</w>
-      <h>54</h>
-    </coordinates>
-    <panel_attributes>Créer ou rejoindre un cercle
-bg=#eaf5ef
-fg=#18334a</panel_attributes>
-    <additional_attributes />
-  </element>
-  <element>
-    <id>Relation</id>
-    <coordinates>
-      <x>126</x>
-      <y>264</y>
-      <w>237</w>
-      <h>212</h>
-    </coordinates>
-    <panel_attributes>lt=-
-fg=#18334a</panel_attributes>
-    <additional_attributes>30.0;30.0;207.0;182.0</additional_attributes>
-  </element>
-  <element>
-    <id>UMLUseCase</id>
-    <coordinates>
-      <x>333</x>
-      <y>419</y>
-      <w>440</w>
-      <h>54</h>
-    </coordinates>
-    <panel_attributes>Publier une sortie simple ou une aventure
-bg=#eaf3f8
-fg=#18334a</panel_attributes>
-    <additional_attributes />
-  </element>
-  <element>
-    <id>Relation</id>
-    <coordinates>
-      <x>126</x>
-      <y>264</y>
-      <w>237</w>
-      <h>288</h>
-    </coordinates>
-    <panel_attributes>lt=-
-fg=#18334a</panel_attributes>
-    <additional_attributes>30.0;30.0;207.0;258.0</additional_attributes>
-  </element>
-  <element>
-    <id>UMLUseCase</id>
-    <coordinates>
-      <x>333</x>
-      <y>495</y>
-      <w>440</w>
-      <h>54</h>
-    </coordinates>
-    <panel_attributes>Rejoindre une sortie par cercle ou par code
-bg=#eaf3f8
-fg=#18334a</panel_attributes>
-    <additional_attributes />
-  </element>
-  <element>
-    <id>Relation</id>
-    <coordinates>
-      <x>126</x>
-      <y>264</y>
-      <w>237</w>
-      <h>364</h>
-    </coordinates>
-    <panel_attributes>lt=-
-fg=#18334a</panel_attributes>
-    <additional_attributes>30.0;30.0;207.0;334.0</additional_attributes>
-  </element>
-  <element>
-    <id>UMLUseCase</id>
-    <coordinates>
-      <x>333</x>
-      <y>571</y>
-      <w>440</w>
-      <h>54</h>
-    </coordinates>
-    <panel_attributes>Confirmer sa présence après la sortie
-bg=#eaf3f8
-fg=#18334a</panel_attributes>
-    <additional_attributes />
-  </element>
-  <element>
-    <id>Relation</id>
-    <coordinates>
-      <x>126</x>
-      <y>264</y>
-      <w>237</w>
-      <h>440</h>
-    </coordinates>
-    <panel_attributes>lt=-
-fg=#18334a</panel_attributes>
-    <additional_attributes>30.0;30.0;207.0;410.0</additional_attributes>
-  </element>
-  <element>
-    <id>UMLUseCase</id>
-    <coordinates>
-      <x>333</x>
-      <y>647</y>
-      <w>440</w>
-      <h>54</h>
-    </coordinates>
-    <panel_attributes>Soumettre ou évaluer une photo
-bg=#eaf5ef
-fg=#18334a</panel_attributes>
-    <additional_attributes />
-  </element>
-  <element>
-    <id>Relation</id>
-    <coordinates>
-      <x>126</x>
-      <y>264</y>
-      <w>237</w>
-      <h>516</h>
-    </coordinates>
-    <panel_attributes>lt=-
-fg=#18334a</panel_attributes>
-    <additional_attributes>30.0;30.0;207.0;486.0</additional_attributes>
-  </element>
-  <element>
-    <id>UMLUseCase</id>
-    <coordinates>
-      <x>333</x>
-      <y>723</y>
-      <w>440</w>
-      <h>54</h>
-    </coordinates>
-    <panel_attributes>Consulter le classement de la sortie
-bg=#eaf5ef
-fg=#18334a</panel_attributes>
-    <additional_attributes />
-  </element>
-  <element>
-    <id>Relation</id>
-    <coordinates>
-      <x>743</x>
-      <y>264</y>
-      <w>281</w>
+      <x>79</x>
+      <y>373</y>
+      <w>108</w>
       <h>60</h>
     </coordinates>
     <panel_attributes>lt=-
-fg=#18334a</panel_attributes>
-    <additional_attributes>30.0;30.0;251.0;30.0</additional_attributes>
+fg=#20394b</panel_attributes>
+    <additional_attributes>30.0;30.0;78.0;30.0</additional_attributes>
   </element>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>65</x>
-      <y>264</y>
-      <w>121</w>
+      <x>790</x>
+      <y>239</y>
+      <w>265</w>
       <h>60</h>
     </coordinates>
     <panel_attributes>lt=-
-fg=#18334a</panel_attributes>
-    <additional_attributes>30.0;30.0;91.0;30.0</additional_attributes>
+fg=#20394b</panel_attributes>
+    <additional_attributes>30.0;30.0;235.0;30.0</additional_attributes>
   </element>
   <element>
     <id>UMLActor</id>
     <coordinates>
-      <x>45</x>
-      <y>246</y>
+      <x>59</x>
+      <y>126</y>
       <w>100</w>
       <h>90</h>
     </coordinates>
-    <panel_attributes>Membre
-fg=#18334a</panel_attributes>
+    <panel_attributes>Visitor
+fg=#20394b</panel_attributes>
     <additional_attributes />
   </element>
   <element>
     <id>UMLActor</id>
     <coordinates>
-      <x>944</x>
-      <y>246</y>
+      <x>59</x>
+      <y>360</y>
       <w>100</w>
       <h>90</h>
     </coordinates>
-    <panel_attributes>Modèle IA
-fg=#18334a</panel_attributes>
+    <panel_attributes>Member
+fg=#20394b</panel_attributes>
+    <additional_attributes />
+  </element>
+  <element>
+    <id>UMLActor</id>
+    <coordinates>
+      <x>975</x>
+      <y>226</y>
+      <w>100</w>
+      <h>90</h>
+    </coordinates>
+    <panel_attributes>LLM API
+fg=#20394b</panel_attributes>
     <additional_attributes />
   </element>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>126</x>
-      <y>264</y>
-      <w>237</w>
-      <h>592</h>
+      <x>127</x>
+      <y>139</y>
+      <w>303</w>
+      <h>160</h>
     </coordinates>
     <panel_attributes>lt=-
-fg=#18334a</panel_attributes>
-    <additional_attributes>30.0;30.0;207.0;562.0</additional_attributes>
-  </element>
-  <element>
-    <id>UMLUseCase</id>
-    <coordinates>
-      <x>333</x>
-      <y>799</y>
-      <w>440</w>
-      <h>54</h>
-    </coordinates>
-    <panel_attributes>Lancer un projet de cercle
-bg=#fff3dc
-fg=#18334a</panel_attributes>
-    <additional_attributes />
+
+fg=#20394b</panel_attributes>
+    <additional_attributes>30.0;30.0;273.0;130.0</additional_attributes>
   </element>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>126</x>
-      <y>264</y>
-      <w>237</w>
-      <h>668</h>
+      <x>79</x>
+      <y>180</y>
+      <w>60</w>
+      <h>230</h>
     </coordinates>
-    <panel_attributes>lt=-
-fg=#18334a</panel_attributes>
-    <additional_attributes>30.0;30.0;207.0;638.0</additional_attributes>
-  </element>
-  <element>
-    <id>UMLUseCase</id>
-    <coordinates>
-      <x>333</x>
-      <y>875</y>
-      <w>440</w>
-      <h>54</h>
-    </coordinates>
-    <panel_attributes>Faire avancer un jalon après une sortie
-bg=#fff3dc
-fg=#18334a</panel_attributes>
-    <additional_attributes />
+    <panel_attributes>lt=&lt;&lt;-
+
+fg=#20394b</panel_attributes>
+    <additional_attributes>30.0;30.0;30.0;200.0</additional_attributes>
   </element>
 </diagram>

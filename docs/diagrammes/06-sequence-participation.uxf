@@ -1,0 +1,252 @@
+<?xml version='1.0' encoding='utf-8'?>
+<diagram program="umlet" version="15.1">
+  <zoom_level>10</zoom_level>
+  <element>
+    <id>Text</id>
+    <coordinates>
+      <x>20</x>
+      <y>12</y>
+      <w>710</w>
+      <h>40</h>
+    </coordinates>
+    <panel_attributes>*06 · Sequence — join, confirm and award*
+fontsize=17
+halign=left
+fg=#20394b</panel_attributes>
+    <additional_attributes />
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>70</x>
+      <y>70</y>
+      <w>60</w>
+      <h>501</h>
+    </coordinates>
+    <panel_attributes>lt=.
+fg=#20394b</panel_attributes>
+    <additional_attributes>30.0;30.0;30.0;471.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLGeneric</id>
+    <coordinates>
+      <x>12</x>
+      <y>62</y>
+      <w>176</w>
+      <h>38</h>
+    </coordinates>
+    <panel_attributes>*Person*
+valign=center
+bg=#eaf2f8
+fg=#20394b</panel_attributes>
+    <additional_attributes />
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>347</x>
+      <y>70</y>
+      <w>60</w>
+      <h>501</h>
+    </coordinates>
+    <panel_attributes>lt=.
+fg=#20394b</panel_attributes>
+    <additional_attributes>30.0;30.0;30.0;471.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLGeneric</id>
+    <coordinates>
+      <x>289</x>
+      <y>62</y>
+      <w>176</w>
+      <h>38</h>
+    </coordinates>
+    <panel_attributes>*Web app*
+valign=center
+bg=#eaf2f8
+fg=#20394b</panel_attributes>
+    <additional_attributes />
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>624</x>
+      <y>70</y>
+      <w>60</w>
+      <h>501</h>
+    </coordinates>
+    <panel_attributes>lt=.
+fg=#20394b</panel_attributes>
+    <additional_attributes>30.0;30.0;30.0;471.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLGeneric</id>
+    <coordinates>
+      <x>566</x>
+      <y>62</y>
+      <w>176</w>
+      <h>38</h>
+    </coordinates>
+    <panel_attributes>*Supabase Auth*
+valign=center
+bg=#eaf2f8
+fg=#20394b</panel_attributes>
+    <additional_attributes />
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>901</x>
+      <y>70</y>
+      <w>60</w>
+      <h>501</h>
+    </coordinates>
+    <panel_attributes>lt=.
+fg=#20394b</panel_attributes>
+    <additional_attributes>30.0;30.0;30.0;471.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLGeneric</id>
+    <coordinates>
+      <x>843</x>
+      <y>62</y>
+      <w>176</w>
+      <h>38</h>
+    </coordinates>
+    <panel_attributes>*PostgreSQL*
+valign=center
+bg=#eaf2f8
+fg=#20394b</panel_attributes>
+    <additional_attributes />
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>70</x>
+      <y>107</y>
+      <w>337</w>
+      <h>60</h>
+    </coordinates>
+    <panel_attributes>lt=-&gt;
+Choose Join
+fg=#20394b</panel_attributes>
+    <additional_attributes>30.0;30.0;307.0;30.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>347</x>
+      <y>146</y>
+      <w>337</w>
+      <h>60</h>
+    </coordinates>
+    <panel_attributes>lt=-&gt;
+Sign in if needed
+fg=#20394b</panel_attributes>
+    <additional_attributes>30.0;30.0;307.0;30.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>347</x>
+      <y>185</y>
+      <w>337</w>
+      <h>60</h>
+    </coordinates>
+    <panel_attributes>lt=.&gt;
+Authenticated session
+fg=#20394b</panel_attributes>
+    <additional_attributes>307.0;30.0;30.0;30.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>347</x>
+      <y>224</y>
+      <w>614</w>
+      <h>60</h>
+    </coordinates>
+    <panel_attributes>lt=-&gt;
+join_activity(activity_id)
+fg=#20394b</panel_attributes>
+    <additional_attributes>30.0;30.0;584.0;30.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>347</x>
+      <y>263</y>
+      <w>614</w>
+      <h>60</h>
+    </coordinates>
+    <panel_attributes>lt=.&gt;
+Updated count or full / closed
+fg=#20394b</panel_attributes>
+    <additional_attributes>584.0;30.0;30.0;30.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>70</x>
+      <y>302</y>
+      <w>337</w>
+      <h>60</h>
+    </coordinates>
+    <panel_attributes>lt=.&gt;
+Refresh public listing
+fg=#20394b</panel_attributes>
+    <additional_attributes>307.0;30.0;30.0;30.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>70</x>
+      <y>341</y>
+      <w>337</w>
+      <h>60</h>
+    </coordinates>
+    <panel_attributes>lt=-&gt;
+Confirm attendance after the end
+fg=#20394b</panel_attributes>
+    <additional_attributes>30.0;30.0;307.0;30.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>347</x>
+      <y>380</y>
+      <w>614</w>
+      <h>60</h>
+    </coordinates>
+    <panel_attributes>lt=-&gt;
+confirm_attendance(activity_id)
+fg=#20394b</panel_attributes>
+    <additional_attributes>30.0;30.0;584.0;30.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>347</x>
+      <y>419</y>
+      <w>614</w>
+      <h>60</h>
+    </coordinates>
+    <panel_attributes>lt=.&gt;
+0 until two confirm; then award once
+fg=#20394b</panel_attributes>
+    <additional_attributes>584.0;30.0;30.0;30.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>70</x>
+      <y>458</y>
+      <w>337</w>
+      <h>60</h>
+    </coordinates>
+    <panel_attributes>lt=.&gt;
+Refresh personal points
+fg=#20394b</panel_attributes>
+    <additional_attributes>307.0;30.0;30.0;30.0</additional_attributes>
+  </element>
+</diagram>

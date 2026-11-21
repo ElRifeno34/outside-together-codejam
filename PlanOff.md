@@ -110,8 +110,9 @@ flowchart LR
 
     V --> U1["Browse activities"]
     V --> U2["Sign up / log in"]
+    V --> U3["Ask AI for an activity"]
     M --> U1
-    M --> U3["Ask AI for an activity"]
+    M --> U3
     M --> U4["Join an activity"]
     M --> U5["Create an activity"]
     M --> U6["Confirm attendance"]
@@ -183,8 +184,8 @@ sequenceDiagram
     participant DB as Database (B)
 
     P->>UI: "1h Friday afternoon, basketball"
-    UI->>EF: POST /ai-search with text and today's date
-    EF->>AI: prompt plus text
+    UI->>EF: POST /ai-search with text
+    EF->>AI: prompt, text and today's date in Montréal
     alt AI answers
         AI-->>EF: JSON filters
     else AI fails or times out
@@ -216,7 +217,9 @@ sequenceDiagram
         Note over DB: one transaction: check capacity and duplicate, then insert
         alt spot available
             DB-->>UI: joined, new count
-        else full or already joined
+        else already joined
+            DB-->>UI: existing registration, unchanged count
+        else full or closed
             DB-->>UI: error message
         end
     end
@@ -236,7 +239,7 @@ stateDiagram-v2
         [*] --> Open: created
         Open --> Confirmed: min people reached
         Confirmed --> Open: people leave
-        Open --> Cancelled: start time passes, too few
+        Open --> Cancelled: start time passes, too few (ineligible and unlisted)
         Confirmed --> Done: 2+ people confirm after end
         Cancelled --> [*]
         Done --> [*]
@@ -292,8 +295,8 @@ flowchart LR
 
 1. Open the board as a visitor: activities are visible, Join asks for an account.
 2. Type: "I have 1 hour Friday afternoon, I want to play basketball."
-3. AI shows the closest activity. Sign up, join, the count goes up.
-4. Second account (other browser): ask for something with no match, create the activity.
+3. The assistant shows a matching activity. Sign up, choose Join, and refresh to see the count go up.
+4. Second account (other browser): ask for something with no match, review the draft, then choose Publish.
 5. After the activity: two accounts confirm, points appear, a niche activity earns more than a common one.
 6. One sentence on what is next: more cities, safety features, French/English.
 
