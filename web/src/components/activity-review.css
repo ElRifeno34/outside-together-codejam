@@ -1,0 +1,99 @@
+.activity-review {
+  margin-top: 36px;
+  padding-top: 26px;
+  border-top: 1px solid var(--border);
+}
+.review-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+.review-heading h2 {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 21px;
+  font-weight: 700;
+}
+.review-heading h2 svg {
+  color: var(--primary);
+  flex-shrink: 0;
+}
+.review-caption {
+  color: var(--muted-foreground);
+  font-size: 12px;
+  line-height: 1.7;
+  margin: 12px 0;
+}
+.review-request {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+  padding: 20px 0;
+  border-bottom: 1px solid var(--border);
+}
+.review-request h3 {
+  font-size: 14px;
+  font-weight: 700;
+}
+.review-request p {
+  font-size: 13px;
+  margin-top: 5px;
+  overflow-wrap: anywhere;
+}
+.review-status {
+  display: inline-block;
+  margin-top: 8px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  background: var(--points-soft);
+  color: var(--points);
+}
+.review-status[data-status="approved"] {
+  background: var(--secondary);
+  color: var(--primary);
+}
+.review-status[data-status="rejected"] {
+  background: var(--muted);
+  color: var(--destructive);
+}
+.review-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.review-actions p {
+  flex-basis: 100%;
+}
+.review-reject-form {
+  flex-basis: 100%;
+  display: flex;
+  align-items: flex-end;
+  gap: 16px;
+}
+.review-reject-form .field {
+  flex: 1;
+  min-width: 0;
+}
+.review-reason {
+  color: var(--destructive);
+}
+@media (max-width: 600px) {
+  .review-heading h2 {
+    font-size: 18px;
+  }
+  .review-reject-form {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .review-actions button {
+    white-space: normal;
+    height: auto;
+    min-height: 36px;
+  }
+}

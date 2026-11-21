@@ -1,0 +1,40 @@
+.profile-identity-avatar {
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--secondary);
+  color: var(--primary);
+  width: 58px;
+  height: 58px;
+  font-size: 24px;
+  font-weight: 700;
+  flex-shrink: 0;
+  border: 4px solid transparent;
+}
+.profile-identity-avatar[data-size="small"] {
+  width: 30px;
+  height: 30px;
+  font-size: 12px;
+  border-width: 3px;
+}
+.profile-identity-avatar[data-frame="forest"] {
+  border-color: var(--primary);
+  outline: 2px solid var(--secondary);
+  outline-offset: 2px;
+}
+.profile-identity-avatar[data-frame="sky"] {
+  border-color: var(--reward-sky);
+  outline: 2px solid var(--avatar-3);
+  outline-offset: 2px;
+}
+.profile-earned-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--points);
+  background: var(--points-soft);
+  padding: 4px 8px;
+  border-radius: 4px;
+}

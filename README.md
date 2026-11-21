@@ -13,13 +13,37 @@ Find people in Montréal for a spontaneous one-hour activity. Anyone can browse 
 
 Lovable (React and Tailwind) for the planned web interface, Supabase Auth and PostgreSQL for accounts and rules, and Supabase Edge Functions for AI search and draft creation. The LLM key belongs in Supabase secrets. The browser uses only a public Supabase key. GitHub hosts the source.
 
+## Repository layout
+
+| Folder | Contents |
+| --- | --- |
+| [`web/`](web/README.md) | Lovable front end (TanStack Start, React, Tailwind), running on fixture data |
+| [`supabase/`](supabase) | Schema, RPCs, seed and SQL checks |
+| [`docs/`](docs) | Plan, QA checklist, Lovable brief and UML diagrams |
+
+## Run the front end locally
+
+```sh
+cd web
+npm install
+npm run dev
+```
+
+The app opens at http://localhost:8080. Without keys it runs on demo data. To use the real database, copy `web/.env.example` to `web/.env.local` and set the Supabase URL and anon key; see [web/README.md](web/README.md).
+
 ## Run the backend locally
+
+## Run the backend locally
+
 
 From the repository root, run `supabase start` with the Supabase CLI and Docker available. The [migration](supabase/migrations/20261121000000_core.sql) and [seed](supabase/seed.sql) supply the database foundation and synthetic Montréal QA listings. The seed assigns the listings to a local demo owner. Public board reads and authenticated join/confirmation RPCs can already be exercised against the local database.
 
 Run the rollback-only database check with `psql "postgresql://postgres:postgres@127.0.0.1:54322/postgres" -v ON_ERROR_STOP=1 -f supabase/qa/core.sql`. Use the connection details printed by Supabase if the local ports or credentials differ.
 
+The `web/` interface calls these RPCs once its Supabase keys are set. The two Edge Functions (`ai-search`, `create-activity`) are the remaining integration work. The SQL `create_activity` RPC is the transaction the future `create-activity` handler should call after validating the draft.
+
 The Lovable interface and the two Edge Functions are planned integration work. The SQL `create_activity` RPC is the transaction the future `create-activity` handler should call after validating the draft.
+
 
 ## Project documents
 
