@@ -1,25 +1,33 @@
 # Outside Together
 
-Find people in Montréal for a spontaneous one-hour activity. Anyone can browse the board. Sign in to join a session with available places or to publish a new one. After the activity, participants confirm attendance and earn more points for less common activities.
+Find people in Montréal for a spontaneous one-hour activity. Anyone can browse the board. Sign in to join a session with available places or to publish a new one. Once the activity starts, participants confirm attendance and earn more points for less common activities.
 
 ## Demo flow
 
 1. Open the public board. Ask for something like “I have one hour Friday afternoon and want to play basketball.”
-2. The assistant translates the request into filters. PostgreSQL finds activities with matching times and available places. Sign in and choose **Join** to reserve a spot. Read the updated count on refresh.
-3. If there is no match, review a draft. Choose **Publish** to create it at a public place.
-4. After the outing, two attendance confirmations close it and award each confirmed participant `10 + 5 × niche_value`. Later confirmations award their own points once.
+2. The app turns the request into filters and PostgreSQL supplies the matching activities with available places. (Today this runs through the keyword fallback; see [AI search](#ai-search).) Sign in and choose **Join** to reserve a spot. The board shows the updated participant count.
+3. If there is no match, review a draft and choose **Publish** to create it at a public place.
+4. Once the activity has started, participants can confirm attendance. When at least two participants have confirmed, points unlock and each confirmed participant earns `10 + 5 × niche_value`. Later confirmations earn the same award, once per person per activity.
 
 ## Stack
 
-Lovable (React and Tailwind) for the planned web interface, Supabase Auth and PostgreSQL for accounts and rules, and Supabase Edge Functions for AI search and draft creation. The LLM key belongs in Supabase secrets. The browser uses only a public Supabase key. GitHub hosts the source.
+| Layer | Technology |
+| --- | --- |
+| Front end | Lovable (TanStack Start, React, Tailwind) |
+| Database and rules | Supabase PostgreSQL, row-level security, RPC functions |
+| Authentication | Supabase Auth (email/password, Google) |
+| AI | Supabase Edge Function `ai-search` + LLM API |
+| Code | GitHub |
+
+The database is the source of truth for activities, places, times, capacity, participants and points. The AI only interprets requests into filters; it never invents activities.
 
 ## Repository layout
 
 | Folder | Contents |
 | --- | --- |
-| [`web/`](web/README.md) | Lovable front end (TanStack Start, React, Tailwind), running on fixture data |
-| [`supabase/`](supabase) | Schema, RPCs, seed and SQL checks |
-| [`docs/`](docs) | Plan, QA checklist, Lovable brief and UML diagrams |
+| [`web/`](web/README.md) | Lovable front end. Uses Supabase when keys are configured, demo fixtures otherwise |
+| [`supabase/`](supabase) | Role B migrations and RPCs, smoke test, seed, `ai-search` Edge Function |
+| [`docs/`](docs) | Backend contract, implementation handoff, QA checklist, Lovable brief and UML diagrams |
 
 ## Run the front end locally
 
@@ -29,25 +37,57 @@ npm install
 npm run dev
 ```
 
-The app opens at http://localhost:8080. Without keys it runs on demo data. To use the real database, copy `web/.env.example` to `web/.env.local` and set the Supabase URL and anon key; see [web/README.md](web/README.md).
+The app opens at http://localhost:8080.
 
-## Run the backend locally
+- **Supabase mode:** copy `web/.env.example` to `web/.env.local` and set `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY`. The app then reads `activity_board` and writes through the RPCs.
+- **Demo mode:** with no keys set, the app runs on in-memory demo fixtures.
 
-## Run the backend locally
+Never commit `.env.local` or private credentials. See [web/README.md](web/README.md).
 
+## Backend (Role B)
 
-From the repository root, run `supabase start` with the Supabase CLI and Docker available. The [migration](supabase/migrations/20261121000000_core.sql) and [seed](supabase/seed.sql) supply the database foundation and synthetic Montréal QA listings. The seed assigns the listings to a local demo owner. Public board reads and authenticated join/confirmation RPCs can already be exercised against the local database.
+The backend is the Supabase project described in [docs/BACKEND.md](docs/BACKEND.md), which is the authoritative frontend/backend contract.
 
-Run the rollback-only database check with `psql "postgresql://postgres:postgres@127.0.0.1:54322/postgres" -v ON_ERROR_STOP=1 -f supabase/qa/core.sql`. Use the connection details printed by Supabase if the local ports or credentials differ.
+Setup:
 
-The `web/` interface calls these RPCs once its Supabase keys are set. The two Edge Functions (`ai-search`, `create-activity`) are the remaining integration work. The SQL `create_activity` RPC is the transaction the future `create-activity` handler should call after validating the draft.
+1. In the Supabase SQL editor, run `supabase/migrations/001_schema.sql` through `007_security_hardening.sql`, in order.
+2. Run [`supabase/tests/role_b_smoke.sql`](supabase/tests/role_b_smoke.sql). It should print `ROLE B SMOKE TEST PASSED` and leaves no data behind.
 
-The Lovable interface and the two Edge Functions are planned integration work. The SQL `create_activity` RPC is the transaction the future `create-activity` handler should call after validating the draft.
+> **Warning:** do **not** run `supabase/migrations/20261121000000_core.sql` or `supabase/qa/core.sql` against the Role B database. They belong to an earlier, incompatible schema.
 
+Migrations 001–007 define `profiles`, `places`, `activity_types`, `activities`, `participants`, `points`, the public `activity_board` view and the RPCs `create_activity`, `join_activity`, `leave_activity` and `confirm_attendance`.
+
+`supabase/seed.sql` contains synthetic Montréal fixtures. It has not been applied to the hosted database yet.
+
+## AI search
+
+A first version of the `ai-search` Edge Function is checked in under `supabase/functions/ai-search/`. It sends the sentence and today's date (America/Toronto) to the LLM and currently returns **only the parsed filters**. It does not yet query the database or return the `match` / `no_match` / `fallback` response described in [PlanOff §3.2](PlanOff.md#32-ai-contract-c-implements-a-consumes). The front end therefore treats it as unavailable and uses its **keyword fallback** over the live board.
+
+## Activity creation
+
+No `create-activity` Edge Function exists yet. The front end creates activities by calling the SQL `create_activity` RPC directly. A future `create-activity` Edge Function would validate an AI draft and call that same RPC with the user's JWT.
+
+## Frontend integrations
+
+- Email/password sign-in and Google sign-in through Supabase Auth
+- English/French interface
+- Add-to-calendar: Google Calendar link and `.ics` download
+- Optional browser geolocation for nearest-first sorting
+- Demo fixtures when no Supabase keys are configured
+
+The Google Calendar API and maps are later features.
+
+## Security
+
+- Browser: Supabase URL and anon key only.
+- Google OAuth client secret: Supabase Auth configuration.
+- LLM API key: Supabase Edge Function secrets.
+- Database writes go through authenticated RPC functions, not direct browser table writes (except renaming your own profile).
 
 ## Project documents
 
 - [Official 24-hour plan and API contracts](PlanOff.md)
+- [Backend contract](docs/BACKEND.md)
 - [Implementation handoff and UML exports](docs/PLAN.md)
 - [Web QA and demo checklist](docs/QA-WEB.md)
 - [Lovable build brief](docs/LOVABLE-BRIEF.md)

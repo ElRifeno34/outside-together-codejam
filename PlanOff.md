@@ -19,7 +19,9 @@ Diagrams below are Mermaid: they render on GitHub, and in VS Code with a Mermaid
 **Cut first if late** (in this order): create-activity flow, points, AI chat (fall back to a filter form).
 Browsing and joining must survive no matter what.
 
-**Not now:** other cities, French/English switch, maps, real-time push, recaps/badges, safety extras beyond "public places only".
+**Not now:** other cities, maps, real-time push, recaps/badges, safety extras beyond "public places only".
+
+**Already built beyond the demo path:** an English/French switch, Google sign-in, add-to-calendar links (Google link and `.ics`) and nearest-first sorting (see §3.5).
 
 ---
 
@@ -60,6 +62,8 @@ AI output (JSON only):
 
 Unknown fields are `null`. The function never trusts the AI for facts, only for filters.
 
+**Status:** the checked-in `ai-search` returns `{ "filters": … }` only. It does not yet query the database or return the responses below, so the front end uses its keyword fallback over `activity_board`.
+
 Response of `POST /ai-search` to the chat box:
 
 ```json
@@ -70,16 +74,34 @@ Response of `POST /ai-search` to the chat box:
 
 ### 3.3 Server functions
 
-| Name | Who calls it | What it does |
-|---|---|---|
-| `ai-search` (Edge Function) | Chat box | Sentence to filters to matches or draft |
-| `create-activity` (Edge Function) | Chat box / form | Validates a draft, inserts it, adds the creator as first participant |
-| `join_activity()` (SQL function) | Join button | Checks capacity and duplicates, inserts participant, all in one transaction |
-| `confirm_attendance()` (SQL function) | Confirm button | Marks the caller `confirmed`, and when 2+ are confirmed, closes the activity and awards points once per person |
+| Name | Who calls it | What it does | Status |
+|---|---|---|---|
+| `ai-search` (Edge Function) | Chat box | Sentence to filters to matches or draft | Partial: returns filters only |
+| `create_activity()` (SQL RPC) | Create/publish form | Validates the draft, creates the activity and joins the caller | Done |
+| `join_activity()` (SQL RPC) | Join button | Checks capacity and duplicates and joins, in one transaction | Done |
+| `leave_activity()` (SQL RPC) | Leave button | Leaves before the activity starts | Done |
+| `confirm_attendance()` (SQL RPC) | Confirm button | Once the activity has started, marks the caller `confirmed`; when 2+ are confirmed, sets the activity `done` and awards points once per person | Done |
+| `create-activity` (Edge Function) | Chat box draft | Would validate an AI draft and call `create_activity()` with the user's JWT | Not built |
+
+The SQL `create_activity()` RPC exists and is what the front end calls today. The `create-activity` Edge Function does not exist yet.
 
 ### 3.4 Points rule (proposal, change it if you prefer)
 
-`points = 10 + 5 × niche_value`, once per user per activity, only after 2+ participants have confirmed. `niche_value` is a fixed number per activity type (set by C in seed data), never typed by users. Examples (placeholders): walk 1, basketball 1, study outside 2, chess 3, photo walk 4, urban sketching 5.
+`points = 10 + 5 × niche_value`, once per user per activity, only after 2+ participants have confirmed. Confirmation opens once the activity has started. `niche_value` is a fixed number per activity type (set by C in seed data), never typed by users. Examples (placeholders): walk 1, basketball 1, study outside 2, chess 3, photo walk 4, urban sketching 5.
+
+### 3.5 External APIs (location, Google sign-in, calendar)
+
+Rule: no secret ever reaches the browser. The browser holds only the Supabase URL and anon key. The Google client secret lives in Supabase Auth configuration and the LLM key in Supabase secrets.
+
+| API | What it's for | How | Key or setup | Status |
+|---|---|---|---|---|
+| Browser Geolocation API | Nearest-first sorting and nearby places | `navigator.geolocation`, only after the user chooses it; used in the browser only | None; HTTPS or localhost required | Done in `web/` |
+| Google sign-in | One-click account, email/password still available | Supabase Auth `signInWithOAuth({ provider: 'google' })` | Google OAuth client configured in Supabase Auth ([setup](docs/BACKEND.md#google-sign-in-setup)) | Code done, configuration required |
+| Add to calendar | Put a joined activity in a calendar | Google Calendar template link plus `.ics` download | None | Done |
+| Google Calendar API | Automatic event creation/update | Extra OAuth scope | Additional Google setup | Not started |
+| Maps / geocoding | Map view, address to coordinates | Google Maps/Places or OpenStreetMap | Depends on provider | Not started |
+
+If an optional integration fails: Google sign-in → email/password; calendar link → `.ics`; nearest first → soonest first.
 
 ---
 
@@ -218,15 +240,15 @@ sequenceDiagram
         alt spot available
             DB-->>UI: joined, new count
         else already joined
-            DB-->>UI: existing registration, unchanged count
-        else full or closed
-            DB-->>UI: error message
+            DB-->>UI: ALREADY_JOINED error
+        else full, started or closed
+            DB-->>UI: ACTIVITY_FULL / ACTIVITY_STARTED / ACTIVITY_CLOSED error
         end
     end
 
-    P->>UI: click Confirm (after the activity)
+    P->>UI: click Confirm (after the activity starts)
     UI->>DB: confirm_attendance(activity_id)
-    Note over DB: mark confirmed, if 2+ confirmed then close activity and insert points once per person
+    Note over DB: mark confirmed, if 2+ confirmed then set activity done and insert points once per person
     DB-->>UI: confirmed, points earned
     UI-->>P: show points
 ```
@@ -237,10 +259,8 @@ sequenceDiagram
 stateDiagram-v2
     state "Activity" as A {
         [*] --> Open: created
-        Open --> Confirmed: min people reached
-        Confirmed --> Open: people leave
-        Open --> Cancelled: start time passes, too few (ineligible and unlisted)
-        Confirmed --> Done: 2+ people confirm after end
+        Open --> Done: 2+ participants confirm (after start)
+        Open --> Cancelled: cancelled (SQL editor or service role only, no RPC yet)
         Cancelled --> [*]
         Done --> [*]
     }
@@ -264,7 +284,7 @@ flowchart LR
     end
     subgraph Supabase["Supabase"]
         AUTH["Auth"]
-        FN["Edge Functions: ai-search, create-activity"]
+        FN["Edge Functions: ai-search (create-activity later)"]
         PG[("PostgreSQL: tables and SQL functions")]
     end
     LLM["LLM API"]
@@ -297,8 +317,8 @@ flowchart LR
 2. Type: "I have 1 hour Friday afternoon, I want to play basketball."
 3. The assistant shows a matching activity. Sign up, choose Join, and refresh to see the count go up.
 4. Second account (other browser): ask for something with no match, review the draft, then choose Publish.
-5. After the activity: two accounts confirm, points appear, a niche activity earns more than a common one.
-6. One sentence on what is next: more cities, safety features, French/English.
+5. Once the activity has started: two accounts confirm, points appear, a niche activity earns more than a common one.
+6. One sentence on what is next: more cities, safety features, further integrations (Calendar API, maps).
 
 Backup: a screen recording of steps 2-5, in case the network fails.
 
@@ -308,10 +328,10 @@ Backup: a screen recording of steps 2-5, in case the network fails.
 
 | Risk | Answer |
 |---|---|
-| Empty board | Seed 8-10 real activities |
+| Empty board | Seed realistic Montréal activities. `supabase/seed.sql` has 8 synthetic fixtures, not yet deployed to the hosted project; verify venues before the live demo |
 | AI invents places | AI only produces filters, the database decides |
 | AI/API down | Keyword fallback, then plain filter form |
-| Two people take the last spot | Capacity check and insert in one transaction |
+| Two people take the last spot | Capacity check and insert in one transaction (row lock) |
 | Points farming | Fixed niche values, once per person per activity, 2+ confirmations |
 | Lovable credits run out | One change per prompt, 30 credits reserved |
 | Git conflicts | Small frequent merges, pull before push |

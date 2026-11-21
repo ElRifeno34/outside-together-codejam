@@ -4,7 +4,7 @@ How the screens (A) and the AI functions (C) talk to the database. Supabase proj
 
 ## Setup (once)
 
-1. In the Supabase SQL editor, run the files in [`supabase/migrations/`](../supabase/migrations/) in order: `001` → `007`.
+1. In the Supabase SQL editor, run [`supabase/migrations/`](../supabase/migrations/) `001_schema.sql` through `007_security_hardening.sql`, in order. **Do not run `20261121000000_core.sql`** (or `supabase/qa/core.sql`): they belong to an earlier, incompatible schema.
 2. Run [`supabase/tests/role_b_smoke.sql`](../supabase/tests/role_b_smoke.sql). It should print `ROLE B SMOKE TEST PASSED` and leaves no data behind.
 3. Dashboard → Authentication → Sign In / Providers → Email: **turn off "Confirm email"** (so demo accounts work instantly).
 4. **Lovable:** connect it to this existing Supabase project and tell it *"use the existing tables, do not create or alter tables"*.
@@ -23,6 +23,23 @@ await supabase.auth.signOut()
 ```
 
 A `profiles` row is created automatically on sign-up (display name = `display_name`, or the email prefix).
+
+### Google sign-in
+
+```js
+await supabase.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: window.location.href } })
+```
+
+The same trigger (migration 002) creates a `profiles` row for Google users. It reads only `display_name` from the user metadata. Google supplies `full_name` / `name` instead, so Google users currently get their **email prefix** as `display_name`. They can rename themselves afterwards (see below). No extra migration is needed for Google OAuth.
+
+## Google sign-in setup
+
+1. In Google Cloud, create an OAuth client of type **Web application**.
+2. Add the Supabase Auth callback URL (`https://<project-ref>.supabase.co/auth/v1/callback`) as an authorized redirect URI.
+3. Supabase Dashboard → Authentication → Sign In / Providers → **Google**: enable it and paste the client ID and client secret.
+4. Authentication → URL Configuration: add the deployed site URL and `http://localhost:8080` as redirect URLs.
+
+The Google client secret lives only in the Supabase configuration, never in frontend code or committed environment files.
 
 ## Reading
 
@@ -93,7 +110,8 @@ Only before the activity starts. You can re-join later.
 ### `create_activity({ p_type_id, p_place_id, p_starts_at, p_duration_min?, p_capacity?, p_min_people? })`
 → `{ activity_id, my_status: 'joined', participant_count: 1, spots_left }`
 Defaults: 60 min, capacity 6, min 2. Place must be public, time in the future, duration 15–240, capacity 2–20. The creator is joined automatically.
-**For C:** the `create-activity` Edge Function can just validate the draft and call this RPC with a client built from the **user's JWT** (`Authorization` header), not the service role, so the right person is the creator.
+The web front end currently calls this RPC directly; no `create-activity` Edge Function exists yet.
+**For C:** a future `create-activity` Edge Function can just validate the draft and call this RPC with a client built from the **user's JWT** (`Authorization` header), not the service role, so the right person is the creator.
 
 ## Error codes
 
@@ -111,7 +129,7 @@ Defaults: 60 min, capacity 6, min 2. Place must be public, time in the future, d
 
 ## For C: seed data
 
-Seed with the service role or the SQL editor (RLS doesn't apply there).
+Seed with the service role or the SQL editor (RLS doesn't apply there). [`supabase/seed.sql`](../supabase/seed.sql) holds synthetic Montréal fixtures; it has not been applied to the hosted project yet, so the hosted board is currently empty.
 - `activity_types.niche_value` must be 1–5; `name` is unique.
 - `places.is_public` defaults to true.
 - `activities.created_by` can be `null` for seeded activities. Only the service role / SQL editor can read it.
