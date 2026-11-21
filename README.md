@@ -50,14 +50,13 @@ The backend is the Supabase project described in [docs/BACKEND.md](docs/BACKEND.
 
 Setup:
 
-1. In the Supabase SQL editor, run `supabase/migrations/001_schema.sql` through `007_security_hardening.sql`, in order.
-2. Run [`supabase/tests/role_b_smoke.sql`](supabase/tests/role_b_smoke.sql). It should print `ROLE B SMOKE TEST PASSED` and leaves no data behind.
-
-> **Warning:** do **not** run `supabase/migrations/20261121000000_core.sql` or `supabase/qa/core.sql` against the Role B database. They belong to an earlier, incompatible schema.
+1. In the Supabase SQL editor, run `supabase/migrations/001_schema.sql` through `007_security_hardening.sql`, in order. These seven migrations are the authoritative Role B schema.
+2. Run [`supabase/tests/role_b_smoke.sql`](supabase/tests/role_b_smoke.sql), the authoritative Role B database test. It should print `ROLE B SMOKE TEST PASSED` and leaves no data behind.
+3. Optionally run [`supabase/seed.sql`](supabase/seed.sql) to load development data (see below).
 
 Migrations 001–007 define `profiles`, `places`, `activity_types`, `activities`, `participants`, `points`, the public `activity_board` view and the RPCs `create_activity`, `join_activity`, `leave_activity` and `confirm_attendance`.
 
-`supabase/seed.sql` contains synthetic Montréal fixtures. It has not been applied to the hosted database yet.
+`supabase/seed.sql` adds 16 activity types, 10 public Montréal places and 14 upcoming activities, all with fixed ids. It has been applied to the hosted project, is safe to re-run, and ends with a commented rollback that removes only its own rows.
 
 ## AI search
 

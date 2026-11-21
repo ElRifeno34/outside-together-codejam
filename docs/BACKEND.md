@@ -4,8 +4,8 @@ How the screens (A) and the AI functions (C) talk to the database. Supabase proj
 
 ## Setup (once)
 
-1. In the Supabase SQL editor, run [`supabase/migrations/`](../supabase/migrations/) `001_schema.sql` through `007_security_hardening.sql`, in order. **Do not run `20261121000000_core.sql`** (or `supabase/qa/core.sql`): they belong to an earlier, incompatible schema.
-2. Run [`supabase/tests/role_b_smoke.sql`](../supabase/tests/role_b_smoke.sql). It should print `ROLE B SMOKE TEST PASSED` and leaves no data behind.
+1. In the Supabase SQL editor, run [`supabase/migrations/`](../supabase/migrations/) `001_schema.sql` through `007_security_hardening.sql`, in order. These seven migrations are the authoritative Role B schema.
+2. Run [`supabase/tests/role_b_smoke.sql`](../supabase/tests/role_b_smoke.sql), the authoritative Role B database test. It should print `ROLE B SMOKE TEST PASSED` and leaves no data behind.
 3. Dashboard → Authentication → Sign In / Providers → Email: **turn off "Confirm email"** (so demo accounts work instantly).
 4. **Lovable:** connect it to this existing Supabase project and tell it *"use the existing tables, do not create or alter tables"*.
 
@@ -129,7 +129,7 @@ The web front end currently calls this RPC directly; no `create-activity` Edge F
 
 ## For C: seed data
 
-Seed with the service role or the SQL editor (RLS doesn't apply there). [`supabase/seed.sql`](../supabase/seed.sql) holds synthetic Montréal fixtures; it has not been applied to the hosted project yet, so the hosted board is currently empty.
+Seed with the service role or the SQL editor (RLS doesn't apply there). [`supabase/seed.sql`](../supabase/seed.sql) adds 16 activity types, 10 public Montréal places and 14 upcoming activities with fixed ids (`7e000000-…`, `91ace000-…`, `ac700000-…`) and `created_by = null`. It has been applied to the hosted project. It is safe to re-run, and its commented rollback deletes only those fixed ids. Because the activity ids are fixed, refresh the board before a demo by running the rollback and then the seed again.
 - `activity_types.niche_value` must be 1–5; `name` is unique.
 - `places.is_public` defaults to true.
 - `activities.created_by` can be `null` for seeded activities. Only the service role / SQL editor can read it.
