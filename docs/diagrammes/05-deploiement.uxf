@@ -6,277 +6,212 @@
     <coordinates>
       <x>20</x>
       <y>12</y>
-      <w>780</w>
+      <w>710</w>
       <h>40</h>
     </coordinates>
-    <panel_attributes>*05 · Démo iOS — Expo Go et Supabase*
+    <panel_attributes>*05 · Deployment — browser, hosting and Supabase*
 fontsize=17
 halign=left
-fg=#18334a</panel_attributes>
-    <additional_attributes />
-  </element>
-  <element>
-    <id>Text</id>
-    <coordinates>
-      <x>25</x>
-      <y>62</y>
-      <w>430</w>
-      <h>30</h>
-    </coordinates>
-    <panel_attributes>*Chargement du projet sur iPhone*
-halign=left
-fg=#18334a</panel_attributes>
-    <additional_attributes />
-  </element>
-  <element>
-    <id>Text</id>
-    <coordinates>
-      <x>25</x>
-      <y>318</y>
-      <w>430</w>
-      <h>30</h>
-    </coordinates>
-    <panel_attributes>*Application et services*
-halign=left
-fg=#18334a</panel_attributes>
-    <additional_attributes />
-  </element>
-  <element>
-    <id>Relation</id>
-    <coordinates>
-      <x>-5</x>
-      <y>260</y>
-      <w>1415</w>
-      <h>60</h>
-    </coordinates>
-    <panel_attributes>lt=.
-fg=#18334a</panel_attributes>
-    <additional_attributes>30.0;30.0;1385.0;30.0</additional_attributes>
-  </element>
-  <element>
-    <id>UMLDeployment</id>
-    <coordinates>
-      <x>55</x>
-      <y>113</y>
-      <w>236</w>
-      <h>105</h>
-    </coordinates>
-    <panel_attributes>&lt;&lt;device&gt;&gt;
-*Poste de l’équipe*
-Code React Native + Expo
-bg=#f2f5f8
-fg=#18334a</panel_attributes>
+fg=#20394b</panel_attributes>
     <additional_attributes />
   </element>
   <element>
     <id>UMLDeployment</id>
     <coordinates>
-      <x>455</x>
-      <y>113</y>
-      <w>234</w>
-      <h>105</h>
+      <x>35</x>
+      <y>95</y>
+      <w>219</w>
+      <h>108</h>
+    </coordinates>
+    <panel_attributes>&lt;&lt;repository&gt;&gt;
+*GitHub*
+React source and migrations
+bg=#eaf2f8
+fg=#20394b</panel_attributes>
+    <additional_attributes />
+  </element>
+  <element>
+    <id>UMLDeployment</id>
+    <coordinates>
+      <x>415</x>
+      <y>95</y>
+      <w>258</w>
+      <h>108</h>
     </coordinates>
     <panel_attributes>&lt;&lt;execution environment&gt;&gt;
-*Serveur Expo · Metro*
-JavaScript du projet
-bg=#fff3dc
-fg=#18334a</panel_attributes>
+*Lovable publish or Vercel*
+Web hosting
+bg=#fff3db
+fg=#20394b</panel_attributes>
     <additional_attributes />
   </element>
   <element>
     <id>UMLDeployment</id>
     <coordinates>
-      <x>875</x>
-      <y>103</y>
-      <w>340</w>
-      <h>125</h>
-    </coordinates>
-    <panel_attributes>&lt;&lt;distribution&gt;&gt;
-*QR Expo Go*
-Réseau local ou tunnel de secours
-bg=#f2f5f8
-fg=#18334a</panel_attributes>
-    <additional_attributes />
-  </element>
-  <element>
-    <id>Relation</id>
-    <coordinates>
-      <x>261</x>
-      <y>134</y>
-      <w>224</w>
-      <h>60</h>
-    </coordinates>
-    <panel_attributes>lt=-
-npx expo start
-fg=#18334a</panel_attributes>
-    <additional_attributes>30.0;30.0;194.0;30.0</additional_attributes>
-  </element>
-  <element>
-    <id>Relation</id>
-    <coordinates>
-      <x>659</x>
-      <y>134</y>
-      <w>246</w>
-      <h>60</h>
-    </coordinates>
-    <panel_attributes>lt=-
-QR du projet
-fg=#18334a</panel_attributes>
-    <additional_attributes>30.0;30.0;216.0;30.0</additional_attributes>
-  </element>
-  <element>
-    <id>UMLDeployment</id>
-    <coordinates>
-      <x>55</x>
-      <y>405</y>
-      <w>270</w>
-      <h>161</h>
+      <x>35</x>
+      <y>280</y>
+      <w>219</w>
+      <h>142</h>
     </coordinates>
     <panel_attributes>&lt;&lt;device&gt;&gt;
-*iPhone des joueurs*
-Expo Go · App React Native
-Carte, photo et position ponctuelle
-Fiche et brouillon local
-bg=#eaf3f8
-fg=#18334a</panel_attributes>
+*Phone or desktop browser*
+Lovable · React · Tailwind
+Public key only
+bg=#eaf2f8
+fg=#20394b</panel_attributes>
     <additional_attributes />
   </element>
   <element>
     <id>UMLDeployment</id>
     <coordinates>
-      <x>478</x>
-      <y>408</y>
-      <w>310</w>
-      <h>171</h>
+      <x>422</x>
+      <y>280</y>
+      <w>255</w>
+      <h>142</h>
+    </coordinates>
+    <panel_attributes>&lt;&lt;execution environment&gt;&gt;
+*Supabase Auth*
+Sign up and session
+bg=#eaf2f8
+fg=#20394b</panel_attributes>
+    <additional_attributes />
+  </element>
+  <element>
+    <id>UMLDeployment</id>
+    <coordinates>
+      <x>850</x>
+      <y>238</y>
+      <w>278</w>
+      <h>160</h>
+    </coordinates>
+    <panel_attributes>&lt;&lt;execution environment&gt;&gt;
+*Supabase PostgreSQL*
+Public board and private rows
+Join and attendance RPCs
+bg=#eaf5ed
+fg=#20394b</panel_attributes>
+    <additional_attributes />
+  </element>
+  <element>
+    <id>UMLDeployment</id>
+    <coordinates>
+      <x>422</x>
+      <y>513</y>
+      <w>255</w>
+      <h>145</h>
     </coordinates>
     <panel_attributes>&lt;&lt;execution environment&gt;&gt;
 *Supabase Edge Functions*
-Matching, itinéraires
-Règles de jeu, points et jalons
-Clés privées côté serveur
-bg=#eaf5ef
-fg=#18334a</panel_attributes>
+ai-search · create-activity
+Server-side LLM secret
+bg=#eaf5ed
+fg=#20394b</panel_attributes>
     <additional_attributes />
   </element>
   <element>
     <id>UMLDeployment</id>
     <coordinates>
-      <x>980</x>
-      <y>365</y>
-      <w>375</w>
-      <h>148</h>
+      <x>850</x>
+      <y>570</y>
+      <w>278</w>
+      <h>93</h>
     </coordinates>
-    <panel_attributes>&lt;&lt;execution environment&gt;&gt;
-*Supabase*
-Auth · Postgres
-Catalogue, sorties et projets
-Storage privé · Realtime
-bg=#eaf3f8
-fg=#18334a</panel_attributes>
-    <additional_attributes />
-  </element>
-  <element>
-    <id>UMLDeployment</id>
-    <coordinates>
-      <x>980</x>
-      <y>584</y>
-      <w>375</w>
-      <h>126</h>
-    </coordinates>
-    <panel_attributes>&lt;&lt;execution environment&gt;&gt;
-*Fournisseur IA*
-Critères, activité de niche et indice photo
-bg=#fff3dc
-fg=#18334a</panel_attributes>
+    <panel_attributes>&lt;&lt;service&gt;&gt;
+*LLM API*
+JSON filters
+bg=#fff3db
+fg=#20394b</panel_attributes>
     <additional_attributes />
   </element>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>167</x>
-      <y>179</y>
-      <w>738</w>
-      <h>256</h>
+      <x>224</x>
+      <y>115</y>
+      <w>221</w>
+      <h>60</h>
+    </coordinates>
+    <panel_attributes>lt=-
+Source
+fg=#20394b</panel_attributes>
+    <additional_attributes>30.0;30.0;191.0;30.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>95</x>
+      <y>141</y>
+      <w>350</w>
+      <h>169</h>
     </coordinates>
     <panel_attributes>lt=-&gt;
-fg=#18334a</panel_attributes>
-    <additional_attributes>708.0;30.0;672.0;30.0;672.0;172.0;30.0;172.0;30.0;226.0</additional_attributes>
-  </element>
-  <element>
-    <id>Text</id>
-    <coordinates>
-      <x>347</x>
-      <y>323</y>
-      <w>304</w>
-      <h>25</h>
-    </coordinates>
-    <panel_attributes>Scan du QR · projet iOS chargé
-halign=center
-fg=#18334a</panel_attributes>
-    <additional_attributes />
+Web app
+fg=#20394b</panel_attributes>
+    <additional_attributes>320.0;30.0;231.0;30.0;231.0;114.0;30.0;114.0;30.0;139.0</additional_attributes>
   </element>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>295</x>
-      <y>441</y>
-      <w>213</w>
+      <x>224</x>
+      <y>312</y>
+      <w>228</w>
       <h>60</h>
     </coordinates>
     <panel_attributes>lt=-
-HTTPS · API
-fg=#18334a</panel_attributes>
-    <additional_attributes>30.0;30.0;183.0;30.0</additional_attributes>
+HTTPS · Auth
+fg=#20394b</panel_attributes>
+    <additional_attributes>30.0;30.0;198.0;30.0</additional_attributes>
   </element>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>758</x>
-      <y>425</y>
-      <w>252</w>
+      <x>147</x>
+      <y>197</y>
+      <w>793</w>
+      <h>113</h>
+    </coordinates>
+    <panel_attributes>lt=-
+HTTPS · Board and RPCs
+fg=#20394b</panel_attributes>
+    <additional_attributes>30.0;83.0;30.0;30.0;763.0;30.0;763.0;41.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>119</x>
+      <y>392</y>
+      <w>333</w>
+      <h>187</h>
+    </coordinates>
+    <panel_attributes>lt=-
+HTTPS · Search and draft
+fg=#20394b</panel_attributes>
+    <additional_attributes>30.0;30.0;30.0;157.0;303.0;157.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>647</x>
+      <y>368</y>
+      <w>361</w>
+      <h>209</h>
+    </coordinates>
+    <panel_attributes>lt=-
+SQL / RPC
+fg=#20394b</panel_attributes>
+    <additional_attributes>30.0;179.0;331.0;179.0;331.0;30.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>647</x>
+      <y>579</y>
+      <w>233</w>
       <h>60</h>
     </coordinates>
     <panel_attributes>lt=-
-HTTPS · RPC PostgreSQL
-fg=#18334a</panel_attributes>
-    <additional_attributes>30.0;30.0;222.0;30.0</additional_attributes>
-  </element>
-  <element>
-    <id>Relation</id>
-    <coordinates>
-      <x>758</x>
-      <y>519</y>
-      <w>252</w>
-      <h>157</h>
-    </coordinates>
-    <panel_attributes>lt=-
-HTTPS · JSON
-fg=#18334a</panel_attributes>
-    <additional_attributes>30.0;30.0;111.0;30.0;111.0;127.0;222.0;127.0</additional_attributes>
-  </element>
-  <element>
-    <id>Relation</id>
-    <coordinates>
-      <x>114</x>
-      <y>470</y>
-      <w>896</w>
-      <h>210</h>
-    </coordinates>
-    <panel_attributes>lt=.
-fg=#18334a</panel_attributes>
-    <additional_attributes>30.0;96.0;30.0;180.0;706.0;180.0;706.0;30.0;866.0;30.0</additional_attributes>
-  </element>
-  <element>
-    <id>Text</id>
-    <coordinates>
-      <x>276</x>
-      <y>652</y>
-      <w>415</w>
-      <h>42</h>
-    </coordinates>
-    <panel_attributes>WSS · Realtime (places, scores, jalons)
-halign=center
-fg=#18334a</panel_attributes>
-    <additional_attributes />
+HTTPS · filters
+fg=#20394b</panel_attributes>
+    <additional_attributes>30.0;30.0;203.0;30.0</additional_attributes>
   </element>
 </diagram>

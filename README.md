@@ -1,29 +1,18 @@
 # Outside Together
 
-Find people near you for a spontaneous 1-hour activity. Tell the AI when you're free and what you feel like doing, and it matches you with the closest activity, or creates one for others to join.
+Find people in Montréal for a spontaneous one-hour activity. Anyone can browse the board. Sign in to join a session with available places or to publish a new one. After the activity, participants confirm attendance and earn more points for less common activities.
 
-Launching in **Montréal** first, other cities once it works.
+## Demo flow
 
-## How it works
+1. Open the public board. Ask for something like “I have one hour Friday afternoon and want to play basketball.”
+2. The assistant translates the request into filters. PostgreSQL finds activities with matching times and available places. Sign in and choose **Join** to reserve a spot. Read the updated count on refresh.
+3. If there is no match, review a draft. Choose **Publish** to create it at a public place.
+4. After the outing, two attendance confirmations close it and award each confirmed participant `10 + 5 × niche_value`. Later confirmations award their own points once.
 
-1. Anyone can **browse** activities (no account needed).
-2. A person types a request, for example: *"I have 1 hour on Friday afternoon, I want to play basketball."*
-3. The AI turns the request into filters (activity, day, time).
-4. The app finds the closest activity with other people and **adds you to it**.
-5. If there is none, an activity is **created** and the participant count updates as people join.
-6. **Creating an account is required to join.**
-7. After the activity, participants confirm it happened and earn **points based on how niche the activity is**.
+## Stack
 
-## Features
+Lovable (React and Tailwind) for the planned web interface, Supabase Auth and PostgreSQL for accounts and rules, and Supabase Edge Functions for AI search and draft creation. The LLM key belongs in Supabase secrets. The browser uses only a public Supabase key. GitHub hosts the source.
 
-<<<<<<< Updated upstream
-- Public activity board
-- Account creation and login
-- Conversational AI search (request → filters → matches)
-- Join an activity, with live participant count and capacity
-- Create an activity when no match exists
-- Points system weighted by activity rarity ("niche value")
-=======
 ## Repository layout
 
 | Folder | Contents |
@@ -43,64 +32,22 @@ npm run dev
 The app opens at http://localhost:8080. Without keys it runs on demo data. To use the real database, copy `web/.env.example` to `web/.env.local` and set the Supabase URL and anon key; see [web/README.md](web/README.md).
 
 ## Run the backend locally
->>>>>>> Stashed changes
 
-## Tech stack
+## Run the backend locally
 
-| Part | Tool |
-|---|---|
-| Front end | Lovable (React + Tailwind) |
-| Database and login | Supabase (PostgreSQL + Auth) |
-| Server logic | Supabase Edge Functions |
-| AI | LLM API, called only from the Edge Function |
-| Hosting | Lovable publish (or Vercel) |
-| Code | GitHub |
 
-<<<<<<< Updated upstream
-The database is the source of truth for places, times and counts. The AI only interprets the request and phrases the reply, so it cannot invent activities.
-=======
+From the repository root, run `supabase start` with the Supabase CLI and Docker available. The [migration](supabase/migrations/20261121000000_core.sql) and [seed](supabase/seed.sql) supply the database foundation and synthetic Montréal QA listings. The seed assigns the listings to a local demo owner. Public board reads and authenticated join/confirmation RPCs can already be exercised against the local database.
+
+Run the rollback-only database check with `psql "postgresql://postgres:postgres@127.0.0.1:54322/postgres" -v ON_ERROR_STOP=1 -f supabase/qa/core.sql`. Use the connection details printed by Supabase if the local ports or credentials differ.
+
 The `web/` interface calls these RPCs once its Supabase keys are set. The two Edge Functions (`ai-search`, `create-activity`) are the remaining integration work. The SQL `create_activity` RPC is the transaction the future `create-activity` handler should call after validating the draft.
->>>>>>> Stashed changes
 
-## Data model (simplified)
+The Lovable interface and the two Edge Functions are planned integration work. The SQL `create_activity` RPC is the transaction the future `create-activity` handler should call after validating the draft.
 
-- **users**: account and profile
-- **places**: verified public locations
-- **activities**: type, place, start time, capacity, niche value
-- **participants**: who joined which activity, confirmation status
-- **points**: points earned per user per activity (once per activity)
 
-## Setup
+## Project documents
 
-```bash
-git clone <repo-url>
-cd outside-together
-npm install
-cp .env.example .env   # add your Supabase URL and anon key
-npm run dev
-```
-
-Edge Function secrets (set in Supabase, never in the front end):
-
-- `LLM_API_KEY`
-
-## Team
-
-| Role | Owns |
-|---|---|
-| A | Screens and user flow (Lovable) |
-| B | Database, login, join and points rules (Supabase) |
-| C | AI request handling, seed data, pitch |
-
-## Demo path
-
-Request → AI suggests an activity → create account → join → count updates → confirm → points.
-
-## Roadmap
-
-- Real two-person confirmation and no-show handling
-- Safety features: verified public places, university-email sign-up, report and block
-- French and English interface
-- Indoor and winter-friendly activities
-- Recaps and badges
-- More cities
+- [Official 24-hour plan and API contracts](PlanOff.md)
+- [Implementation handoff and UML exports](docs/PLAN.md)
+- [Web QA and demo checklist](docs/QA-WEB.md)
+- [Lovable build brief](docs/LOVABLE-BRIEF.md)

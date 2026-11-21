@@ -1,0 +1,5 @@
+project_id = "outside-together"
+
+[db.seed]
+enabled = true
+sql_paths = ["./seed.sql"]

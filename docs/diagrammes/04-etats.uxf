@@ -6,511 +6,283 @@
     <coordinates>
       <x>20</x>
       <y>12</y>
-      <w>660</w>
+      <w>710</w>
       <h>40</h>
     </coordinates>
-    <panel_attributes>*04 · États — sortie, preuve photo et jalon*
+    <panel_attributes>*04 · States — activity and registration*
 fontsize=17
 halign=left
-fg=#18334a</panel_attributes>
+fg=#20394b</panel_attributes>
     <additional_attributes />
   </element>
   <element>
     <id>Text</id>
     <coordinates>
-      <x>25</x>
-      <y>74</y>
-      <w>390</w>
-      <h>32</h>
+      <x>24</x>
+      <y>68</y>
+      <w>400</w>
+      <h>35</h>
     </coordinates>
-    <panel_attributes>*Sortie multijoueur*
+    <panel_attributes>*Activity*
 halign=left
-fg=#18334a</panel_attributes>
+fg=#20394b</panel_attributes>
     <additional_attributes />
   </element>
   <element>
     <id>UMLSpecialState</id>
     <coordinates>
       <x>40</x>
-      <y>198</y>
+      <y>179</y>
       <w>28</w>
       <h>28</h>
     </coordinates>
     <panel_attributes>type=initial
-fg=#18334a</panel_attributes>
+fg=#20394b</panel_attributes>
     <additional_attributes />
   </element>
   <element>
     <id>UMLState</id>
     <coordinates>
       <x>200</x>
-      <y>182</y>
-      <w>190</w>
-      <h>60</h>
+      <y>160</y>
+      <w>155</w>
+      <h>64</h>
     </coordinates>
-    <panel_attributes>Publiée
-bg=#eaf3f8
-fg=#18334a</panel_attributes>
+    <panel_attributes>Open
+bg=#eaf2f8
+fg=#20394b</panel_attributes>
     <additional_attributes />
   </element>
   <element>
     <id>UMLState</id>
     <coordinates>
-      <x>582</x>
-      <y>182</y>
-      <w>223</w>
-      <h>60</h>
+      <x>527</x>
+      <y>160</y>
+      <w>180</w>
+      <h>64</h>
     </coordinates>
-    <panel_attributes>En attente de
-confirmations
-bg=#eaf3f8
-fg=#18334a</panel_attributes>
+    <panel_attributes>Confirmed
+bg=#eaf5ed
+fg=#20394b</panel_attributes>
     <additional_attributes />
   </element>
   <element>
     <id>UMLState</id>
     <coordinates>
-      <x>1070</x>
-      <y>182</y>
-      <w>198</w>
-      <h>60</h>
+      <x>991</x>
+      <y>160</y>
+      <w>145</w>
+      <h>64</h>
     </coordinates>
-    <panel_attributes>Validée
-bg=#eaf5ef
-fg=#18334a</panel_attributes>
+    <panel_attributes>Done
+bg=#eaf5ed
+fg=#20394b</panel_attributes>
     <additional_attributes />
   </element>
   <element>
     <id>UMLState</id>
     <coordinates>
-      <x>582</x>
-      <y>320</y>
-      <w>223</w>
-      <h>60</h>
+      <x>527</x>
+      <y>310</y>
+      <w>230</w>
+      <h>64</h>
     </coordinates>
-    <panel_attributes>Annulée
-bg=#f2f5f8
-fg=#18334a</panel_attributes>
-    <additional_attributes />
-  </element>
-  <element>
-    <id>UMLSpecialState</id>
-    <coordinates>
-      <x>1070</x>
-      <y>336</y>
-      <w>28</w>
-      <h>28</h>
-    </coordinates>
-    <panel_attributes>type=final
-fg=#18334a</panel_attributes>
+    <panel_attributes>Cancelled for the demo
+bg=#fff3db
+fg=#20394b</panel_attributes>
     <additional_attributes />
   </element>
   <element>
     <id>Relation</id>
     <coordinates>
       <x>38</x>
-      <y>182</y>
+      <y>163</y>
       <w>192</w>
       <h>60</h>
     </coordinates>
     <panel_attributes>lt=-&gt;
-Publier
-fg=#18334a</panel_attributes>
+Publish
+fg=#20394b</panel_attributes>
     <additional_attributes>30.0;30.0;162.0;30.0</additional_attributes>
   </element>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>360</x>
-      <y>182</y>
-      <w>252</w>
+      <x>325</x>
+      <y>149</y>
+      <w>232</w>
       <h>60</h>
     </coordinates>
     <panel_attributes>lt=-&gt;
-Fin de la sortie
-fg=#18334a</panel_attributes>
-    <additional_attributes>30.0;30.0;222.0;30.0</additional_attributes>
+Minimum reached
+fg=#20394b</panel_attributes>
+    <additional_attributes>30.0;30.0;202.0;30.0</additional_attributes>
   </element>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>775</x>
-      <y>182</y>
-      <w>325</w>
+      <x>325</x>
+      <y>170</y>
+      <w>232</w>
       <h>60</h>
     </coordinates>
     <panel_attributes>lt=-&gt;
-2e confirmation / créditer
-fg=#18334a</panel_attributes>
-    <additional_attributes>30.0;30.0;295.0;30.0</additional_attributes>
+Below minimum
+fg=#20394b</panel_attributes>
+    <additional_attributes>202.0;30.0;30.0;30.0</additional_attributes>
   </element>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>602</x>
-      <y>93</y>
-      <w>188</w>
-      <h>119</h>
+      <x>677</x>
+      <y>163</y>
+      <w>344</w>
+      <h>60</h>
     </coordinates>
     <panel_attributes>lt=-&gt;
-1re confirmation / 0 point
-fg=#18334a</panel_attributes>
-    <additional_attributes>30.0;89.0;30.0;30.0;158.0;30.0;158.0;89.0</additional_attributes>
+2+ confirmations after the end
+fg=#20394b</panel_attributes>
+    <additional_attributes>30.0;30.0;314.0;30.0</additional_attributes>
   </element>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>1070</x>
-      <y>93</y>
-      <w>200</w>
-      <h>119</h>
+      <x>248</x>
+      <y>194</y>
+      <w>309</w>
+      <h>173</h>
     </coordinates>
     <panel_attributes>lt=-&gt;
-Autre présence / créditer
-fg=#18334a</panel_attributes>
-    <additional_attributes>30.0;89.0;30.0;30.0;170.0;30.0;170.0;89.0</additional_attributes>
-  </element>
-  <element>
-    <id>Relation</id>
-    <coordinates>
-      <x>360</x>
-      <y>200</y>
-      <w>252</w>
-      <h>180</h>
-    </coordinates>
-    <panel_attributes>lt=-&gt;
-fg=#18334a</panel_attributes>
-    <additional_attributes>30.0;30.0;115.0;30.0;115.0;150.0;222.0;150.0</additional_attributes>
+Too few at start
+fg=#20394b</panel_attributes>
+    <additional_attributes>30.0;30.0;30.0;143.0;279.0;143.0</additional_attributes>
   </element>
   <element>
     <id>Text</id>
     <coordinates>
-      <x>295</x>
-      <y>283</y>
-      <w>166</w>
-      <h>48</h>
-    </coordinates>
-    <panel_attributes>Annuler
-[avant le départ]
-halign=right
-fg=#18334a</panel_attributes>
-    <additional_attributes />
-  </element>
-  <element>
-    <id>Relation</id>
-    <coordinates>
-      <x>775</x>
-      <y>320</y>
-      <w>325</w>
-      <h>60</h>
-    </coordinates>
-    <panel_attributes>lt=-&gt;
-fg=#18334a</panel_attributes>
-    <additional_attributes>30.0;30.0;295.0;30.0</additional_attributes>
-  </element>
-  <element>
-    <id>Relation</id>
-    <coordinates>
-      <x>-5</x>
-      <y>398</y>
-      <w>1305</w>
-      <h>60</h>
-    </coordinates>
-    <panel_attributes>lt=.
-fg=#18334a</panel_attributes>
-    <additional_attributes>30.0;30.0;1275.0;30.0</additional_attributes>
-  </element>
-  <element>
-    <id>Text</id>
-    <coordinates>
-      <x>25</x>
-      <y>454</y>
-      <w>390</w>
-      <h>32</h>
-    </coordinates>
-    <panel_attributes>*Preuve photo*
-halign=left
-fg=#18334a</panel_attributes>
-    <additional_attributes />
-  </element>
-  <element>
-    <id>UMLSpecialState</id>
-    <coordinates>
-      <x>40</x>
-      <y>584</y>
-      <w>28</w>
-      <h>28</h>
-    </coordinates>
-    <panel_attributes>type=initial
-fg=#18334a</panel_attributes>
-    <additional_attributes />
-  </element>
-  <element>
-    <id>UMLState</id>
-    <coordinates>
-      <x>370</x>
-      <y>568</y>
-      <w>225</w>
-      <h>60</h>
-    </coordinates>
-    <panel_attributes>À évaluer
-bg=#fff3dc
-fg=#18334a</panel_attributes>
-    <additional_attributes />
-  </element>
-  <element>
-    <id>UMLState</id>
-    <coordinates>
-      <x>850</x>
-      <y>510</y>
-      <w>195</w>
-      <h>60</h>
-    </coordinates>
-    <panel_attributes>Approuvée
-bg=#eaf5ef
-fg=#18334a</panel_attributes>
-    <additional_attributes />
-  </element>
-  <element>
-    <id>UMLState</id>
-    <coordinates>
-      <x>850</x>
-      <y>630</y>
-      <w>195</w>
-      <h>60</h>
-    </coordinates>
-    <panel_attributes>Refusée
-bg=#f2f5f8
-fg=#18334a</panel_attributes>
-    <additional_attributes />
-  </element>
-  <element>
-    <id>UMLSpecialState</id>
-    <coordinates>
-      <x>1130</x>
-      <y>526</y>
-      <w>28</w>
-      <h>28</h>
-    </coordinates>
-    <panel_attributes>type=final
-fg=#18334a</panel_attributes>
-    <additional_attributes />
-  </element>
-  <element>
-    <id>UMLSpecialState</id>
-    <coordinates>
-      <x>1130</x>
-      <y>646</y>
-      <w>28</w>
-      <h>28</h>
-    </coordinates>
-    <panel_attributes>type=final
-fg=#18334a</panel_attributes>
-    <additional_attributes />
-  </element>
-  <element>
-    <id>Relation</id>
-    <coordinates>
-      <x>38</x>
-      <y>568</y>
-      <w>362</w>
-      <h>60</h>
-    </coordinates>
-    <panel_attributes>lt=-&gt;
-Soumettre [sortie validée]
-fg=#18334a</panel_attributes>
-    <additional_attributes>30.0;30.0;332.0;30.0</additional_attributes>
-  </element>
-  <element>
-    <id>Relation</id>
-    <coordinates>
-      <x>565</x>
-      <y>510</y>
-      <w>315</w>
-      <h>102</h>
-    </coordinates>
-    <panel_attributes>lt=-&gt;
-Approuver / +5 à l’auteur
-fg=#18334a</panel_attributes>
-    <additional_attributes>30.0;72.0;90.0;72.0;90.0;30.0;285.0;30.0</additional_attributes>
-  </element>
-  <element>
-    <id>Relation</id>
-    <coordinates>
-      <x>565</x>
-      <y>586</y>
-      <w>315</w>
-      <h>104</h>
-    </coordinates>
-    <panel_attributes>lt=-&gt;
-Refuser / 0 point
-fg=#18334a</panel_attributes>
-    <additional_attributes>30.0;30.0;65.0;30.0;65.0;74.0;285.0;74.0</additional_attributes>
-  </element>
-  <element>
-    <id>Relation</id>
-    <coordinates>
-      <x>1015</x>
-      <y>510</y>
-      <w>145</w>
-      <h>60</h>
-    </coordinates>
-    <panel_attributes>lt=-&gt;
-fg=#18334a</panel_attributes>
-    <additional_attributes>30.0;30.0;115.0;30.0</additional_attributes>
-  </element>
-  <element>
-    <id>Relation</id>
-    <coordinates>
-      <x>1015</x>
-      <y>630</y>
-      <w>145</w>
-      <h>60</h>
-    </coordinates>
-    <panel_attributes>lt=-&gt;
-fg=#18334a</panel_attributes>
-    <additional_attributes>30.0;30.0;115.0;30.0</additional_attributes>
-  </element>
-  <element>
-    <id>Text</id>
-    <coordinates>
-      <x>375</x>
-      <y>644</y>
-      <w>217</w>
-      <h>63</h>
-    </coordinates>
-    <panel_attributes>Évaluation par un autre
-participant confirmé.
-halign=center
-fg=#18334a</panel_attributes>
-    <additional_attributes />
-  </element>
-  <element>
-    <id>Relation</id>
-    <coordinates>
-      <x>-5</x>
-      <y>710</y>
-      <w>1305</w>
-      <h>60</h>
-    </coordinates>
-    <panel_attributes>lt=.
-fg=#18334a</panel_attributes>
-    <additional_attributes>30.0;30.0;1275.0;30.0</additional_attributes>
-  </element>
-  <element>
-    <id>Text</id>
-    <coordinates>
-      <x>25</x>
-      <y>762</y>
-      <w>460</w>
+      <x>540</x>
+      <y>381</y>
+      <w>510</w>
       <h>35</h>
     </coordinates>
-    <panel_attributes>*Jalon du projet (chaque mission)*
+    <panel_attributes>Drops off board and becomes ineligible for attendance.
 halign=left
-fg=#18334a</panel_attributes>
+fg=#20394b</panel_attributes>
+    <additional_attributes />
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>-5</x>
+      <y>407</y>
+      <w>1170</w>
+      <h>60</h>
+    </coordinates>
+    <panel_attributes>lt=.
+fg=#20394b</panel_attributes>
+    <additional_attributes>30.0;30.0;1140.0;30.0</additional_attributes>
+  </element>
+  <element>
+    <id>Text</id>
+    <coordinates>
+      <x>24</x>
+      <y>461</y>
+      <w>400</w>
+      <h>35</h>
+    </coordinates>
+    <panel_attributes>*Participant*
+halign=left
+fg=#20394b</panel_attributes>
     <additional_attributes />
   </element>
   <element>
     <id>UMLSpecialState</id>
     <coordinates>
       <x>40</x>
-      <y>873</y>
+      <y>579</y>
       <w>28</w>
       <h>28</h>
     </coordinates>
     <panel_attributes>type=initial
-fg=#18334a</panel_attributes>
+fg=#20394b</panel_attributes>
     <additional_attributes />
   </element>
   <element>
     <id>UMLState</id>
     <coordinates>
-      <x>190</x>
-      <y>857</y>
-      <w>168</w>
-      <h>60</h>
+      <x>200</x>
+      <y>560</y>
+      <w>155</w>
+      <h>64</h>
     </coordinates>
-    <panel_attributes>À venir
-bg=#f2f5f8
-fg=#18334a</panel_attributes>
+    <panel_attributes>Joined
+bg=#eaf2f8
+fg=#20394b</panel_attributes>
     <additional_attributes />
   </element>
   <element>
     <id>UMLState</id>
     <coordinates>
-      <x>570</x>
-      <y>857</y>
-      <w>190</w>
-      <h>60</h>
+      <x>527</x>
+      <y>539</y>
+      <w>180</w>
+      <h>64</h>
     </coordinates>
-    <panel_attributes>Actif
-bg=#eaf3f8
-fg=#18334a</panel_attributes>
+    <panel_attributes>Confirmed
+bg=#eaf5ed
+fg=#20394b</panel_attributes>
     <additional_attributes />
   </element>
   <element>
     <id>UMLState</id>
     <coordinates>
-      <x>1070</x>
-      <y>857</y>
-      <w>198</w>
-      <h>60</h>
+      <x>527</x>
+      <y>658</y>
+      <w>180</w>
+      <h>64</h>
     </coordinates>
-    <panel_attributes>Validé
-bg=#eaf5ef
-fg=#18334a</panel_attributes>
+    <panel_attributes>Left
+bg=#fff3db
+fg=#20394b</panel_attributes>
     <additional_attributes />
   </element>
   <element>
     <id>Relation</id>
     <coordinates>
       <x>38</x>
-      <y>857</y>
-      <w>182</w>
+      <y>562</y>
+      <w>192</w>
       <h>60</h>
     </coordinates>
     <panel_attributes>lt=-&gt;
-Créer
-fg=#18334a</panel_attributes>
-    <additional_attributes>30.0;30.0;152.0;30.0</additional_attributes>
+Join
+fg=#20394b</panel_attributes>
+    <additional_attributes>30.0;30.0;162.0;30.0</additional_attributes>
   </element>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>328</x>
-      <y>857</y>
-      <w>272</w>
+      <x>325</x>
+      <y>544</y>
+      <w>232</w>
       <h>60</h>
     </coordinates>
     <panel_attributes>lt=-&gt;
-Lancement / étape précédente
-fg=#18334a</panel_attributes>
-    <additional_attributes>30.0;30.0;242.0;30.0</additional_attributes>
+Confirm after end
+fg=#20394b</panel_attributes>
+    <additional_attributes>30.0;30.0;202.0;30.0</additional_attributes>
   </element>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>730</x>
-      <y>857</y>
-      <w>370</w>
-      <h>60</h>
+      <x>325</x>
+      <y>577</y>
+      <w>232</w>
+      <h>143</h>
     </coordinates>
     <panel_attributes>lt=-&gt;
-Première preuve approuvée de la sortie
-fg=#18334a</panel_attributes>
-    <additional_attributes>30.0;30.0;340.0;30.0</additional_attributes>
-  </element>
-  <element>
-    <id>Text</id>
-    <coordinates>
-      <x>930</x>
-      <y>939</y>
-      <w>338</w>
-      <h>45</h>
-    </coordinates>
-    <panel_attributes>Ouvre le jalon suivant, s’il existe.
-halign=right
-fg=#18334a</panel_attributes>
-    <additional_attributes />
+Leave before start
+fg=#20394b</panel_attributes>
+    <additional_attributes>30.0;30.0;105.0;30.0;105.0;113.0;202.0;113.0</additional_attributes>
   </element>
 </diagram>

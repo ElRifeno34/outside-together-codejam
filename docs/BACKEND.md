@@ -24,23 +24,6 @@ await supabase.auth.signOut()
 
 A `profiles` row is created automatically on sign-up (display name = `display_name`, or the email prefix).
 
-```js
-// Google: leaves the page and comes back signed in (the web app listens with onAuthStateChange)
-await supabase.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: window.location.href } })
-```
-
-The same trigger creates the profile for Google users. Google sends `full_name` / `name`, not `display_name`, so today their display name is the email prefix. To show their Google name, a follow-up migration could make `handle_new_user()` also read `raw_user_meta_data ->> 'full_name'`.
-
-### Google sign-in setup
-
-1. **Google Cloud Console** → APIs & Services → OAuth consent screen: app name, support email, scopes `openid`, `email`, `profile`. While the app is in "Testing", add the team and jury accounts as test users.
-2. **Credentials** → Create OAuth client ID → *Web application*. Authorized redirect URI: `https://<project-ref>.supabase.co/auth/v1/callback` (copy it from Supabase → Authentication → Providers → Google).
-3. **Supabase** → Authentication → Providers → **Google**: enable it, then paste the client ID and client secret. The secret stays in Supabase, never in the repo or the browser.
-4. **Supabase** → Authentication → URL Configuration: set *Site URL* to the deployed app, and add every origin the app runs on to *Redirect URLs* (`http://localhost:8080/**`, the Lovable/Vercel URL `/**`).
-5. Optional, later: the Google Calendar API needs the `calendar.events` scope and Google app verification. See [PlanOff §3.5](../PlanOff.md#35-external-apis-location-google-sign-in-calendar).
-
-No migration is needed. The web app already shows "Continue with Google" when the Supabase keys are set.
-
 ## Reading
 
 ### `activity_board` (view): use this for the board, activity page and AI search

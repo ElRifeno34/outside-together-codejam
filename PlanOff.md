@@ -19,9 +19,7 @@ Diagrams below are Mermaid: they render on GitHub, and in VS Code with a Mermaid
 **Cut first if late** (in this order): create-activity flow, points, AI chat (fall back to a filter form).
 Browsing and joining must survive no matter what.
 
-**Not now:** other cities, maps, real-time push, recaps/badges, safety extras beyond "public places only". (The front end already ships a French/English switch.)
-
-**Added APIs** (see §3.5): Google sign-in through Supabase Auth, "add to calendar" links, and browser location for "nearest first". The Google Calendar API and maps come later.
+**Not now:** other cities, French/English switch, maps, real-time push, recaps/badges, safety extras beyond "public places only".
 
 ---
 
@@ -82,20 +80,6 @@ Response of `POST /ai-search` to the chat box:
 ### 3.4 Points rule (proposal, change it if you prefer)
 
 `points = 10 + 5 × niche_value`, once per user per activity, only after 2+ participants have confirmed. `niche_value` is a fixed number per activity type (set by C in seed data), never typed by users. Examples (placeholders): walk 1, basketball 1, study outside 2, chess 3, photo walk 4, urban sketching 5.
-
-### 3.5 External APIs (location, Google sign-in, calendar)
-
-Rule: no secret ever reaches the browser. The browser holds only the Supabase URL and anon key. Google client secrets live in the Supabase dashboard, and LLM keys live in Supabase secrets.
-
-| API | What it's for | How | Key or setup | Status |
-|---|---|---|---|---|
-| **Browser Geolocation API** | "Nearest first" sort on the board, nearby places | `navigator.geolocation`, only after the person picks it. Rounded to ~100 m and kept in memory; it is never sent to the server or stored | None (HTTPS or localhost only) | **Done** in `web/` |
-| **Google sign-in** (OAuth 2.0 through **Supabase Auth**) | One-click account; email + password stays available | `supabase.auth.signInWithOAuth({ provider: 'google' })`. The `profiles` trigger (migration 002) creates the profile on the first sign-in | Google Cloud OAuth client (Web), with the client ID and secret pasted into Supabase → Auth → Providers → Google. Setup steps are in [docs/BACKEND.md](docs/BACKEND.md#google-sign-in-setup) | **Code done**; needs the Google client configured |
-| **Add to calendar** (no API) | Put a joined activity in the person's calendar | Google Calendar template link (`calendar.google.com/calendar/render?action=TEMPLATE…`) plus a standard `.ics` download for Apple and Outlook | None | **Done** in `web/` |
-| **Google Calendar API** (optional, later) | Write the event automatically, and keep it updated if the activity changes | Request the `https://www.googleapis.com/auth/calendar.events` scope at Google sign-in, then insert events server-side with the person's provider token | Sensitive scope: Google app verification for public users (test users work without it). The scope must be optional | **Not started**. The template link covers the demo |
-| **Maps / geocoding** (optional, later) | Map view, address → coordinates for new places | Google Maps JavaScript and Places, or OpenStreetMap (Leaflet + Nominatim) | Google: a browser key restricted by HTTP referrer, with billing enabled. OSM: no key | **Not started**. Section 1 still lists maps as "Not now" |
-
-Google sign-in, the calendar link and location are optional: a failure falls back to email + password, `.ics`, or "Soonest first". Order of priority after the demo path: Google sign-in → calendar link → nearest first → Calendar API → maps.
 
 ---
 
