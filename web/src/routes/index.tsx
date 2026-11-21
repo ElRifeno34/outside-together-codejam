@@ -23,6 +23,7 @@ import { Button } from "@/components/ui/button";
 import { ActivityCard, activityIcons, formatStart } from "@/components/activity-card";
 import { useApp } from "@/components/app-provider";
 import * as api from "@/api";
+import { visualKind } from "@/api/supabase-backend";
 import { futureDay, torontoDate } from "@/data/fixtures";
 import { toast } from "sonner";
 import { selectBoardRows, locateOnce, type NicheSort, type Origin } from "@/api/board-options";
@@ -294,7 +295,9 @@ function Board() {
           {tr("All activities")}
         </Button>
         {types.slice(0, 6).map((t) => {
-          const Icon = activityIcons[t.id as keyof typeof activityIcons] ?? Sprout;
+          // Real types have uuid ids: pick the pictogram from the name/keywords instead.
+          const Icon =
+            activityIcons[visualKind(t.name, t.keywords) as keyof typeof activityIcons] ?? Sprout;
           return (
             <Button
               key={t.id}
