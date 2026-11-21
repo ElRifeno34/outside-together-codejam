@@ -10,6 +10,8 @@ import { creditsFor } from "@/data/rewards";
 import { visualKey } from "@/data/fixtures";
 import "@/components/rewards.css";
 import * as api from "@/api";
+import { backendMode } from "@/lib/supabase";
+const live = backendMode === "supabase";
 export const Route = createFileRoute("/profile")({
   head: () => ({
     meta: [
@@ -126,7 +128,7 @@ function ProfilePage() {
                             ? "Joined"
                             : p.status === "left"
                               ? "Left activity"
-                              : "Attendance approved",
+                              : "Checked in",
                         )}
                       </span>
                     </div>
@@ -152,7 +154,7 @@ function ProfilePage() {
                 {tr("My points")}
               </h2>
               <div className="points-rule">
-                {tr("Points = 10 + 5 × niche value, after 2 approved attendances")}
+                {tr("Points = 10 + 5 × niche value, once 2 participants check in")}
               </div>
               {points.data?.length ? (
                 points.data.map((p) => (
@@ -203,31 +205,34 @@ function ProfilePage() {
                 ))
               ) : (
                 <p className="text-sm text-muted-foreground">
-                  {tr("Your points and credits appear after creator or admin approval.")}
+                  {tr("Your points and credits appear once 2 participants check in.")}
                 </p>
               )}
-              <div className="demo-finished">
-                <h3 className="text-sm font-semibold mb-2">{tr("Past activities")}</h3>
-                <p>
-                  {tr(
-                    "Léa and Sami can submit past attendance. Noa is the host; Sami is a demo admin.",
-                  )}
-                </p>
-                <div className="flex flex-col items-start gap-2">
-                  <Button variant="link" asChild>
-                    <Link to="/activity/$id" params={{ id: "finished-basketball" }}>
-                      {tr("Basketball · 15 pts")}
-                      <ArrowUpRight />
-                    </Link>
-                  </Button>
-                  <Button variant="link" asChild>
-                    <Link to="/activity/$id" params={{ id: "finished-photo" }}>
-                      {tr("Photo walk · 30 pts")}
-                      <ArrowUpRight />
-                    </Link>
-                  </Button>
+              {/* Links to fixture-only activities: they don't exist in the real database. */}
+              {!live && (
+                <div className="demo-finished">
+                  <h3 className="text-sm font-semibold mb-2">{tr("Past activities")}</h3>
+                  <p>
+                    {tr(
+                      "Léa and Sami can submit past attendance. Noa is the host; Sami is a demo admin.",
+                    )}
+                  </p>
+                  <div className="flex flex-col items-start gap-2">
+                    <Button variant="link" asChild>
+                      <Link to="/activity/$id" params={{ id: "finished-basketball" }}>
+                        {tr("Basketball · 15 pts")}
+                        <ArrowUpRight />
+                      </Link>
+                    </Button>
+                    <Button variant="link" asChild>
+                      <Link to="/activity/$id" params={{ id: "finished-photo" }}>
+                        {tr("Photo walk · 30 pts")}
+                        <ArrowUpRight />
+                      </Link>
+                    </Button>
+                  </div>
                 </div>
-              </div>
+              )}
             </section>
           </div>
         </>

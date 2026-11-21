@@ -580,6 +580,16 @@ export const french: Record<string, string> = {
     "Les points se débloquent dès qu’une autre personne confirme sa présence.",
   "Tap “We're here” once you've met up. Points unlock when 2 of you check in.":
     "Touchez « On est là » une fois réunis. Les points se débloquent quand 2 personnes confirment.",
+  "Unlocked when 2 participants check in": "Débloqués quand 2 personnes confirment leur présence",
+  "Points unlock when 2 participants check in.":
+    "Les points se débloquent quand 2 personnes confirment leur présence.",
+  "Points = 10 + 5 × niche value, once 2 participants check in":
+    "Points = 10 + 5 × niveau de niche, dès que 2 personnes confirment leur présence",
+  "Points = 10 + 5 × niche value, once 2 participants check in. Equal points share a rank.":
+    "Points = 10 + 5 × niveau de niche, dès que 2 personnes confirment leur présence. Les égalités partagent le même rang.",
+  "Your points and credits appear once 2 participants check in.":
+    "Vos points et crédits apparaissent dès que 2 personnes confirment leur présence.",
+  "Checked in": "Présence confirmée",
   "No activity types or public places are available yet.":
     "Aucun type d’activité ni lieu public n’est encore disponible.",
 };

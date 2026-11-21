@@ -425,7 +425,7 @@ function Board() {
                 </span>
               </p>
             ))}
-            <small>{tr("Points earned after two creator/admin-approved attendances.")}</small>
+            <small>{tr("Points unlock when 2 participants check in.")}</small>
           </div>
         </details>
       </div>

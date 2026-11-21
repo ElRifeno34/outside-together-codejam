@@ -220,7 +220,7 @@ function CreateActivity() {
             {tr("+")}
             {10 + 5 * (chosen?.niche_value ?? 1)} {tr("points after attendance")}
           </span>
-          <p>{tr("Points = 10 + 5 × niche value, after 2 approved attendances")}</p>
+          <p>{tr("Points = 10 + 5 × niche value, once 2 participants check in")}</p>
         </aside>
       </div>
     </main>

@@ -248,7 +248,7 @@ function Leaderboard() {
           <h3>{tr("A little more niche. A little more rewarding.")}</h3>
           <p>
             {tr(
-              "Points = 10 + 5 × niche value, after 2 approved attendances. Equal points share a rank.",
+              "Points = 10 + 5 × niche value, once 2 participants check in. Equal points share a rank.",
             )}
           </p>
         </div>
