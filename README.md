@@ -16,12 +16,34 @@ Launching in **Montréal** first, other cities once it works.
 
 ## Features
 
+<<<<<<< Updated upstream
 - Public activity board
 - Account creation and login
 - Conversational AI search (request → filters → matches)
 - Join an activity, with live participant count and capacity
 - Create an activity when no match exists
 - Points system weighted by activity rarity ("niche value")
+=======
+## Repository layout
+
+| Folder | Contents |
+| --- | --- |
+| [`web/`](web/README.md) | Lovable front end (TanStack Start, React, Tailwind), running on fixture data |
+| [`supabase/`](supabase) | Schema, RPCs, seed and SQL checks |
+| [`docs/`](docs) | Plan, QA checklist, Lovable brief and UML diagrams |
+
+## Run the front end locally
+
+```sh
+cd web
+npm install
+npm run dev
+```
+
+The app opens at http://localhost:8080. Without keys it runs on demo data. To use the real database, copy `web/.env.example` to `web/.env.local` and set the Supabase URL and anon key; see [web/README.md](web/README.md).
+
+## Run the backend locally
+>>>>>>> Stashed changes
 
 ## Tech stack
 
@@ -34,7 +56,11 @@ Launching in **Montréal** first, other cities once it works.
 | Hosting | Lovable publish (or Vercel) |
 | Code | GitHub |
 
+<<<<<<< Updated upstream
 The database is the source of truth for places, times and counts. The AI only interprets the request and phrases the reply, so it cannot invent activities.
+=======
+The `web/` interface calls these RPCs once its Supabase keys are set. The two Edge Functions (`ai-search`, `create-activity`) are the remaining integration work. The SQL `create_activity` RPC is the transaction the future `create-activity` handler should call after validating the draft.
+>>>>>>> Stashed changes
 
 ## Data model (simplified)
 
