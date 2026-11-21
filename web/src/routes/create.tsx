@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { useApp } from "@/components/app-provider";
 import { activityImages } from "@/components/activity-card";
 import * as api from "@/api";
+import { visualKind } from "@/api/supabase-backend";
 import { futureDay, localToISO, torontoDate, torontoTime } from "@/data/fixtures";
 import { toast } from "sonner";
 const options = queryOptions({
@@ -49,8 +50,13 @@ function CreateActivity() {
   const search = Route.useSearch();
   const navigate = useNavigate();
   const { profile, openAuth, refreshProfile } = useApp();
-  const [type, setType] = useState(search.type ?? "walk");
-  const [place, setPlace] = useState(search.place ?? "lafontaine");
+  // Real backends use uuids: only accept a prefilled id that exists, otherwise the first option.
+  const [type, setType] = useState(
+    data.types.some((t) => t.id === search.type) ? search.type! : (data.types[0]?.id ?? ""),
+  );
+  const [place, setPlace] = useState(
+    data.places.some((p) => p.id === search.place) ? search.place! : (data.places[0]?.id ?? ""),
+  );
   const validStart =
     search.start && Number.isFinite(new Date(search.start).getTime()) ? search.start : null;
   const [day, setDay] = useState(validStart ? torontoDate(validStart) : futureDay(1));
@@ -61,6 +67,7 @@ function CreateActivity() {
   const [error, setError] = useState("");
   const chosen = data.types.find((t) => t.id === type);
   const chosenPlace = data.places.find((p) => p.id === place);
+  const ready = !!chosen && !!chosenPlace;
   const publish = async () => {
     setBusy(true);
     setError("");
@@ -96,6 +103,7 @@ function CreateActivity() {
           className="draft-form"
           onSubmit={(e) => {
             e.preventDefault();
+            if (!ready) return;
             if (profile) void publish();
             else openAuth(publish);
           }}
@@ -150,6 +158,7 @@ function CreateActivity() {
               required
               type="number"
               min={2}
+              max={20}
               value={capacity}
               onChange={(e) => setCapacity(Number(e.target.value))}
             />
@@ -165,6 +174,11 @@ function CreateActivity() {
               onChange={(e) => setMinimum(Number(e.target.value))}
             />
           </label>
+          {!ready && (
+            <p className="full text-sm text-destructive" role="alert">
+              {tr("No activity types or public places are available yet.")}
+            </p>
+          )}
           {error && (
             <p className="full text-sm text-destructive" role="alert">
               {tr(error ?? "")}
@@ -174,7 +188,7 @@ function CreateActivity() {
             {tr("1 hour · You’ll be the first person registered.")}
           </p>
           <div className="form-actions full">
-            <Button disabled={busy} type="submit">
+            <Button disabled={busy || !ready} type="submit">
               {busy ? tr("Publishing…") : tr("Publish")}
               <ArrowUpRight />
             </Button>
@@ -189,7 +203,12 @@ function CreateActivity() {
           )}
         </form>
         <aside className="draft-summary">
-          <img src={activityImages[type]} alt={tr(chosen?.name ?? "Activity")} />
+          {chosen && (
+            <img
+              src={activityImages[visualKind(chosen.name, chosen.keywords)]}
+              alt={tr(chosen.name)}
+            />
+          )}
           <h2>{tr(chosen?.name ?? "")}</h2>
           <p>
             {tr(chosenPlace?.name ?? "")}

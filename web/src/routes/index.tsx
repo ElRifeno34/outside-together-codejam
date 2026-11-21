@@ -32,6 +32,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { ActivityCard, activityIcons, formatStart } from "@/components/activity-card";
 import { useApp } from "@/components/app-provider";
 import * as api from "@/api";
+import { visualKind } from "@/api/supabase-backend";
 import { futureDay } from "@/data/fixtures";
 import { toast } from "sonner";
 import { selectBoardRows, locateOnce, type NicheSort, type Origin } from "@/api/board-options";

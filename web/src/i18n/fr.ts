@@ -577,4 +577,6 @@ export const french: Record<string, string> = {
   "Challenges: not connected to the backend yet": "Les défis ne sont pas encore reliés au serveur",
   "Profile customization: not connected to the backend yet":
     "La personnalisation du profil n’est pas encore reliée au serveur",
+  "No activity types or public places are available yet.":
+    "Aucun type d’activité ni lieu public n’est encore disponible.",
 };
