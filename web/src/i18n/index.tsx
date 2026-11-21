@@ -14,6 +14,11 @@ export function translate(text: string, language: Language): string {
       : found[1];
     return `Une activité à ${time}, ${found[2]} personnes sont inscrites.`;
   }
+  const here = key.match(/^We're here! \+(\d+) points$/);
+  if (here) return `On est là ! +${here[1]} points`;
+  const waiting = key.match(/^You're checked in · waiting for (\d+) more (?:person|people)$/);
+  if (waiting)
+    return `Présence confirmée · encore ${waiting[1]} ${waiting[1] === "1" ? "personne" : "personnes"} à confirmer`;
   const points = key.match(/^\+(\d+) points$/);
   if (points) return `+${points[1]} points`;
   const welcome = key.match(/^You're in, (.*)!$/);
