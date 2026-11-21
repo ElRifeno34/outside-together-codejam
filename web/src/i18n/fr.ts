@@ -577,6 +577,12 @@ export const french: Record<string, string> = {
   "Challenges: not connected to the backend yet": "Les défis ne sont pas encore reliés au serveur",
   "Profile customization: not connected to the backend yet":
     "La personnalisation du profil n’est pas encore reliée au serveur",
+  "We're here": "On est là",
+  "You're checked in": "Présence confirmée",
+  "Points unlock as soon as one more participant checks in.":
+    "Les points se débloquent dès qu’une autre personne confirme sa présence.",
+  "Tap “We're here” once you've met up. Points unlock when 2 of you check in.":
+    "Touchez « On est là » une fois réunis. Les points se débloquent quand 2 personnes confirment.",
   "No activity types or public places are available yet.":
     "Aucun type d’activité ni lieu public n’est encore disponible.",
 };
