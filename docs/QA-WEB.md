@@ -1,6 +1,6 @@
 # QA web — Montréal 24-hour demo
 
-Use a desktop browser and a phone browser, three disposable accounts, a seeded board, and one completed activity. Record browser, revision, account, test ID and result. The local seed is synthetic. Use checked public places for the live demo.
+Use a desktop browser and a phone browser, three disposable accounts, a seeded board, and one completed activity. Record browser, revision, account, test ID and result. `supabase/seed.sql` uses approximate public landmark locations. Check them before the live demo.
 
 | ID | Scenario | Expected result |
 | --- | --- | --- |
@@ -13,4 +13,4 @@ Use a desktop browser and a phone browser, three disposable accounts, a seeded b
 | WEB-07 | Repeat with a photo walk at niche value 4. Try to write points directly as a normal account. | The photo walk earns 30 points per confirmed person. The direct write is denied. |
 | WEB-08 | Let a session start without its minimum number of people. | It disappears from the public board and cannot earn attendance points. |
 
-Use `supabase/qa/core.sql` for repeatable database checks. Browser checks for authentication, Edge Functions, the filter UI, and the fallback recording require the integrated demo. At H19, freeze features and run the selected demo path three times. Keep a recording of search, join, draft review and points in case the room network fails.
+Use `supabase/tests/role_b_smoke.sql` for repeatable database checks. Browser checks for authentication, Edge Functions, the filter UI, and the fallback recording require the integrated demo. At H19, freeze features and run the selected demo path three times. Keep a recording of search, join, draft review and points in case the room network fails.

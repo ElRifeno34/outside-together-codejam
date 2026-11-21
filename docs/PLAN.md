@@ -29,7 +29,7 @@ One person prompts Lovable, one change at a time. Keep about 30 credits in reser
 
 Migrations `001_schema.sql` through `007_security_hardening.sql` supply `profiles`, `places`, `activity_types`, `activities`, `participants`, `points` and the read-only `activity_board` view. The RPCs are `create_activity`, `join_activity`, `leave_activity` and `confirm_attendance`. The view exposes aggregate participant counts and public place fields, plus `is_mine` instead of the creator's id. Individual registration and point rows are private to the account. [BACKEND.md](BACKEND.md) is the authoritative contract.
 
-`supabase/migrations/20261121000000_core.sql` and `supabase/qa/core.sql` belong to an earlier, incompatible schema and must not be run against the Role B database. `supabase/seed.sql` holds synthetic fixtures and has not been applied to the hosted database yet.
+Migrations 001–007 are the authoritative Role B schema and `supabase/tests/role_b_smoke.sql` is the authoritative Role B database test. `supabase/seed.sql` (16 activity types, 10 public Montréal places, 14 upcoming activities, all with fixed ids) has been applied to the hosted database.
 
 ### Front end
 
