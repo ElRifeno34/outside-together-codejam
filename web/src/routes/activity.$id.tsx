@@ -175,7 +175,7 @@ function ActivityDetail() {
               {10 + 5 * a.niche_value} {tr("points · niche value ")}
               {a.niche_value}
               {tr("/5")}
-              <small>{tr("Points = 10 + 5 × niche value, after 2 approved attendances")}</small>
+              <small>{tr("Points = 10 + 5 × niche value, once 2 participants check in")}</small>
               <small>
                 +{creditsFor(10 + 5 * a.niche_value, a.niche_value)} {tr("credits earned")}
               </small>

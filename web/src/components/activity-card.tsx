@@ -182,7 +182,7 @@ export function ActivityCard({
         <div className="card-bottom">
           <span
             className="points-label card-reward"
-            title={tr("Earned after two creator/admin-approved attendances")}
+            title={tr("Unlocked when 2 participants check in")}
           >
             <Sparkles size={14} />
             {tr("+")}
