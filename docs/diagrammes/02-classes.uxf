@@ -1,4 +1,4 @@
-<?xml version='1.0' encoding='utf-8'?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <diagram program="umlet" version="15.1">
   <zoom_level>10</zoom_level>
   <element>
@@ -6,10 +6,10 @@
     <coordinates>
       <x>20</x>
       <y>12</y>
-      <w>560</w>
-      <h>32</h>
+      <w>660</w>
+      <h>40</h>
     </coordinates>
-    <panel_attributes>*02 · Classes — cercles, sorties et points*
+    <panel_attributes>*02 · Classes — catalogue, parcours et projets de terrain*
 fontsize=17
 halign=left
 fg=#18334a</panel_attributes>
@@ -18,83 +18,17 @@ fg=#18334a</panel_attributes>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>295</x>
-      <y>90</y>
-      <w>205</w>
-      <h>125</h>
-    </coordinates>
-    <panel_attributes>Membre
---
-+ id : UUID
-+ nomAffiche : string
-+ zones : string[]
-+ interets : string[]
-+ activitesFavorites : UUID[]
-bg=#eaf3f8
-fg=#18334a</panel_attributes>
-    <additional_attributes />
-  </element>
-  <element>
-    <id>UMLClass</id>
-    <coordinates>
-      <x>585</x>
-      <y>105</y>
-      <w>220</w>
-      <h>70</h>
-    </coordinates>
-    <panel_attributes>Adhesion
---
-+ dateAdhesion : datetime
-bg=#eaf3f8
-fg=#18334a</panel_attributes>
-    <additional_attributes />
-  </element>
-  <element>
-    <id>UMLClass</id>
-    <coordinates>
-      <x>960</x>
-      <y>90</y>
-      <w>205</w>
-      <h>110</h>
-    </coordinates>
-    <panel_attributes>Cercle
---
-+ id : UUID
-+ nom : string
-+ interets : string[]
-bg=#eaf3f8
-fg=#18334a</panel_attributes>
-    <additional_attributes />
-  </element>
-  <element>
-    <id>UMLClass</id>
-    <coordinates>
-      <x>20</x>
-      <y>90</y>
-      <w>195</w>
-      <h>100</h>
-    </coordinates>
-    <panel_attributes>Disponibilite
---
-+ debut : datetime
-+ fin : datetime
-bg=#eaf3f8
-fg=#18334a</panel_attributes>
-    <additional_attributes />
-  </element>
-  <element>
-    <id>UMLClass</id>
-    <coordinates>
-      <x>295</x>
-      <y>350</y>
+      <x>55</x>
+      <y>155</y>
       <w>205</w>
       <h>120</h>
     </coordinates>
-    <panel_attributes>Participation
+    <panel_attributes>Lieu
 --
-+ inscritLe : datetime
-+ presenceLe : datetime?
-+ organisateur : bool
+id, nom, secteur
+latitude, longitude
+etiquettes, accesPublic
+meconnu : bool
 bg=#eaf3f8
 fg=#18334a</panel_attributes>
     <additional_attributes />
@@ -102,19 +36,175 @@ fg=#18334a</panel_attributes>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>585</x>
-      <y>328</y>
+      <x>390</x>
+      <y>155</y>
+      <w>205</w>
+      <h>120</h>
+    </coordinates>
+    <panel_attributes>LiaisonPietonne
+--
+origineId, destinationId
+dureeMin, trace, consignes
+bg=#eaf3f8
+fg=#18334a</panel_attributes>
+    <additional_attributes />
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>710</x>
+      <y>155</y>
       <w>220</w>
-      <h>162</h>
+      <h>120</h>
+    </coordinates>
+    <panel_attributes>Etape
+--
+ordre, dureeActiviteMin
+instruction
+bg=#eaf3f8
+fg=#18334a</panel_attributes>
+    <additional_attributes />
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>1055</x>
+      <y>155</y>
+      <w>240</w>
+      <h>120</h>
+    </coordinates>
+    <panel_attributes>Circuit
+--
+id, secteur
+pointDepartId, dureeTotaleMin
+pleinAir, activite, ambiance
+bg=#eaf3f8
+fg=#18334a</panel_attributes>
+    <additional_attributes />
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>230</x>
+      <y>156</y>
+      <w>190</w>
+      <h>60</h>
+    </coordinates>
+    <panel_attributes>lt=-
+m1=1
+m2=0..*
+origine
+fg=#18334a</panel_attributes>
+    <additional_attributes>30.0;30.0;160.0;30.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>230</x>
+      <y>215</y>
+      <w>190</w>
+      <h>60</h>
+    </coordinates>
+    <panel_attributes>lt=-
+m1=1
+m2=0..*
+destination
+fg=#18334a</panel_attributes>
+    <additional_attributes>30.0;30.0;160.0;30.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>120</x>
+      <y>70</y>
+      <w>730</w>
+      <h>115</h>
+    </coordinates>
+    <panel_attributes>lt=-
+m1=1
+m2=0..*
+fg=#18334a</panel_attributes>
+    <additional_attributes>30.0;85.0;30.0;30.0;700.0;30.0;700.0;85.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>900</x>
+      <y>170</y>
+      <w>185</w>
+      <h>60</h>
+    </coordinates>
+    <panel_attributes>lt=-
+m1=1
+m2=2..3
+fg=#18334a</panel_attributes>
+    <additional_attributes>155.0;30.0;30.0;30.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>55</x>
+      <y>351</y>
+      <w>205</w>
+      <h>123</h>
+    </coordinates>
+    <panel_attributes>Disponibilite
+--
+debut, fin
+bg=#eaf3f8
+fg=#18334a</panel_attributes>
+    <additional_attributes />
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>390</x>
+      <y>351</y>
+      <w>205</w>
+      <h>123</h>
+    </coordinates>
+    <panel_attributes>Membre
+--
+id, nomAffiche
+zones, interets
+activitesFavorites
+bg=#eaf3f8
+fg=#18334a</panel_attributes>
+    <additional_attributes />
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>710</x>
+      <y>351</y>
+      <w>220</w>
+      <h>123</h>
+    </coordinates>
+    <panel_attributes>Participation
+--
+inscritLe, presenceLe
+organisateur
+date, duree, pleinAir
+lieuxVisites (historique)
+bg=#eaf3f8
+fg=#18334a</panel_attributes>
+    <additional_attributes />
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>1055</x>
+      <y>351</y>
+      <w>240</w>
+      <h>123</h>
     </coordinates>
     <panel_attributes>Sortie
 --
-+ id : UUID
-+ debut / fin : datetime
-+ lieuPublic : string
-+ dehors : bool
-+ capacite : int
-+ statut : StatutSortie
+id, debut, fin
+capacite, statut
+visibilite, code?
+moduleId
+lieuId? pour une sortie simple
 bg=#eaf3f8
 fg=#18334a</panel_attributes>
     <additional_attributes />
@@ -122,15 +212,101 @@ fg=#18334a</panel_attributes>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>960</x>
-      <y>355</y>
-      <w>205</w>
-      <h>90</h>
+      <x>1430</x>
+      <y>351</y>
+      <w>220</w>
+      <h>123</h>
     </coordinates>
-    <panel_attributes>Activite
+    <panel_attributes>DefiPhoto
 --
-+ id : UUID
-+ nom : string
+id, etapeOrdre
+consigne
+bg=#eaf3f8
+fg=#18334a</panel_attributes>
+    <additional_attributes />
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>230</x>
+      <y>369</y>
+      <w>190</w>
+      <h>60</h>
+    </coordinates>
+    <panel_attributes>lt=-
+m1=1
+m2=0..*
+fg=#18334a</panel_attributes>
+    <additional_attributes>160.0;30.0;30.0;30.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>565</x>
+      <y>369</y>
+      <w>175</w>
+      <h>60</h>
+    </coordinates>
+    <panel_attributes>lt=-
+m1=1
+m2=0..*
+fg=#18334a</panel_attributes>
+    <additional_attributes>30.0;30.0;145.0;30.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>900</x>
+      <y>369</y>
+      <w>185</w>
+      <h>60</h>
+    </coordinates>
+    <panel_attributes>lt=-
+m1=1
+m2=0..*
+fg=#18334a</panel_attributes>
+    <additional_attributes>155.0;30.0;30.0;30.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>1145</x>
+      <y>245</y>
+      <w>60</w>
+      <h>136</h>
+    </coordinates>
+    <panel_attributes>lt=-
+m1=0..1
+m2=0..*
+fg=#18334a</panel_attributes>
+    <additional_attributes>30.0;30.0;30.0;106.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>1265</x>
+      <y>369</y>
+      <w>195</w>
+      <h>60</h>
+    </coordinates>
+    <panel_attributes>lt=-
+m1=1
+m2=0..1
+fg=#18334a</panel_attributes>
+    <additional_attributes>30.0;30.0;165.0;30.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>55</x>
+      <y>584</y>
+      <w>205</w>
+      <h>100</h>
+    </coordinates>
+    <panel_attributes>Cercle
+--
+id, createurId
+nom, interets
 bg=#eaf3f8
 fg=#18334a</panel_attributes>
     <additional_attributes />
@@ -138,15 +314,30 @@ fg=#18334a</panel_attributes>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>295</x>
-      <y>570</y>
+      <x>390</x>
+      <y>584</y>
       <w>205</w>
-      <h>105</h>
+      <h>100</h>
+    </coordinates>
+    <panel_attributes>Adhesion
+--
+dateAdhesion
+bg=#eaf3f8
+fg=#18334a</panel_attributes>
+    <additional_attributes />
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>710</x>
+      <y>584</y>
+      <w>220</w>
+      <h>110</h>
     </coordinates>
     <panel_attributes>AttributionPoints
 --
-+ montant : int
-+ attribueLe : datetime
+type, montant, date
+unique par sortie, joueur et type
 bg=#eaf5ef
 fg=#18334a</panel_attributes>
     <additional_attributes />
@@ -154,159 +345,193 @@ fg=#18334a</panel_attributes>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>585</x>
-      <y>570</y>
-      <w>220</w>
-      <h>125</h>
+      <x>1055</x>
+      <y>584</y>
+      <w>240</w>
+      <h>110</h>
     </coordinates>
-    <panel_attributes>« enumeration »
-StatutSortie
+    <panel_attributes>SoumissionPhoto
 --
-PUBLIEE
-EN_ATTENTE
-VALIDEE
-ANNULEE
-bg=#f2f5f8
+clePrivee, statut, note?
+examinateurId?, examineLe?
+bg=#eaf5ef
 fg=#18334a</panel_attributes>
     <additional_attributes />
   </element>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>185</x>
-      <y>110</y>
-      <w>140</w>
+      <x>230</x>
+      <y>590</y>
+      <w>190</w>
       <h>60</h>
     </coordinates>
     <panel_attributes>lt=-
 m1=1
 m2=0..*
 fg=#18334a</panel_attributes>
-    <additional_attributes>110.0;30.0;30.0;30.0</additional_attributes>
+    <additional_attributes>30.0;30.0;160.0;30.0</additional_attributes>
   </element>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>470</x>
-      <y>110</y>
-      <w>145</w>
-      <h>60</h>
-    </coordinates>
-    <panel_attributes>lt=-
-m1=1
-m2=0..*
-fg=#18334a</panel_attributes>
-    <additional_attributes>30.0;30.0;115.0;30.0</additional_attributes>
-  </element>
-  <element>
-    <id>Relation</id>
-    <coordinates>
-      <x>775</x>
-      <y>110</y>
-      <w>215</w>
-      <h>60</h>
-    </coordinates>
-    <panel_attributes>lt=-
-m1=1
-m2=0..*
-fg=#18334a</panel_attributes>
-    <additional_attributes>185.0;30.0;30.0;30.0</additional_attributes>
-  </element>
-  <element>
-    <id>Relation</id>
-    <coordinates>
-      <x>350</x>
-      <y>36</y>
-      <w>740</w>
-      <h>84</h>
-    </coordinates>
-    <panel_attributes>lt=-
-m1=1
-m2=0..*
-créateur du cercle
-fg=#18334a</panel_attributes>
-    <additional_attributes>30.0;54.0;30.0;30.0;710.0;30.0;710.0;54.0</additional_attributes>
-  </element>
-  <element>
-    <id>Relation</id>
-    <coordinates>
-      <x>370</x>
-      <y>185</y>
+      <x>462</x>
+      <y>444</y>
       <w>60</w>
-      <h>195</h>
+      <h>170</h>
     </coordinates>
     <panel_attributes>lt=-
 m1=1
 m2=0..*
 fg=#18334a</panel_attributes>
-    <additional_attributes>30.0;30.0;30.0;165.0</additional_attributes>
+    <additional_attributes>30.0;30.0;30.0;140.0</additional_attributes>
   </element>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>775</x>
-      <y>147</y>
-      <w>215</w>
-      <h>233</h>
-    </coordinates>
-    <panel_attributes>lt=-
-m1=1
-m2=0..*
-fg=#18334a</panel_attributes>
-    <additional_attributes>185.0;30.0;110.0;30.0;110.0;203.0;30.0;203.0</additional_attributes>
-  </element>
-  <element>
-    <id>Relation</id>
-    <coordinates>
-      <x>775</x>
-      <y>370</y>
-      <w>215</w>
-      <h>60</h>
-    </coordinates>
-    <panel_attributes>lt=-
-m1=1
-m2=0..*
-fg=#18334a</panel_attributes>
-    <additional_attributes>185.0;30.0;30.0;30.0</additional_attributes>
-  </element>
-  <element>
-    <id>Relation</id>
-    <coordinates>
-      <x>470</x>
-      <y>370</y>
-      <w>145</w>
-      <h>60</h>
-    </coordinates>
-    <panel_attributes>lt=-
-m1=1
-m2=0..*
-fg=#18334a</panel_attributes>
-    <additional_attributes>115.0;30.0;30.0;30.0</additional_attributes>
-  </element>
-  <element>
-    <id>Relation</id>
-    <coordinates>
-      <x>370</x>
-      <y>440</y>
+      <x>790</x>
+      <y>444</y>
       <w>60</w>
-      <h>160</h>
+      <h>170</h>
+    </coordinates>
+    <panel_attributes>lt=-
+m1=1
+m2=0..*
+fg=#18334a</panel_attributes>
+    <additional_attributes>30.0;30.0;30.0;140.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>900</x>
+      <y>410</y>
+      <w>185</w>
+      <h>242</h>
     </coordinates>
     <panel_attributes>lt=-
 m1=1
 m2=0..1
 fg=#18334a</panel_attributes>
-    <additional_attributes>30.0;30.0;30.0;130.0</additional_attributes>
+    <additional_attributes>30.0;30.0;90.0;30.0;90.0;212.0;155.0;212.0</additional_attributes>
   </element>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>665</x>
-      <y>460</y>
-      <w>60</w>
-      <h>140</h>
+      <x>1265</x>
+      <y>444</y>
+      <w>305</w>
+      <h>208</h>
     </coordinates>
-    <panel_attributes>lt=.&gt;
+    <panel_attributes>lt=-
+m1=1
+m2=0..*
 fg=#18334a</panel_attributes>
-    <additional_attributes>30.0;30.0;30.0;110.0</additional_attributes>
+    <additional_attributes>275.0;30.0;275.0;178.0;30.0;178.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>130</x>
+      <y>423</y>
+      <w>1280</w>
+      <h>372</h>
+    </coordinates>
+    <panel_attributes>lt=-
+m1=0..1
+m2=0..*
+sortie de cercle
+fg=#18334a</panel_attributes>
+    <additional_attributes>30.0;261.0;30.0;342.0;1250.0;342.0;1250.0;30.0;1165.0;30.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>55</x>
+      <y>870</y>
+      <w>205</w>
+      <h>110</h>
+    </coordinates>
+    <panel_attributes>ProjetTerrain
+--
+id, nom, modele
+livrable
+bg=#fff3dc
+fg=#18334a</panel_attributes>
+    <additional_attributes />
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>710</x>
+      <y>870</y>
+      <w>220</w>
+      <h>110</h>
+    </coordinates>
+    <panel_attributes>Jalon
+--
+ordre, statut
+resultat, preuveValideeId?
+bg=#fff3dc
+fg=#18334a</panel_attributes>
+    <additional_attributes />
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>60</x>
+      <y>654</y>
+      <w>60</w>
+      <h>246</h>
+    </coordinates>
+    <panel_attributes>lt=-
+m1=1
+m2=0..*
+fg=#18334a</panel_attributes>
+    <additional_attributes>30.0;30.0;30.0;136.0;30.0;216.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>230</x>
+      <y>895</y>
+      <w>510</w>
+      <h>60</h>
+    </coordinates>
+    <panel_attributes>lt=-
+m1=1
+m2=3
+fg=#18334a</panel_attributes>
+    <additional_attributes>30.0;30.0;480.0;30.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>900</x>
+      <y>445</y>
+      <w>460</w>
+      <h>505</h>
+    </coordinates>
+    <panel_attributes>lt=-
+m1=0..1
+m2=0..*
+fg=#18334a</panel_attributes>
+    <additional_attributes>30.0;475.0;430.0;475.0;430.0;30.0;360.0;30.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>1430</x>
+      <y>735</y>
+      <w>220</w>
+      <h>117</h>
+    </coordinates>
+    <panel_attributes>&lt;&lt;contrat&gt;&gt;
+ModuleActivite
+--
+id
+declencheur, regles, resultat
+bg=#fff3dc
+fg=#18334a</panel_attributes>
+    <additional_attributes />
   </element>
 </diagram>
