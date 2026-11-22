@@ -24,6 +24,7 @@ import {
 import { activityTitle, visualKey, type ActivityBoardRow } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { useApp } from "./app-provider";
+import { activityPhase } from "@/lib/participation";
 import { joinActivity } from "@/api";
 import { toast } from "sonner";
 import walk from "@/assets/walk.jpg";
@@ -101,6 +102,7 @@ export function ActivityCard({
   joined?: boolean;
   onChanged?: () => void;
 }) {
+  const phase = activityPhase(activity);
   const { tr, language } = useLanguage();
   const { profile, openAuth, refreshProfile } = useApp();
   const Icon = activityIcons[visualKey(activity) as keyof typeof activityIcons] ?? Footprints;
@@ -126,13 +128,24 @@ export function ActivityCard({
           alt={tr(activityTitle(activity))}
           className="card-photo"
         />
-        <span className={`status-chip ${activity.status === "confirmed" ? "is-confirmed" : ""}`}>
-          {activity.status === "confirmed" ? <Check size={12} /> : <span className="status-dot" />}
-          {activity.status === "confirmed"
-            ? tr("It’s happening")
-            : activity.status === "done"
-              ? tr("Completed")
-              : tr("Open to join")}
+        <span
+          className={`status-chip ${activity.status === "confirmed" && phase !== "finished" ? "is-confirmed" : ""}`}
+          data-phase={phase}
+        >
+          {activity.status === "confirmed" && phase !== "finished" ? (
+            <Check size={12} />
+          ) : (
+            <span className="status-dot" />
+          )}
+          {phase === "finished"
+            ? tr("Finished")
+            : phase === "live"
+              ? tr("Happening now")
+              : activity.status === "confirmed"
+                ? tr("It’s happening")
+                : activity.status === "done"
+                  ? tr("Completed")
+                  : tr("Open to join")}
         </span>
         <span className="photo-arrow">
           <ArrowUpRight size={19} />

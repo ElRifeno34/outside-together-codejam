@@ -2856,3 +2856,32 @@
 .dark .leaflet-popup-tip {
   color: oklch(0.25 0.025 158);
 }
+
+/* Time-aware status (Late / Finished) */
+.participant-status[data-tone="warning"] {
+  background: color-mix(in oklch, var(--points) 18%, transparent);
+  color: var(--points);
+  font-weight: 700;
+}
+.participant-status[data-tone="success"] {
+  color: var(--primary);
+}
+.participant-status[data-tone="muted"] {
+  opacity: 0.7;
+}
+.status-chip[data-phase="finished"],
+.detail-status[data-phase="finished"] {
+  background: var(--muted);
+  color: var(--muted-foreground);
+}
+.status-chip[data-phase="live"],
+.detail-status[data-phase="live"] {
+  background: color-mix(in oklch, var(--points) 18%, var(--card));
+  color: var(--points);
+}
+.late-note {
+  margin-top: 0.4rem;
+  color: var(--points);
+  font-size: 0.85rem;
+  font-weight: 600;
+}

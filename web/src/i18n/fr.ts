@@ -1,4 +1,11 @@
 export const french: Record<string, string> = {
+  "Late · check in now": "En retard · confirmez votre présence",
+  "Finished · checked in": "Terminée · présence confirmée",
+  "Finished · not checked in": "Terminée · présence non confirmée",
+  Finished: "Terminée",
+  "Happening now": "En cours",
+  "It started without you checking in. Tap “We're here” once you've arrived.":
+    "L’activité a commencé sans votre confirmation. Touchez « On est là » dès votre arrivée.",
   "Switch to light mode": "Passer en mode clair",
   "Switch to dark mode": "Passer en mode sombre",
   "following your system": "selon votre système",

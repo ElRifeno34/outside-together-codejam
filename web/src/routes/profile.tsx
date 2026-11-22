@@ -5,6 +5,7 @@ import { ArrowUpRight, ArrowLeft, Sparkles, UserRound } from "lucide-react";
 import { useApp } from "@/components/app-provider";
 import { Button } from "@/components/ui/button";
 import { activityImages, activityPhoto, formatStart } from "@/components/activity-card";
+import { participationLabel, useNow } from "@/lib/participation";
 import { activityTitle, visualKey } from "@/lib/types";
 import * as api from "@/api";
 export const Route = createFileRoute("/profile")({
@@ -28,6 +29,8 @@ export const Route = createFileRoute("/profile")({
 });
 function ProfilePage() {
   const { tr, language } = useLanguage();
+  // Re-render every minute so Late / Finished appear without a reload.
+  const now = useNow();
   const { profile, openAuth } = useApp();
   const my = useQuery({
     queryKey: ["my-activities", profile?.id],
@@ -100,15 +103,14 @@ function ProfilePage() {
                         {tr(p.activity.place_name ?? "")} {" · "}
                         {formatStart(p.activity.starts_at, language)}
                       </p>
-                      <span className="participant-status">
-                        {tr(
-                          p.status === "joined"
-                            ? "Joined"
-                            : p.status === "left"
-                              ? "Left activity"
-                              : "Checked in",
-                        )}
-                      </span>
+                      {(() => {
+                        const s = participationLabel(p.status, p.activity, now);
+                        return (
+                          <span className="participant-status" data-tone={s.tone}>
+                            {tr(s.label)}
+                          </span>
+                        );
+                      })()}
                     </div>
                     <ArrowUpRight />
                   </Link>

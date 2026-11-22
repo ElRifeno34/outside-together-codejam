@@ -34,6 +34,7 @@ import { activityPhoto, formatStart } from "@/components/activity-card";
 import * as api from "@/api";
 import { activityOptions } from "@/api/queries";
 import { SideQuests } from "@/components/side-quests";
+import { activityPhase, useNow } from "@/lib/participation";
 /** Absolute link back to this activity for calendar events (only called from click handlers). */
 const pageUrl = (id: string) => `${window.location.origin}/activity/${id}`;
 import { toast } from "sonner";
@@ -104,6 +105,9 @@ function ActivityDetail() {
   // Participants check themselves in from starts_at (confirm_attendance); 2 check-ins unlock points.
   const confirmOpen = started;
   const checkedIn = membership?.status === "confirmed";
+  // Re-render every minute so Happening now / Finished switch on time.
+  const now = useNow();
+  const phase = activityPhase(a, now);
   // Only the creator can edit, and only before it starts (update_activity, migration 009).
   const canEdit =
     !!profile &&
@@ -165,15 +169,24 @@ function ActivityDetail() {
       <div className="detail-grid">
         <img className="detail-photo" src={activityPhoto(a)} alt={tr(activityTitle(a))} />
         <section className="detail-content">
-          <span className="detail-status">
-            {a.status === "done"
-              ? tr("Completed")
-              : a.status === "confirmed"
-                ? tr("It’s happening")
-                : a.status === "cancelled"
-                  ? tr("Cancelled")
-                  : tr("Open to join")}
+          <span className="detail-status" data-phase={phase}>
+            {a.status === "cancelled"
+              ? tr("Cancelled")
+              : phase === "finished"
+                ? tr("Finished")
+                : phase === "live"
+                  ? tr("Happening now")
+                  : a.status === "done"
+                    ? tr("Completed")
+                    : a.status === "confirmed"
+                      ? tr("It’s happening")
+                      : tr("Open to join")}
           </span>
+          {joined && !checkedIn && phase === "live" && (
+            <p className="late-note" role="status">
+              {tr("It started without you checking in. Tap “We're here” once you've arrived.")}
+            </p>
+          )}
           <h1>{tr(activityTitle(a))}</h1>
           {a.title && <p className="detail-type">{tr(a.activity_name)}</p>}
           <div className="detail-row">
