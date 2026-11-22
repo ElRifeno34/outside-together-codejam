@@ -129,6 +129,25 @@ describe("accounts", () => {
     expect(api.takeReturnPath()).toBe("/activity/act-1?tab=info");
     expect(api.takeReturnPath()).toBeNull();
   });
+
+  it("explains a refused Google sign-up once and cleans the address", () => {
+    window.history.replaceState(
+      null,
+      "",
+      "/?error=server_error&error_code=unexpected_failure&error_description=Database+error+saving+new+user",
+    );
+    expect(api.takeSignInError()).toBe(
+      "This email already had an Outside Together account, so it can’t create a new one.",
+    );
+    expect(window.location.search).toBe("");
+    expect(api.takeSignInError()).toBeNull();
+  });
+
+  it("falls back to a generic message for other sign-in errors", () => {
+    window.history.replaceState(null, "", "/#error=access_denied&error_description=User+cancelled");
+    expect(api.takeSignInError()).toBe("Google sign-in didn’t work. Please try again.");
+    expect(window.location.hash).toBe("");
+  });
 });
 
 describe("join, leave and create through the Role B RPCs", () => {

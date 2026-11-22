@@ -1,4 +1,8 @@
 export const french: Record<string, string> = {
+  "This email already had an Outside Together account, so it can’t create a new one.":
+    "Ce courriel a déjà eu un compte Outside Together : il ne peut pas en créer un nouveau.",
+  "Google sign-in didn’t work. Please try again.":
+    "La connexion Google n’a pas fonctionné. Réessayez.",
   "Sign in or create your account with Google to join your next one-hour adventure.":
     "Connectez-vous ou créez votre compte avec Google pour rejoindre votre prochaine aventure d’une heure.",
   "Opening Google…": "Ouverture de Google…",

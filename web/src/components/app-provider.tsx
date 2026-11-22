@@ -45,6 +45,15 @@ export function AppProvider({ children }: { children: ReactNode }) {
           return null;
         });
     void load();
+    // Back from Google with a refusal (e.g. an email that already had an account):
+    // explain it and return to the page they started from.
+    const refused = api.takeSignInError();
+    if (refused) {
+      toast.error(tr(refused), { duration: 8000 });
+      const back = api.takeReturnPath();
+      if (back && back !== window.location.pathname + window.location.search)
+        router.history.push(back);
+    }
     // Pick up the session restored after the Google redirect, token refreshes and
     // sign-outs in other tabs.
     return api.onAuthChange((event) => {

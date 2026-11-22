@@ -2,7 +2,7 @@
 
 Mobile-first web app for finding people in Montréal for a spontaneous one-hour activity. It was generated with Lovable (TanStack Start, React 19, Tailwind 4, shadcn/ui) and exported into this folder.
 
-The app runs on the Role B Supabase backend (migrations 001–011, see [docs/BACKEND.md](../docs/BACKEND.md)). It needs `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` in `web/.env.local`; without them it shows a "Supabase is not configured" setup screen instead of the app. There is no offline demo mode.
+The app runs on the Role B Supabase backend (migrations 001–012, see [docs/BACKEND.md](../docs/BACKEND.md)). It needs `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` in `web/.env.local`; without them it shows a "Supabase is not configured" setup screen instead of the app. There is no offline demo mode.
 
 ## Run it
 

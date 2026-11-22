@@ -4,7 +4,7 @@ How the screens (A) and the AI functions (C) talk to the database. Supabase proj
 
 ## Setup (once)
 
-1. In the Supabase SQL editor, run [`supabase/migrations/`](../supabase/migrations/) `001_schema.sql` through `011_google_only_signups.sql`, in order. 001–007 are the Role B schema; 008 adds location check-in, 009 activity editing, 010 Google profile names, 011 refuses non-Google sign-ups.
+1. In the Supabase SQL editor, run [`supabase/migrations/`](../supabase/migrations/) `001_schema.sql` through `012_once_per_email.sql`, in order. 001–007 are the Role B schema; 008 adds location check-in, 009 activity editing, 010 Google profile names, 011 refuses non-Google sign-ups, 012 allows one account per email ever (hashed list of used emails, so a deleted account's email can't sign up again).
 2. Run [`supabase/tests/role_b_smoke.sql`](../supabase/tests/role_b_smoke.sql), the authoritative Role B database test. It should print `ROLE B SMOKE TEST PASSED` and leaves no data behind.
 3. Dashboard → Authentication → Sign In / Providers: enable **Google** (see [Google sign-in setup](#google-sign-in-setup)) and **turn Email off**. Sign-in is Google only.
 4. **Lovable:** connect it to this existing Supabase project and tell it *"use the existing tables, do not create or alter tables"*.

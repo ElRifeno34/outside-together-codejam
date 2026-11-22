@@ -281,6 +281,31 @@ export function takeReturnPath(): string | null {
   }
 }
 
+const AUTH_ERROR_KEYS = ["error", "error_code", "error_description"];
+
+/**
+ * When Supabase refuses a sign-in it redirects back with ?error_description=… (or in the
+ * #hash). Returns a sentence to show (once) and removes those parameters from the address.
+ * "Database error saving new user" is our own refusal from migrations 011/012: with Google
+ * as the only provider, that means the email already had an account.
+ */
+export function takeSignInError(): string | null {
+  if (typeof window === "undefined") return null;
+  const url = new URL(window.location.href);
+  const hash = new URLSearchParams(url.hash.replace(/^#/, ""));
+  const description = url.searchParams.get("error_description") ?? hash.get("error_description");
+  if (description === null) return null;
+  for (const key of AUTH_ERROR_KEYS) {
+    url.searchParams.delete(key);
+    hash.delete(key);
+  }
+  url.hash = hash.toString();
+  window.history.replaceState(window.history.state, "", url.toString());
+  return /database error saving new user/i.test(description)
+    ? "This email already had an Outside Together account, so it can’t create a new one."
+    : "Google sign-in didn’t work. Please try again.";
+}
+
 /** Calls back whenever Supabase signs a user in or out (also after the Google redirect). */
 export function onAuthChange(callback: (event: string) => void): () => void {
   if (!supabase) return () => {};
