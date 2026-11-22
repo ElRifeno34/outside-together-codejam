@@ -1,83 +1,73 @@
 import { useLanguage } from "@/i18n";
 import { Link, useRouterState } from "@tanstack/react-router";
-import { ArrowUpRight, MapPin, Plus, Sprout, UserRound, LogOut } from "lucide-react";
+import { CalendarCheck, Compass, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useApp } from "./app-provider";
+import { AccountMenu } from "./account-menu";
+
+/** Outside Together mark: a short line between two stops (one reached, one ahead). */
+function LigneMark() {
+  return (
+    <svg className="wordmark-mark" viewBox="0 0 40 16" aria-hidden="true">
+      <line x1="6" y1="8" x2="34" y2="8" />
+      <circle cx="6" cy="8" r="5" className="stop-reached" />
+      <circle cx="34" cy="8" r="4.25" className="stop-ahead" />
+    </svg>
+  );
+}
+
+/** Desktop: one top bar. Mobile: a slim top bar plus the bottom navigation below. */
 export function AppHeader() {
-  const { tr, language, setLanguage } = useLanguage();
-  const { profile, openAuth, logout } = useApp();
+  const { tr } = useLanguage();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   return (
-    <header className="site-header">
-      <div className="header-inner">
-        <Link to="/" className="brand">
-          <Sprout aria-hidden="true" />
-          <span>
-            {tr("outside")}
-            <span className="brand-together">
-              {tr("together")}
-              <span className="text-primary">{tr(".")}</span>
-            </span>
-          </span>
+    <header className="topbar">
+      <div className="topbar-inner">
+        <Link to="/" className="wordmark" aria-label="Outside Together">
+          <LigneMark />
+          <span>Outside Together</span>
         </Link>
-        <nav className="main-nav" aria-label={tr("Main navigation")}>
+        <nav className="topnav" aria-label={tr("Main navigation")}>
           <Link to="/" data-active={pathname === "/"}>
             {tr("Explore")}
           </Link>
           <Link to="/profile" data-active={pathname === "/profile"}>
-            {tr("My activities")}
-          </Link>
-          <Link to="/create" className="mobile-create" data-active={pathname === "/create"}>
-            <Plus size={13} />
-            <span className="create-label">{tr("Create activity")}</span>
+            {tr("My plans")}
           </Link>
         </nav>
-        <div className="header-actions">
-          <div className="language-switch" role="group" aria-label="Language / Langue">
-            {(["en", "fr"] as const).map((lang) => (
-              <Button
-                key={lang}
-                variant="ghost"
-                aria-pressed={language === lang}
-                onClick={() => setLanguage(lang)}
-              >
-                {lang.toUpperCase()}
-              </Button>
-            ))}
-          </div>
-          <span className="location">
-            <MapPin size={15} /> {tr("Montréal, QC")}
-          </span>
-          <Button variant="outline" asChild className="create-header">
+        <div className="topbar-actions">
+          <Button asChild className="topbar-start">
             <Link to="/create">
               <Plus />
-              <span className="create-label">{tr("Create activity")}</span>
+              {tr("Start one")}
             </Link>
           </Button>
-          {profile ? (
-            <>
-              <Link to="/profile" className="account-switch">
-                {profile.display_name}
-              </Link>
-              <Button
-                variant="ghost"
-                size="icon"
-                title={tr("Sign out")}
-                aria-label={tr("Sign out")}
-                onClick={() => void logout()}
-              >
-                <LogOut />
-              </Button>
-            </>
-          ) : (
-            <Button variant="default" onClick={() => openAuth()}>
-              <UserRound />
-              <span>{tr("Sign in")}</span>
-              <ArrowUpRight className="signin-arrow" />
-            </Button>
-          )}
+          <AccountMenu />
         </div>
       </div>
     </header>
+  );
+}
+
+/** Mobile-only bottom navigation: Explore | Start one | My plans. */
+export function BottomNav() {
+  const { tr } = useLanguage();
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  return (
+    <nav className="bottomnav" aria-label={tr("Main navigation")}>
+      <Link to="/" data-active={pathname === "/"}>
+        <Compass aria-hidden="true" />
+        <span>{tr("Explore")}</span>
+      </Link>
+      <Link to="/create" className="bottomnav-start" data-active={pathname === "/create"}>
+        <span className="bottomnav-start-plate" aria-hidden="true">
+          <Plus />
+        </span>
+        <span>{tr("Start one")}</span>
+      </Link>
+      <Link to="/profile" data-active={pathname === "/profile"}>
+        <CalendarCheck aria-hidden="true" />
+        <span>{tr("My plans")}</span>
+      </Link>
+    </nav>
   );
 }

@@ -590,6 +590,10 @@ export const french: Record<string, string> = {
   "Your points and credits appear once 2 participants check in.":
     "Vos points et crédits apparaissent dès que 2 personnes confirment leur présence.",
   "Checked in": "Présence confirmée",
+  "My plans": "Mes sorties",
+  "Start one": "Proposer",
+  Language: "Langue",
+  Account: "Compte",
   "Your points appear once 2 participants check in.":
     "Vos points apparaissent dès que 2 personnes confirment leur présence.",
   "No activity types or public places are available yet.":

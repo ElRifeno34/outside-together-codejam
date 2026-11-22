@@ -10,12 +10,12 @@ import * as api from "@/api";
 export const Route = createFileRoute("/profile")({
   head: () => ({
     meta: [
-      { title: "My activities & points · Outside Together" },
+      { title: "My plans · Outside Together" },
       {
         name: "description",
         content: "Your one-hour Montréal activities, attendance, and earned points.",
       },
-      { property: "og:title", content: "My activities & points · Outside Together" },
+      { property: "og:title", content: "My plans · Outside Together" },
       {
         property: "og:description",
         content: "See the good company you’ve kept and points you’ve earned outside.",
@@ -80,7 +80,7 @@ function ProfilePage() {
           </section>
           <div className="profile-columns">
             <section>
-              <h2 className="section-label">{tr("My activities")}</h2>
+              <h2 className="section-label">{tr("My plans")}</h2>
               {my.isPending ? (
                 <p className="text-sm text-muted-foreground">{tr("Loading your activities…")}</p>
               ) : my.error ? (

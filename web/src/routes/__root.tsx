@@ -13,7 +13,7 @@ import { useEffect, type ReactNode } from "react";
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { AppProvider } from "@/components/app-provider";
-import { AppHeader } from "@/components/app-header";
+import { AppHeader, BottomNav } from "@/components/app-header";
 import { Toaster } from "sonner";
 import { LanguageProvider, useLanguage } from "@/i18n";
 import { backendMode, isNotConfiguredError, SupabaseNotConfiguredError } from "@/lib/supabase";
@@ -166,7 +166,9 @@ function RootComponent() {
           <AppHeader />
           <Outlet />
           <AppFooter />
-          <Toaster position="bottom-right" richColors />
+          <BottomNav />
+          {/* On phones, toasts sit above the bottom navigation. */}
+          <Toaster position="bottom-right" mobileOffset={{ bottom: 84 }} richColors />
         </AppProvider>
       </LanguageProvider>
     </QueryClientProvider>
