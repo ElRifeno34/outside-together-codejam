@@ -1,0 +1,133 @@
+/*
+ * lively.css — TEMPORARY STAND-IN.
+ *
+ * The "ok ui changed" commit (c77631c2) imports this file from __root.tsx but did not include
+ * it, so the app could not start. These are basic styles for the new activity-card elements
+ * so the merge builds and looks reasonable. Replace this file with the real one from the
+ * teammate's machine (web/src/lively.css) and commit it.
+ */
+
+/* Cards arrive one after another (the card sets --i = its position). */
+@keyframes card-arrive {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.activity-card {
+  animation: card-arrive 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: calc(var(--i, 0) * 45ms);
+  transition: transform 0.18s, box-shadow 0.18s;
+}
+.activity-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 14px 30px -16px rgb(0 0 0 / 0.35);
+}
+@media (prefers-reduced-motion: reduce) {
+  .activity-card {
+    animation: none;
+  }
+  .activity-card:hover {
+    transform: none;
+  }
+}
+
+.card-photo-link {
+  position: relative;
+  display: block;
+}
+
+/* "Almost full", "Full", "Starting soon" stickers on the photo. */
+.card-sticker {
+  position: absolute;
+  top: 0.7rem;
+  right: 0.7rem;
+  z-index: 1;
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  background: var(--card);
+  color: var(--foreground);
+  font-family: var(--font-fun);
+  font-size: 0.8rem;
+  transform: rotate(3deg);
+  box-shadow: 0 3px 0 rgb(0 0 0 / 0.15);
+}
+.card-sticker[data-kind="hot"] {
+  background: var(--points);
+  color: #fff;
+}
+.card-sticker[data-kind="full"] {
+  background: var(--muted);
+  color: var(--muted-foreground);
+}
+.card-sticker[data-kind="soon"] {
+  background: var(--primary);
+  color: var(--primary-foreground);
+}
+
+/* Big clock + countdown. */
+.card-clock {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+}
+.card-clock-time {
+  font-family: var(--font-fun);
+  font-size: 1.4rem;
+  line-height: 1;
+}
+.card-clock-meta {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem;
+  color: var(--muted-foreground);
+  font-size: 0.8rem;
+}
+.card-countdown {
+  padding: 0.1rem 0.45rem;
+  border-radius: 999px;
+  background: var(--secondary);
+  color: var(--primary);
+  font-weight: 700;
+}
+
+.card-divider {
+  height: 1px;
+  margin: 0.4rem 0;
+  background: var(--border);
+}
+
+.card-people {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: var(--muted-foreground);
+  font-size: 0.8rem;
+}
+
+.niche-badge,
+.card-icon-medal {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+/* Reward coin next to the points. */
+.card-reward {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+.coin {
+  display: inline-block;
+  width: 0.95rem;
+  height: 0.95rem;
+  border: 2px solid #b8860b;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #fff3b0, #f4c430 55%, #d4a017);
+}
