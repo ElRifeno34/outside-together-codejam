@@ -7,7 +7,7 @@ const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
 const isBrowser = typeof window !== "undefined";
 
-/** null in demo mode: the app then runs on the in-memory fixtures in src/data/. */
+/** null when VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY are missing: the app then shows a setup screen. */
 export const supabase: SupabaseClient | null =
   url && anonKey
     ? createClient(url, anonKey, {
@@ -21,4 +21,16 @@ export const supabase: SupabaseClient | null =
       })
     : null;
 
-export const backendMode: "supabase" | "demo" = supabase ? "supabase" : "demo";
+export const backendMode: "supabase" | "unconfigured" = supabase ? "supabase" : "unconfigured";
+
+/** Thrown when the app needs Supabase but the frontend environment variables are missing. */
+export class SupabaseNotConfiguredError extends Error {
+  constructor() {
+    super("Supabase is not configured");
+    this.name = "SupabaseNotConfiguredError";
+  }
+}
+
+export function isNotConfiguredError(error: unknown): boolean {
+  return error instanceof Error && error.name === "SupabaseNotConfiguredError";
+}

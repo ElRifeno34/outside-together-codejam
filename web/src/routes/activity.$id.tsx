@@ -19,8 +19,6 @@ import { Button } from "@/components/ui/button";
 import { useApp } from "@/components/app-provider";
 import { activityImages, formatStart } from "@/components/activity-card";
 import * as api from "@/api";
-import { backendMode } from "@/lib/supabase";
-const live = backendMode === "supabase";
 /** Absolute link back to this activity for calendar events (only called from click handlers). */
 const pageUrl = (id: string) => `${window.location.origin}/activity/${id}`;
 import { toast } from "sonner";
@@ -73,33 +71,22 @@ function ActivityDetail() {
     enabled: !!profile,
   });
   const membership = my.data?.find((p) => p.activity_id === id);
-  const review = useQuery({
-    queryKey: ["activity-review", id, profile?.id],
-    queryFn: () => api.getActivityReview(id),
-    enabled: !!profile,
-  });
-  const attendance = review.data?.requests.find(
-    (r) => r.user_id === profile?.id && r.kind === "attendance",
-  );
   const joined = membership && membership.status !== "left";
   const started = Date.now() >= new Date(a.starts_at).getTime();
   const ended = Date.now() >= new Date(a.starts_at).getTime() + 60 * 60000;
-  // The real backend lets participants check in from starts_at (self-confirmation).
-  // Demo mode keeps its review flow, which only accepts submissions after the hour.
-  const confirmOpen = live ? started : ended;
+  // Participants check themselves in from starts_at (confirm_attendance); 2 check-ins unlock points.
+  const confirmOpen = started;
   const checkedIn = membership?.status === "confirmed";
   const action = async (kind: "join" | "leave" | "confirm") => {
     setBusy(true);
     try {
       if (kind === "confirm") {
         const outcome = await api.confirmAttendance(id);
-        // Demo mode returns 0 (creator review); Supabase confirms directly in the database.
-        const message =
-          typeof outcome === "number"
-            ? "Attendance submitted · awaiting creator or admin approval"
-            : outcome.points_unlocked
-              ? `We're here! +${outcome.points_earned} points`
-              : `You're checked in · waiting for ${outcome.waiting_for} more ${outcome.waiting_for === 1 ? "person" : "people"}`;
+        // Kept until the API layer drops its demo branch, which returns a number.
+        if (typeof outcome === "number") throw new Error("Please try again");
+        const message = outcome.points_unlocked
+          ? `We're here! +${outcome.points_earned} points`
+          : `You're checked in · waiting for ${outcome.waiting_for} more ${outcome.waiting_for === 1 ? "person" : "people"}`;
         setResult(message);
         setResultOwner(profile?.id ?? null);
         toast.success(tr(message));
@@ -177,31 +164,14 @@ function ActivityDetail() {
           </div>
           <div className="detail-cta">
             {confirmOpen && joined ? (
-              <Button
-                disabled={
-                  busy ||
-                  checkedIn ||
-                  attendance?.status === "pending" ||
-                  review.isPending ||
-                  review.isError
-                }
-                onClick={() => void action("confirm")}
-              >
+              <Button disabled={busy || checkedIn} onClick={() => void action("confirm")}>
                 {checkedIn ? (
                   <>
                     <Check />
-                    {tr(live ? "You're checked in" : "Attendance approved")}
+                    {tr("You're checked in")}
                   </>
-                ) : live ? (
-                  tr("We're here")
                 ) : (
-                  tr(
-                    attendance?.status === "pending"
-                      ? "Awaiting approval"
-                      : attendance?.status === "rejected"
-                        ? "Resubmit attendance"
-                        : "Submit attendance",
-                  )
+                  tr("We're here")
                 )}
               </Button>
             ) : ended ? (
@@ -224,21 +194,12 @@ function ActivityDetail() {
               </Button>
             )}
           </div>
-          {attendance?.status === "rejected" && (
-            <p className="review-reason" role="status">
-              {tr("Rejected")}: {attendance.reason}
-            </p>
-          )}
           {checkedIn && a.status !== "done" && (
             <p className="detail-note">
-              {tr(
-                live
-                  ? "Points unlock as soon as one more participant checks in."
-                  : "Attendance approved · waiting for a second approved participant",
-              )}
+              {tr("Points unlock as soon as one more participant checks in.")}
             </p>
           )}
-          {live && joined && started && !checkedIn && (
+          {joined && started && !checkedIn && (
             <p className="detail-note">
               {tr("Tap “We're here” once you've met up. Points unlock when 2 of you check in.")}
             </p>
