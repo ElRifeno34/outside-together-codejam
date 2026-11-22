@@ -12,7 +12,7 @@ import {
   MoreHorizontal,
   Plus,
   ShoppingBag,
-  Snowflake,
+  Shield,
   Sprout,
   Trophy,
   UserRound,
@@ -20,6 +20,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { motion } from "motion/react";
 import { DisplayName, ProfileAvatar } from "@/components/profile-bits";
 import * as api from "@/api";
 import { useApp } from "./app-provider";
@@ -36,7 +37,7 @@ const NAV: NavItem[] = [
   { to: "/map", label: "Map", Icon: MapIcon },
   { to: "/places", label: "Places", Icon: Landmark },
   { to: "/rankings", label: "Rankings", Icon: Trophy },
-  { to: "/season", label: "Season pass", Icon: Snowflake },
+  { to: "/season", label: "Season pass", Icon: Shield },
   { to: "/shop", label: "Shop", Icon: ShoppingBag },
   { to: "/messages", label: "Messages", Icon: MessageCircle },
   { to: "/profile", label: "My activities", Icon: UserRound },
@@ -156,7 +157,15 @@ function Brand() {
   const { tr } = useLanguage();
   return (
     <Link to="/" className="brand">
-      <Sprout aria-hidden="true" />
+      <motion.span
+        className="brand-mark"
+        initial={{ scale: 0.4, rotate: -25, opacity: 0 }}
+        animate={{ scale: 1, rotate: 0, opacity: 1 }}
+        whileHover={{ rotate: [0, -14, 10, -6, 0], transition: { duration: 0.7 } }}
+        transition={{ type: "spring", stiffness: 260, damping: 14 }}
+      >
+        <Sprout aria-hidden="true" />
+      </motion.span>
       <span className="side-label">
         {tr("outside")}
         <span className="brand-together">

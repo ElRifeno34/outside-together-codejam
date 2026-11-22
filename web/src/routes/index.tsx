@@ -36,6 +36,7 @@ import { visualKind } from "@/lib/activity-visuals";
 import { futureDay } from "@/lib/time";
 import { toast } from "sonner";
 import { selectBoardRows, locateOnce, type NicheSort, type Origin } from "@/api/board-options";
+import { Stagger, StaggerItem } from "@/components/motion";
 const boardOptions = queryOptions({ queryKey: ["board"], queryFn: () => api.getBoard() });
 const typesOptions = queryOptions({ queryKey: ["types"], queryFn: api.getActivityTypes });
 const sorts = [
@@ -532,19 +533,21 @@ function Board() {
           <Button onClick={() => void board.refetch()}>{tr("Try again")}</Button>
         </div>
       ) : activities.length ? (
-        <div className="activity-grid">
+        <Stagger className="activity-grid" key={activities.map((a) => a.id).join(",")}>
           {activities.map((a) => (
-            <ActivityCard
-              key={a.id}
-              activity={a}
-              joined={!!my.data?.some((p) => p.activity_id === a.id && p.status !== "left")}
-              onChanged={() => {
-                void board.refetch();
-                if (result) void search();
-              }}
-            />
+            <StaggerItem key={a.id} lift>
+              <ActivityCard
+                key={a.id}
+                activity={a}
+                joined={!!my.data?.some((p) => p.activity_id === a.id && p.status !== "left")}
+                onChanged={() => {
+                  void board.refetch();
+                  if (result) void search();
+                }}
+              />
+            </StaggerItem>
           ))}
-        </div>
+        </Stagger>
       ) : (
         <div className="empty-state">
           <Search size={30} />

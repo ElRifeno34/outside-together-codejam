@@ -22,6 +22,7 @@ import { useApp } from "@/components/app-provider";
 import { DisplayName, GradeBadge, ProfileAvatar } from "@/components/profile-bits";
 import type { Area, FriendRequest, LeaderboardRow, RankingScope } from "@/lib/types";
 import * as api from "@/api";
+import { Stagger, StaggerItem } from "@/components/motion";
 
 export const Route = createFileRoute("/rankings")({
   validateSearch: z.object({
@@ -470,9 +471,10 @@ function RankingList({
     }
   };
   return (
-    <ol className="ranking-list">
+    <Stagger as="ol" className="ranking-list">
       {rows.map((row, i) => (
-        <li
+        <StaggerItem
+          as="li"
           key={row.user_id}
           className="ranking-row"
           data-me={row.is_me}
@@ -510,8 +512,8 @@ function RankingList({
               <UserMinus />
             </Button>
           )}
-        </li>
+        </StaggerItem>
       ))}
-    </ol>
+    </Stagger>
   );
 }

@@ -10,6 +10,8 @@ import { DisplayName, GradeBadge, ProfileAvatar } from "@/components/profile-bit
 import { BANNERS, ITEM_KIND_LABEL, POINTS_PER_CREDIT, type ItemKind } from "@/lib/progression";
 import type { PublicProfile, ShopItem } from "@/lib/types";
 import * as api from "@/api";
+import { Stagger, StaggerItem } from "@/components/motion";
+import { celebrate } from "@/lib/celebrate";
 
 export const Route = createFileRoute("/shop")({
   head: () => ({
@@ -72,6 +74,7 @@ function ShopPage() {
     try {
       await api.buyItem(item.id);
       await api.equipItem(item.kind, item.id);
+      celebrate("purchase");
       toast.success(`${tr(item.name)} ${tr("is yours, and you're wearing it!")}`);
       await refresh();
     } catch (e) {
@@ -171,13 +174,15 @@ function ShopPage() {
               <p>{tr("Run migration 019 in Supabase, then reload.")}</p>
             </div>
           ) : (
-            <div className="shop-grid">
+            <Stagger className="shop-grid" key={kind}>
               {list.map((item) => {
                 const has = owned.has(item.id);
                 const wearing = equipped(item.kind) === item.id;
                 const short = Math.max(0, item.price - credits);
                 return (
-                  <article
+                  <StaggerItem
+                    as="article"
+                    lift
                     key={item.id}
                     className="shop-item"
                     data-selected={preview?.id === item.id}
@@ -224,10 +229,10 @@ function ShopPage() {
                         </Button>
                       )}
                     </div>
-                  </article>
+                  </StaggerItem>
                 );
               })}
-            </div>
+            </Stagger>
           )}
           {profile && (
             <p className="shop-earn">

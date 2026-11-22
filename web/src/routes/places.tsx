@@ -12,6 +12,8 @@ import { distanceMeters, locatePrecise } from "@/lib/geo";
 import type { Spot } from "@/lib/types";
 import * as api from "@/api";
 import { spotsOptions } from "@/api/queries";
+import { Stagger, StaggerItem } from "@/components/motion";
+import { celebrate } from "@/lib/celebrate";
 
 export const Route = createFileRoute("/places")({
   loader: ({ context }) => context.queryClient.ensureQueryData(spotsOptions).catch(() => []),
@@ -86,6 +88,7 @@ function PlacesPage() {
     try {
       const at = await locatePrecise();
       const result = await api.visitSpot(spot.id, at);
+      celebrate("visit");
       toast.success(`${tr("You found")} ${spot.name}! +${result.points_earned} ${tr("points")}`);
       await client.invalidateQueries({ queryKey: ["spot-visits"] });
       await client.invalidateQueries({ queryKey: ["leaderboard"] });
@@ -162,11 +165,17 @@ function PlacesPage() {
           <h2>{tr("Nothing here with these filters.")}</h2>
         </div>
       ) : (
-        <div className="spot-grid">
+        <Stagger className="spot-grid" key={`${niche}-${show}-${origin ? 1 : 0}`}>
           {list.map(({ spot, meters }) => {
             const done = visited.get(spot.id);
             return (
-              <article className="spot-card" key={spot.id} data-visited={!!done}>
+              <StaggerItem
+                as="article"
+                className="spot-card"
+                key={spot.id}
+                data-visited={!!done}
+                lift
+              >
                 <div className="spot-photo">
                   <img src={activityImages[spot.photo] ?? activityImages["walk"]} alt="" />
                   <span className="spot-niche" data-level={spot.niche_value}>
@@ -212,10 +221,10 @@ function PlacesPage() {
                     </Button>
                   </div>
                 </div>
-              </article>
+              </StaggerItem>
             );
           })}
-        </div>
+        </Stagger>
       )}
       {!profile && (
         <p className="spot-signin">

@@ -40,6 +40,7 @@ import { activityPhase, useNow } from "@/lib/participation";
 /** Absolute link back to this activity for calendar events (only called from click handlers). */
 const pageUrl = (id: string) => `${window.location.origin}/activity/${id}`;
 import { toast } from "sonner";
+import { celebrate } from "@/lib/celebrate";
 export const Route = createFileRoute("/activity/$id")({
   loader: async ({ context, params }) => {
     try {
@@ -148,9 +149,11 @@ function ActivityDetail() {
           : `You're checked in · waiting for ${outcome.waiting_for} more ${outcome.waiting_for === 1 ? "person" : "people"}`;
         setResult(message);
         setResultOwner(profile?.id ?? null);
+        celebrate("checkin");
         toast.success(tr(message));
       } else {
         await (kind === "join" ? api.joinActivity(id) : api.leaveActivity(id));
+        if (kind === "join") celebrate("join");
         toast.success(tr(kind === "join" ? "You're on the list!" : "You left this activity"));
       }
       await refreshProfile();

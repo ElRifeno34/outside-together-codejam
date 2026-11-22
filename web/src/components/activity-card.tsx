@@ -37,6 +37,7 @@ import coffee from "@/assets/coffee.jpg";
 import picnic from "@/assets/picnic.jpg";
 import bird from "@/assets/bird.jpg";
 import sunset from "@/assets/sunset.jpg";
+import { celebrate } from "@/lib/celebrate";
 export const activityImages: Record<string, string> = {
   walk,
   basketball,
@@ -109,6 +110,7 @@ export function ActivityCard({
   const join = async () => {
     try {
       await joinActivity(activity.id);
+      celebrate("join");
       toast.success(
         language === "fr"
           ? `Vous participez à ${tr(activityTitle(activity))} !`

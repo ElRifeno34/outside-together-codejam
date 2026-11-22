@@ -9,6 +9,7 @@ import { DisplayName, GradeBadge, ProfileAvatar, TrophyBadge } from "@/component
 import { BANNERS, gradeFor, gradeProgress, TROPHY_TIERS } from "@/lib/progression";
 import * as api from "@/api";
 import { SocialLinksEditor, SocialLinksRow } from "@/components/social-links";
+import { Stagger, StaggerItem } from "@/components/motion";
 
 /** Banner, avatar, grade, stats and trophies for one person (mine or someone else's). */
 export function ProfileView({ userId }: { userId: string }) {
@@ -162,9 +163,9 @@ export function ProfileView({ userId }: { userId: string }) {
         {mine && earned.size > 0 && (
           <p className="pf-hint">{tr("Pin up to 3 trophies to show them next to your name.")}</p>
         )}
-        <ul className="trophy-grid">
+        <Stagger as="ul" className="trophy-grid">
           {defs.map((t) => (
-            <li key={t.id}>
+            <StaggerItem as="li" key={t.id}>
               <TrophyBadge
                 tier={t.tier}
                 name={t.name}
@@ -184,9 +185,9 @@ export function ProfileView({ userId }: { userId: string }) {
                   {p.showcase.includes(t.id) ? <PinOff /> : <Pin />}
                 </Button>
               )}
-            </li>
+            </StaggerItem>
           ))}
-        </ul>
+        </Stagger>
       </div>
     </section>
   );

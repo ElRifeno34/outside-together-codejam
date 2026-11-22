@@ -32,6 +32,8 @@
 @theme inline {
   --font-sans: "DM Sans", sans-serif;
   --font-display: "Manrope", sans-serif;
+  /* Big, playful titles (page h1, logo, season, big numbers). One weight only. */
+  --font-fun: "Lilita One", "Manrope", sans-serif;
   --color-points: var(--points);
   --color-points-soft: var(--points-soft);
   --color-hero-surface: var(--hero-surface);
@@ -3560,4 +3562,58 @@
   .messages-page[data-open="true"] .conversation-list { display: none; }
   .messages-page[data-open="false"] .conversation-pane { display: none; }
   .conversation-back { display: inline-flex; }
+}
+
+/* ===========================================================================
+   Display font (Lilita One): page titles, logo, season, big numbers
+   =========================================================================== */
+main h1,
+.page-title h1,
+.pf-identity h1,
+.season-hero h1,
+.season-level strong,
+.brand,
+.points-total strong,
+.empty-state h2 {
+  font-family: var(--font-fun);
+  font-weight: 400;
+  letter-spacing: 0.01em;
+}
+
+/* ===========================================================================
+   Season 1 · Go Habs Go — bleu-blanc-rouge on the app's green
+   =========================================================================== */
+.season-hero[data-theme="habs"] {
+  position: relative;
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse at 85% 110%, #74c69d44, transparent 55%),
+    repeating-linear-gradient(90deg, transparent 0 46px, #ffffff08 46px 47px),
+    linear-gradient(150deg, #0b2b1f 0%, #1b4332 50%, #2d6a4f 100%);
+  padding-bottom: 2.4rem;
+}
+/* Jersey stripes along the bottom: rouge, blanc, bleu. */
+.season-hero[data-theme="habs"]::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 1.1rem;
+  background: linear-gradient(180deg, #af1e2d 0 40%, #ffffff 40% 60%, #192168 60% 100%);
+}
+.season-hero[data-theme="habs"] .eyebrow { color: #ffd6da; }
+.season-hero[data-theme="habs"] .season-level strong { color: #ffffff; text-shadow: 0 3px 0 #af1e2d; }
+.season-bar span { background: linear-gradient(90deg, #af1e2d, #ffffff 50%, #192168); }
+.season-track li[data-item="true"] { border-color: #af1e2d; }
+.season-track li[data-unlocked="true"] .season-tier { background: #af1e2d; color: #fff; }
+.pf-name[data-effect="ne-habs"] {
+  background-image: linear-gradient(90deg, #af1e2d 0 33%, #9aa5b1 33% 40%, #192168 40% 73%, #af1e2d 73%);
+  background-size: 300% 100%;
+  animation: rainbow-slide 6s linear infinite;
+}
+.dark .pf-name[data-effect="ne-habs"] {
+  background-image: linear-gradient(90deg, #ff4d5e 0 33%, #ffffff 33% 40%, #6c8cff 40% 73%, #ff4d5e 73%);
+}
+.pf-avatar[data-frame="fr-habs"]::after {
+  background: conic-gradient(#af1e2d 0 33%, #ffffff 33% 45%, #192168 45% 78%, #ffffff 78% 88%, #af1e2d 88%);
+  box-shadow: 0 0 10px #af1e2d66;
 }

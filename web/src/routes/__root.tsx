@@ -1,6 +1,7 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
   Outlet,
+  useRouterState,
   Link,
   createRootRouteWithContext,
   useRouter,
@@ -14,6 +15,8 @@ import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { AppProvider } from "@/components/app-provider";
 import { AppHeader } from "@/components/app-header";
+import { PageFade } from "@/components/motion";
+import { MotionConfig } from "motion/react";
 import { Toaster } from "sonner";
 import { LanguageProvider, useLanguage } from "@/i18n";
 import { THEME_BOOT_SCRIPT } from "@/lib/theme";
@@ -123,7 +126,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     links: [
       {
         rel: "stylesheet",
-        href: "https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;450;500;550;600;650;700&family=Manrope:wght@400;500;600;650;700;750;800&display=swap",
+        href: "https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;450;500;550;600;650;700&family=Manrope:wght@400;500;600;650;700;750;800&family=Lilita+One&display=swap",
       },
       {
         rel: "stylesheet",
@@ -166,14 +169,18 @@ function RootComponent() {
       {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
       <LanguageProvider>
         <AppProvider>
-          <div className="app-shell">
-            <AppHeader />
-            <div className="app-main">
-              <Outlet />
-              <AppFooter />
+          <MotionConfig reducedMotion="user">
+            <div className="app-shell">
+              <AppHeader />
+              <div className="app-main">
+                <RouteFade>
+                  <Outlet />
+                </RouteFade>
+                <AppFooter />
+              </div>
             </div>
-          </div>
-          <Toaster position="bottom-right" richColors />
+            <Toaster position="bottom-right" richColors />
+          </MotionConfig>
         </AppProvider>
       </LanguageProvider>
     </QueryClientProvider>
@@ -190,4 +197,10 @@ function AppFooter() {
       <span>{tr("Made for getting out there ↗")}</span>
     </footer>
   );
+}
+
+/** Each page fades in when the route changes (Motion). */
+function RouteFade({ children }: { children: ReactNode }) {
+  const pathname = useRouterState({ select: (st) => st.location.pathname });
+  return <PageFade id={pathname}>{children}</PageFade>;
 }

@@ -1,4 +1,12 @@
 export const french: Record<string, string> = {
+  "Season 1 · Go Habs Go": "Saison 1 · Go Habs Go",
+  "Hockey night in Montréal": "Soirée de hockey à Montréal",
+  "Every point you earn this season moves you up, like goals on the board. 20 tiers, free for everyone. Go Habs Go!":
+    "Chaque point gagné cette saison vous fait monter, comme des buts au tableau. 20 paliers, gratuits pour tout le monde. Go Habs Go !",
+  "Game puck": "Rondelle de match",
+  "Bleu-blanc-rouge": "Bleu-blanc-rouge",
+  "Bell Centre night": "Soirée au Centre Bell",
+  "Habs jersey": "Chandail des Habs",
   "Loading the season…": "Chargement de la saison…",
   "Season pass": "Passe saisonnier",
   Messages: "Messages",

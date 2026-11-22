@@ -7,6 +7,7 @@ import * as api from "@/api";
 import type { Profile } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { celebrate } from "@/lib/celebrate";
 
 type AppContextValue = {
   profile: Profile | null;
@@ -77,10 +78,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
       const defs = await api.getTrophies();
       for (const id of fresh) {
         const t = defs.find((d) => d.id === id);
-        if (t)
-          toast.success(
-            `🏆 ${tr("Trophy unlocked:")} ${tr(t.name)} (+${t.credits} ${tr("credits")})`,
-          );
+        if (!t) continue;
+        celebrate("trophy");
+        toast.success(
+          `🏆 ${tr("Trophy unlocked:")} ${tr(t.name)} (+${t.credits} ${tr("credits")})`,
+        );
       }
       await client.invalidateQueries({ queryKey: ["public-profile"] });
       await client.invalidateQueries({ queryKey: ["my-progress"] });
