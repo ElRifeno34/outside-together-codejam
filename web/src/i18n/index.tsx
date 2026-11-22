@@ -32,8 +32,31 @@ const LanguageContext = createContext<{
   setLanguage: (lang: Language) => void;
   tr: (text: string) => string;
 }>({ language: "en", setLanguage: () => {}, tr: (s) => s });
+/** Browser-local preference only; never sent anywhere. */
+export const LANGUAGE_STORAGE_KEY = "outside-together:language";
+function readStoredLanguage(): Language | null {
+  try {
+    const value = window.localStorage.getItem(LANGUAGE_STORAGE_KEY);
+    return value === "fr" || value === "en" ? value : null;
+  } catch {
+    return null; // private mode, blocked storage, server rendering
+  }
+}
 export function LanguageProvider({ children }: { children: ReactNode }) {
-  const [language, setLanguage] = useState<Language>("en");
+  // The server always renders English; the stored choice is applied after hydration.
+  const [language, setLanguageState] = useState<Language>("en");
+  useEffect(() => {
+    const stored = readStoredLanguage();
+    if (stored) setLanguageState(stored);
+  }, []);
+  const setLanguage = (next: Language) => {
+    setLanguageState(next);
+    try {
+      window.localStorage.setItem(LANGUAGE_STORAGE_KEY, next);
+    } catch {
+      // Storage unavailable: the choice still applies for this visit.
+    }
+  };
   useEffect(() => {
     document.documentElement.lang = language;
   }, [language]);
