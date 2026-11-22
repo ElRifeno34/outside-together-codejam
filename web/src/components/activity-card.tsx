@@ -1,16 +1,12 @@
 import { useLanguage } from "@/i18n";
 import { Link } from "@tanstack/react-router";
 import {
-  ArrowUpRight,
-  MapPin,
-  Clock3,
   Footprints,
   Dribbble,
   BookOpen,
   Crown,
   Camera,
   Pencil,
-  Sparkles,
   Check,
   Coffee,
   Utensils,
@@ -20,8 +16,6 @@ import {
   AudioLines,
   Compass,
   Sun,
-  Flame,
-  Zap,
 } from "lucide-react";
 import type * as React from "react";
 import { activityTitle, visualKey, type ActivityBoardRow } from "@/lib/types";
@@ -156,15 +150,23 @@ export function ActivityCard({
   const phase = activityPhase(activity, now);
   const { tr, language } = useLanguage();
   const { profile, openAuth, refreshProfile } = useApp();
-  const Icon = activityIcons[visualKey(activity) as keyof typeof activityIcons] ?? Footprints;
   const points = 10 + 5 * activity.niche_value;
+  // Only say something on the photo when it is worth saying.
+  const status =
+    phase === "finished"
+      ? tr("Finished")
+      : phase === "live"
+        ? tr("Happening now")
+        : activity.status === "confirmed"
+          ? tr("It’s happening")
+          : null;
   const soon = phase === "upcoming" ? countdown(activity.starts_at, now, language) : null;
   const clock = clockParts(activity.starts_at, language);
   const sticker =
     phase !== "upcoming"
       ? null
       : activity.available_spots === 0
-        ? { kind: "full", text: language === "fr" ? "Complet" : "Full" }
+        ? null
         : activity.available_spots <= 2
           ? { kind: "hot", text: language === "fr" ? "Presque complet" : "Almost full" }
           : soon && new Date(activity.starts_at).getTime() - now < 2 * 3600_000
@@ -192,116 +194,67 @@ export function ActivityCard({
       data-rarity={Math.min(Math.max(activity.niche_value, 1), 5)}
       style={{ "--i": Math.min(index, 12) } as React.CSSProperties}
     >
-      <Link to="/activity/$id" params={{ id: activity.id }} className="card-photo-link">
-        <img
-          src={activityPhoto(activity)}
-          alt={tr(activityTitle(activity))}
-          className="card-photo"
-        />
-        <span
-          className={`status-chip ${activity.status === "confirmed" && phase !== "finished" ? "is-confirmed" : ""}`}
-          data-phase={phase}
-        >
-          {activity.status === "confirmed" && phase !== "finished" ? (
-            <Check size={12} />
-          ) : (
-            <span className="status-dot" />
-          )}
-          {phase === "finished"
-            ? tr("Finished")
-            : phase === "live"
-              ? tr("Happening now")
-              : activity.status === "confirmed"
-                ? tr("It’s happening")
-                : activity.status === "done"
-                  ? tr("Completed")
-                  : tr("Open to join")}
-        </span>
-        {sticker && (
-          <span className="card-sticker" data-kind={sticker.kind}>
-            {sticker.kind === "hot" && <Flame size={13} />}
-            {sticker.kind === "soon" && <Zap size={13} />}
+      <Link
+        to="/activity/$id"
+        params={{ id: activity.id }}
+        className="card-photo-link"
+        tabIndex={-1}
+        aria-hidden="true"
+      >
+        <img src={activityPhoto(activity)} alt="" className="card-photo" />
+        {status ? (
+          <span className="card-label" data-kind="status">
+            {status}
+          </span>
+        ) : sticker ? (
+          <span className="card-label" data-kind={sticker.kind}>
             {sticker.text}
           </span>
-        )}
-        <span className="photo-arrow">
-          <ArrowUpRight size={19} />
-        </span>
-        <span className="card-icon-medal" aria-hidden="true">
-          <Icon size={26} />
-        </span>
+        ) : null}
       </Link>
       <div className="card-body">
-        <div className="card-heading">
-          <Link to="/activity/$id" params={{ id: activity.id }}>
-            <h3>
-              <Icon size={19} />
-              {tr(activityTitle(activity))}
-            </h3>
-          </Link>
-          <span
-            className="niche-badge"
-            title={`${tr("Niche value")} ${activity.niche_value}/5`}
-          >
-            <Sparkles size={12} />
-            {rarityName(activity.niche_value, language)}
-          </span>
-        </div>
-        <div className="card-clock">
-          <span className="card-clock-time">
-            {clock.time}
-            {clock.ampm && <small>{clock.ampm}</small>}
-          </span>
-          <span className="card-clock-meta">
-            <span>{clock.day}</span>
-            {soon ? (
-              <span className="card-countdown">
-                <Clock3 size={12} />
-                {soon}
-              </span>
-            ) : (
-              <span>{tr("1 h")}</span>
-            )}
-          </span>
-        </div>
-        <div className="card-place">
-          <MapPin size={14} />
-          <div>
-            <p>{tr(activity.place_name ?? "")}</p>
-            <span>{activity.address}</span>
-          </div>
-        </div>
-        <div className="card-divider" />
-        <div className="card-people">
-          <div className="avatars" aria-hidden="true">
-            {Array.from({ length: Math.min(activity.joined_count, 3) }, (_, i) => (
-              <span key={i} className={`avatar avatar-${i}`}>
-                {["L", "S", "N"][i]}
-              </span>
-            ))}
-          </div>
-          <div>
-            <strong>
-              {activity.joined_count} {" / "}
-              {activity.capacity} {tr("joined")}
-            </strong>
-            <span className={activity.available_spots === 1 ? "last-spot" : ""}>
-              {activity.available_spots} {activity.available_spots === 1 ? tr("spot") : tr("spots")}{" "}
-              {tr("left")}
-            </span>
-          </div>
-        </div>
-        <div className="card-bottom">
-          <span
-            className="points-label card-reward"
-            title={tr("Unlocked when 2 participants check in")}
-          >
-            <span className="coin" aria-hidden="true" />
+        <p className="card-kicker" title={`${tr("Niche value")} ${activity.niche_value}/5`}>
+          <span className="rarity-dot" aria-hidden="true" />
+          {rarityName(activity.niche_value, language)}
+          <span aria-hidden="true">·</span>
+          <span title={tr("Unlocked when 2 participants check in")}>
             {tr("+")}
             {points} {tr("pts")}
           </span>
+        </p>
+        <Link to="/activity/$id" params={{ id: activity.id }} className="card-title-link">
+          <h3>{tr(activityTitle(activity))}</h3>
+        </Link>
+        <p className="card-when">
+          <strong>
+            {clock.time}
+            {clock.ampm && ` ${clock.ampm}`}
+          </strong>
+          <span>{clock.day}</span>
+          {soon && <span className="card-soon">{soon}</span>}
+        </p>
+        <p className="card-where">{tr(activity.place_name ?? "")}</p>
+        <div className="card-foot">
+          <span className="card-going">
+            {activity.joined_count > 0 && (
+              <span className="avatars" aria-hidden="true">
+                {Array.from({ length: Math.min(activity.joined_count, 3) }, (_, i) => (
+                  <span key={i} className={`avatar avatar-${i}`}>
+                    {["L", "S", "N"][i]}
+                  </span>
+                ))}
+              </span>
+            )}
+            <span className={activity.available_spots === 1 ? "last-spot" : ""}>
+              {activity.joined_count} / {activity.capacity}{" "}
+              {language === "fr" ? "inscrits" : "going"}
+            </span>
+          </span>
           <Button
             variant="join"
+            size="sm"
+            className="card-join"
+            data-joined={joined || undefined}
             onClick={(e) => {
               const button = e.currentTarget;
               if (profile) void join(button);
@@ -314,11 +267,16 @@ export function ActivityCard({
                 <Check />
                 {tr("Joined")}
               </>
+            ) : activity.available_spots === 0 ? (
+              language === "fr" ? (
+                "Complet"
+              ) : (
+                "Full"
+              )
+            ) : language === "fr" ? (
+              "Participer"
             ) : (
-              <>
-                {tr("Join activity")}
-                <ArrowUpRight />
-              </>
+              "Join"
             )}
           </Button>
         </div>

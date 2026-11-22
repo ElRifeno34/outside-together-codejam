@@ -9,11 +9,8 @@ import {
   Sparkles,
   RefreshCw,
   SlidersHorizontal,
-  MapPin,
-  Clock3,
   Sprout,
   X,
-  Users,
   LayoutGrid,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -28,38 +25,26 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { useIsMobile } from "@/hooks/use-mobile";
-import {
-  ActivityCard,
-  activityIcons,
-  countdown,
-  formatStart,
-} from "@/components/activity-card";
-import { activityTitle } from "@/lib/types";
-import { activityPhase } from "@/lib/participation";
-import {
-  Camera,
-  Coffee,
-  Crown,
-  Dribbble,
-  Flame,
-  Footprints,
-  Leaf,
-  Pencil,
-  type LucideIcon,
-} from "lucide-react";
-const floaters: [LucideIcon, string][] = [
-  [Dribbble, "f1"],
-  [Camera, "f2"],
-  [Crown, "f3"],
-  [Coffee, "f4"],
-  [Leaf, "f5"],
-  [Pencil, "f6"],
-  [Footprints, "f7"],
-];
+import { ActivityCard, activityIcons, formatStart } from "@/components/activity-card";
 import { useApp } from "@/components/app-provider";
 import * as api from "@/api";
 import { visualKind } from "@/lib/activity-visuals";
-import { futureDay } from "@/lib/time";
+import { futureDay, torontoDate } from "@/lib/time";
+
+type Day = "today" | "tomorrow" | "weekend";
+const dayTabs: [Day, [string, string]][] = [
+  ["today", ["Today", "Aujourd’hui"]],
+  ["tomorrow", ["Tomorrow", "Demain"]],
+  ["weekend", ["Weekend", "Fin de semaine"]],
+];
+/** This weekend's Montréal dates: Saturday + Sunday, or just today when it is Sunday. */
+function weekendDays(): string[] {
+  const days = Array.from({ length: 7 }, (_, i) => futureDay(i));
+  const weekday = (d: string) => new Date(`${d}T12:00:00Z`).getUTCDay();
+  const first = days.findIndex((d) => weekday(d) === 6 || weekday(d) === 0);
+  if (first < 0) return [];
+  return weekday(days[first]!) === 0 ? [days[first]!] : days.slice(first, first + 2);
+}
 import { toast } from "sonner";
 import { selectBoardRows, locateOnce, type NicheSort, type Origin } from "@/api/board-options";
 const boardOptions = queryOptions({ queryKey: ["board"], queryFn: () => api.getBoard() });
@@ -110,6 +95,7 @@ function Board() {
   const [text, setText] = useState("");
   const [result, setResult] = useState<api.SearchResult | null>(null);
   const [searching, setSearching] = useState(false);
+  const [day, setDay] = useState<Day | null>(null);
   const board = useQuery({
     queryKey: ["board", filters],
     queryFn: () => api.getBoard(filters),
@@ -171,6 +157,7 @@ function Board() {
     }
   };
   const clearFilters = () => {
+    setDay(null);
     setFilters({});
     dismissSearchResults();
     setNicheLevel(null);
@@ -178,140 +165,54 @@ function Board() {
   };
   const activeFilters =
     Number(Boolean(filters.typeId)) +
-    Number(Boolean(filters.date)) +
+    Number(Boolean(filters.date) && day === null) +
     Number(Boolean(filters.timeFrom || filters.timeTo)) +
     Number(nicheLevel !== null) +
     Number(nicheSort !== "soonest");
+  const chooseDay = (next: Day) => {
+    const value = day === next ? null : next;
+    setDay(value);
+    setFilter("date", value === "today" ? futureDay(0) : value === "tomorrow" ? futureDay(1) : "");
+  };
+  const weekend = weekendDays();
   const activities = selectBoardRows(
     result && result.status !== "no_match" ? result.matches : (board.data ?? []),
     nicheLevel,
     nicheSort,
     origin,
-  );
-  // Lively UI test: lobby numbers and the "almost full / starting soon" ticker.
-  const upcoming = (board.data ?? []).filter((a) => activityPhase(a) === "upcoming");
-  const liveCount = upcoming.length;
-  const playerCount = upcoming.reduce((sum, a) => sum + a.joined_count, 0);
-  const tickerItems = upcoming.slice(0, 8).map((a) => {
-    const when = countdown(a.starts_at, Date.now(), language) ?? formatStart(a.starts_at, language);
-    const spots =
-      language === "fr"
-        ? `${a.available_spots} place${a.available_spots === 1 ? "" : "s"}`
-        : `${a.available_spots} spot${a.available_spots === 1 ? "" : "s"} left`;
-    return `${tr(activityTitle(a))} @ ${tr(a.place_name ?? "")} · ${when} · ${spots}`;
-  });
-  const refresh = async () => {
-    await board.refetch();
-    if (result && result.status !== "no_match") await search();
-    toast.success(tr("Activity counts are up to date"));
-  };
+  ).filter((a) => day !== "weekend" || weekend.includes(torontoDate(a.starts_at)));
   return (
     <main className="page-width">
-      <div className="lobby-hero">
-        <div className="lobby-floaters" aria-hidden="true">
-          {floaters.map(([Icon, cls], i) => (
-            <span key={i} className={`floater ${cls}`}>
-              <Icon />
-            </span>
-          ))}
-        </div>
-      <section className="intro">
-        <div>
-          <div className="eyebrow">
-            <span className="status-dot" />
-            {tr("A little time. A little company.")}
-          </div>
-          <h1>
-            {tr("One hour.")
-              .split(" ")
-              .map((word, i) => (
-                <span key={"a" + i} className="pop-word" style={{ animationDelay: `${i * 90}ms` }}>
-                  {word}
-                </span>
-              ))}
-            <em>
-              {tr("Outside Together.")
-                .split(" ")
-                .map((word, i) => (
-                  <span
-                    key={"b" + i}
-                    className="pop-word"
-                    style={{ animationDelay: `${180 + i * 90}ms` }}
-                  >
-                    {word}
-                  </span>
-                ))}
-            </em>
-          </h1>
-          <p>{tr("Find your people, try something new, and make Montréal a little smaller.")}</p>
-        </div>
-        <div className="lobby-stats">
-          <div>
-            <strong>{liveCount}</strong>
-            <span>{language === "fr" ? "quêtes cette semaine" : "quests this week"}</span>
-          </div>
-          <div>
-            <strong>{playerCount}</strong>
-            <span>{language === "fr" ? "joueurs inscrits" : "players in"}</span>
-          </div>
-        </div>
-      </section>
-      <section className="search-band" aria-label={tr("Activity assistant")}>
-        <h2 className="search-heading">
-          <Sparkles size={18} />
-          {tr("What do you feel like doing?")}
-        </h2>
+      <header className="explore-head">
+        <h1>
+          {tr("One hour.")} <em>{tr("Outside Together.")}</em>
+        </h1>
         <form
-          className="search-input-row"
+          className="explore-search"
+          role="search"
+          aria-label={tr("Activity assistant")}
           onSubmit={(e) => {
             e.preventDefault();
             void search();
           }}
         >
-          <Search size={18} />
+          <Search size={18} aria-hidden="true" />
           <input
             aria-label={tr("Describe your activity")}
             placeholder={tr("I have an hour this afternoon. Anyone up for a walk?")}
             value={text}
             onChange={(e) => setText(e.target.value)}
           />
-          <Button type="submit" disabled={searching}>
-            {searching ? tr("Finding…") : tr("Find my people")}
-            <ArrowRight />
+          <Button
+            type="submit"
+            size="icon"
+            disabled={searching}
+            aria-label={searching ? tr("Finding…") : tr("Find my people")}
+          >
+            {searching ? <RefreshCw className="animate-spin" /> : <ArrowRight />}
           </Button>
         </form>
-        <div className="search-suggestions">
-          <span>{tr("A little inspiration:")}</span>
-          {["Basketball Friday afternoon", "A photo walk tomorrow", "Chess in the park"].map(
-            (s) => (
-              <Button
-                key={tr(s ?? "")}
-                variant="pill"
-                onClick={() => {
-                  setText(tr(s));
-                  void search(tr(s));
-                }}
-              >
-                {tr(s ?? "")}
-                <ArrowUpRight size={11} />
-              </Button>
-            ),
-          )}
-        </div>
-      </section>
-      </div>
-      {tickerItems.length > 0 && (
-        <div className="quest-ticker" aria-hidden="true">
-          <div className="quest-ticker-track">
-            {[...tickerItems, ...tickerItems].map((item, i) => (
-              <span key={i} className="quest-ticker-item">
-                <Flame />
-                {item}
-              </span>
-            ))}
-          </div>
-        </div>
-      )}
+      </header>
       {result && (
         <div
           className={`result-banner ${result.status === "fallback" ? "fallback" : ""}`}
@@ -364,59 +265,25 @@ function Board() {
           </Button>
         </div>
       )}
-      <section className="discovery-band">
-        <div>
-          <h2>{tr("Something ordinary. Something unexpected.")}</h2>
-          <p>
-            {tr("Picnics, coffee, moss spotting, sound safaris. There’s an hour for everyone.")}
-          </p>
+      <div className="explore-controls">
+        <div className="day-tabs" role="group" aria-label={tr("Day")}>
+          {dayTabs.map(([value, label]) => (
+            <button
+              key={value}
+              type="button"
+              aria-pressed={day === value}
+              onClick={() => chooseDay(value)}
+            >
+              {language === "fr" ? label[1] : label[0]}
+            </button>
+          ))}
         </div>
-        <div className="discovery-actions">
-          <Button
-            variant="outline"
-            onClick={() => {
-              setNicheLevel(1);
-              setFilters({});
-              setResult(null);
-            }}
-          >
-            {tr("Everyday")}
-          </Button>
-          <Button
-            variant="outline"
-            onClick={() => {
-              setNicheLevel(5);
-              setFilters({});
-              setResult(null);
-            }}
-          >
-            <Sparkles />
-            {tr("Very niche")}
-          </Button>
-        </div>
-      </section>
-      <div className="board-heading">
-        <h2>
-          {result && result.status !== "no_match" ? tr("Your matches") : tr("Find your next hour")}
-          <span>
-            {activities.length} {tr("activities")}
-          </span>
-        </h2>
-        <Button
-          variant="ghost"
-          className="refresh-button"
-          disabled={board.isFetching || searching}
-          onClick={() => void refresh()}
-          aria-label={tr("Refresh activities")}
-        >
-          <RefreshCw className={board.isFetching ? "animate-spin" : ""} />
-          <span>{tr("Refresh")}</span>
-        </Button>
-      </div>
-      <div className="explore-filter-bar">
+        <span className="explore-count">
+          {activities.length} {tr("activities")}
+        </span>
         <Sheet open={filtersOpen} onOpenChange={setFiltersOpen}>
           <SheetTrigger asChild>
-            <Button variant="outline">
+            <Button variant="ghost" className="filters-trigger">
               <SlidersHorizontal />
               {tr("Filters")}
               {activeFilters > 0 && <span className="explore-filter-count">{activeFilters}</span>}
@@ -471,7 +338,10 @@ function Board() {
                   className="filter-select"
                   aria-label={tr("Filter by day")}
                   value={filters.date ?? ""}
-                  onChange={(e) => setFilter("date", e.target.value)}
+                  onChange={(e) => {
+                    setDay(null);
+                    setFilter("date", e.target.value);
+                  }}
                 >
                   <option value="">{tr("Any day")}</option>
                   {Array.from({ length: 8 }, (_, i) => {
@@ -595,16 +465,6 @@ function Board() {
           </SheetContent>
         </Sheet>
       </div>
-      <div className="board-subline">
-        <span>
-          <MapPin />
-          {tr("Public places. Real connections.")}
-        </span>
-        <span>
-          <Clock3 />
-          {tr("Every activity is just 1 hour")}
-        </span>
-      </div>
       {board.error ? (
         <div className="empty-state">
           <h2>{tr("We couldn’t load the activities.")}</h2>
@@ -641,25 +501,6 @@ function Board() {
           </Button>
         </div>
       )}
-      <div className="board-end">
-        <Sprout />
-        {tr("A whole city of possibilities. One hour at a time.")}
-      </div>
-      <section className="points-band">
-        <Sparkles />
-        <div>
-          <h3>{tr("Try something a little different. Earn a little more.")}</h3>
-          <p>
-            {tr(
-              "The more niche the activity, the more points you earn together. Good company always comes first.",
-            )}
-          </p>
-        </div>
-        <Link to="/profile">
-          {tr("My points")}
-          <ArrowUpRight size={14} />
-        </Link>
-      </section>
     </main>
   );
 }
