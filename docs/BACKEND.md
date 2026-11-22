@@ -4,7 +4,7 @@ How the screens (A) and the AI functions (C) talk to the database. Supabase proj
 
 ## Setup (once)
 
-1. In the Supabase SQL editor, run [`supabase/migrations/`](../supabase/migrations/) `001_schema.sql` through `010_google_profile_names.sql`, in order. 001–007 are the Role B schema; 008 adds location check-in, 009 activity editing, 010 Google profile names.
+1. In the Supabase SQL editor, run [`supabase/migrations/`](../supabase/migrations/) `001_schema.sql` through `011_google_only_signups.sql`, in order. 001–007 are the Role B schema; 008 adds location check-in, 009 activity editing, 010 Google profile names, 011 refuses non-Google sign-ups.
 2. Run [`supabase/tests/role_b_smoke.sql`](../supabase/tests/role_b_smoke.sql), the authoritative Role B database test. It should print `ROLE B SMOKE TEST PASSED` and leaves no data behind.
 3. Dashboard → Authentication → Sign In / Providers: enable **Google** (see [Google sign-in setup](#google-sign-in-setup)) and **turn Email off**. Sign-in is Google only.
 4. **Lovable:** connect it to this existing Supabase project and tell it *"use the existing tables, do not create or alter tables"*.
@@ -29,7 +29,7 @@ A `profiles` row is created automatically on first sign-in (trigger from 002, up
 
 1. Google Cloud → APIs & Services → **OAuth consent screen**: External, app name, support email; scopes `email`, `profile`, `openid`. In Testing mode only listed test users can sign in, so add testers or publish the app.
 2. Credentials → **Create OAuth client ID** → Web application. Authorized JavaScript origins: every address the app runs on (e.g. `http://localhost:8080`, `http://localhost:8081`, the deployed site). Authorized redirect URI: `https://<project-ref>.supabase.co/auth/v1/callback`.
-3. Supabase Dashboard → Authentication → Sign In / Providers → **Google**: enable it and paste the client ID and client secret. Turn **Email** off so nobody can create a password account through the API.
+3. Supabase Dashboard → Authentication → Sign In / Providers → **Google**: enable it and paste the client ID and client secret. Turn **Email** off so nobody can create a password account through the API. (This needs an org Owner/Admin; migration 011 already refuses new non-Google accounts at the database, but only the switch stops existing email accounts from signing in.)
 4. Authentication → URL Configuration: Site URL = the main address; Redirect URLs = each address with `/**` (e.g. `http://localhost:8080/**`).
 
 The Google client secret lives only in the Supabase configuration, never in frontend code or committed environment files.
