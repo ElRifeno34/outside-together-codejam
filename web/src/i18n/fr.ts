@@ -1,4 +1,110 @@
 export const french: Record<string, string> = {
+  "Go somewhere new.": "Allez quelque part de nouveau.",
+  "Each place pays once: 10 + 5 × its niche level, when you're within 200 m. The more niche, the more points.":
+    "Chaque lieu rapporte une seule fois : 10 + 5 × son niveau de niche, quand vous êtes à moins de 200 m. Plus c’est niche, plus ça rapporte.",
+  "places visited": "lieux visités",
+  "points from visits": "points de visites",
+  Niche: "Niche",
+  Show: "Afficher",
+  "Not visited yet": "Pas encore visités",
+  "Places to visit aren't set up yet.": "Les lieux à visiter ne sont pas encore configurés.",
+  "Run migration 013 in Supabase, then reload.":
+    "Lancez la migration 013 dans Supabase, puis rechargez.",
+  "Nothing here with these filters.": "Rien avec ces filtres.",
+  Visited: "Visité",
+  "I'm here": "J’y suis",
+  "Directions to": "Itinéraire vers",
+  "Sign in with Google to collect points at these places.":
+    "Connectez-vous avec Google pour gagner des points dans ces lieux.",
+  "You found": "Vous avez trouvé",
+  points: "points",
+  "This place is no longer on the list": "Ce lieu n’est plus dans la liste",
+  "You already got the points for this place": "Vous avez déjà reçu les points de ce lieu",
+  "You need to be within 200 m of the place to collect its points":
+    "Vous devez être à moins de 200 m du lieu pour gagner ses points",
+  "No one has that friend code. Check it and try again":
+    "Personne n’a ce code ami. Vérifiez-le et réessayez",
+  "That's your own friend code": "C’est votre propre code ami",
+  "Unknown ranking": "Classement inconnu",
+  "Every hour outside adds up: activities and places you visit both count.":
+    "Chaque heure dehors compte : les activités et les lieux visités rapportent des points.",
+  Ranking: "Classement",
+  "My area": "Mon quartier",
+  "Your area is now": "Votre quartier est maintenant",
+  "Rank with your friends": "Comparez-vous à vos amis",
+  "Sign in with Google, share your friend code, and see who gets outside more.":
+    "Connectez-vous avec Google, partagez votre code ami et voyez qui sort le plus.",
+  "Rankings aren't set up yet.": "Les classements ne sont pas encore configurés.",
+  "Montréal boroughs": "Arrondissements de Montréal",
+  Suburbs: "Banlieues",
+  "Neighbourhood or suburb": "Quartier ou banlieue",
+  "Choose an area…": "Choisissez un secteur…",
+  yours: "le vôtre",
+  "Move me to this area": "M’inscrire dans ce secteur",
+  "This is my area": "C’est mon quartier",
+  "Pick where you live to join its ranking.":
+    "Choisissez où vous habitez pour rejoindre son classement.",
+  "Couldn't copy. Select it and copy by hand.":
+    "Impossible de copier. Sélectionnez-le et copiez-le à la main.",
+  "is now your friend": "est maintenant votre ami·e",
+  "Your friend code": "Votre code ami",
+  "Copy code": "Copier le code",
+  "Code copied": "Code copié",
+  "Copy invite link": "Copier le lien d’invitation",
+  "Invite link copied": "Lien d’invitation copié",
+  "Add a friend": "Ajouter un ami",
+  "Friend code": "Code ami",
+  "Adding…": "Ajout…",
+  Add: "Ajouter",
+  "No friends yet. Share your code to start a little competition.":
+    "Pas encore d’amis. Partagez votre code pour lancer une petite compétition.",
+  "No one here yet. Be the first!": "Personne ici pour l’instant. Soyez la première personne !",
+  "from your friends?": "de vos amis ?",
+  "was removed from your friends": "a été retiré·e de vos amis",
+  you: "vous",
+  pts: "pts",
+  "The classic downtown view from the top of Mont Royal.":
+    "La vue classique sur le centre-ville, du haut du mont Royal.",
+  "Montréal's big open-air market: stalls, smells and seasonal colour.":
+    "Le grand marché à ciel ouvert de Montréal : étals, odeurs et couleurs de saison.",
+  "The cobbled heart of Old Montréal, street performers included.":
+    "Le cœur pavé du Vieux-Montréal, artistes de rue compris.",
+  "Art deco market hall right next to the Lachine Canal.":
+    "Une halle Art déco juste à côté du canal de Lachine.",
+  "A green downtown square framed by old stone and glass towers.":
+    "Un square vert du centre-ville entre vieilles pierres et tours de verre.",
+  "The quiet pond on the mountain: ducks in summer, skates in winter.":
+    "L’étang tranquille de la montagne : canards l’été, patins l’hiver.",
+  "The clock tower at the end of the Old Port, facing the river.":
+    "La tour de l’Horloge au bout du Vieux-Port, face au fleuve.",
+  "Climb the long stairs for one of the widest views in the city.":
+    "Montez le long escalier pour l’une des plus grandes vues de la ville.",
+  "An urban beach on the St. Lawrence, a short walk from the métro.":
+    "Une plage urbaine sur le Saint-Laurent, à deux pas du métro.",
+  "The Plateau's neighbourhood park: chess tables, dogs and picnics.":
+    "Le parc de quartier du Plateau : tables d’échecs, chiens et pique-niques.",
+  "The illuminated cross at the summit, up a quieter forest path.":
+    "La croix illuminée du sommet, par un sentier forestier plus calme.",
+  "Buckminster Fuller's geodesic dome from Expo 67 on Île Sainte-Hélène.":
+    "Le dôme géodésique de Buckminster Fuller, d’Expo 67, sur l’île Sainte-Hélène.",
+  "Moshe Safdie's stacked concrete homes on the Cité du Havre.":
+    "Les maisons de béton empilées de Moshe Safdie, à la Cité du Havre.",
+  "A small Rosemont square with fountains and long summer evenings.":
+    "Un petit square de Rosemont avec fontaines et longues soirées d’été.",
+  "A wild, community-kept meadow beside the Mile End rail tracks.":
+    "Un pré sauvage entretenu par le voisinage, le long de la voie ferrée du Mile End.",
+  "A former quarry and landfill turned into a huge park in Saint-Michel.":
+    "Une ancienne carrière et un ancien dépotoir devenus un immense parc à Saint-Michel.",
+  "The giant orange on Décarie, a roadside landmark since the 1940s.":
+    "L’orange géante de Décarie, un repère depuis les années 1940.",
+  "Watch the Lachine Rapids and the herons from the LaSalle shore.":
+    "Observez les rapides de Lachine et les hérons depuis la rive de LaSalle.",
+  "An 18th-century cider-press house on the Île de la Visitation.":
+    "Une maison du pressoir du XVIIIe siècle sur l’île de la Visitation.",
+  "A long riverside promenade in the east end, with islands offshore.":
+    "Une longue promenade au bord du fleuve dans l’est, face aux îles.",
+  "The very eastern tip of the island, where two rivers meet.":
+    "La pointe est de l’île, là où deux rivières se rejoignent.",
   "This email already had an Outside Together account, so it can’t create a new one.":
     "Ce courriel a déjà eu un compte Outside Together : il ne peut pas en créer un nouveau.",
   "Google sign-in didn’t work. Please try again.":

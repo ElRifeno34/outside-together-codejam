@@ -27,6 +27,12 @@ export function AppHeader() {
           <Link to="/map" data-active={pathname === "/map"}>
             {tr("Map")}
           </Link>
+          <Link to="/places" data-active={pathname === "/places"}>
+            {tr("Places")}
+          </Link>
+          <Link to="/rankings" data-active={pathname === "/rankings"}>
+            {tr("Rankings")}
+          </Link>
           <Link to="/profile" data-active={pathname === "/profile"}>
             {tr("My activities")}
           </Link>

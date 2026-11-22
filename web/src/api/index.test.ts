@@ -385,3 +385,67 @@ describe("search without AI", () => {
     expect(new Date(result.draft.starts_at).getTime()).toBeGreaterThan(Date.now());
   });
 });
+
+describe("places to visit, rankings and friends (migration 013)", () => {
+  const here = { lat: 45.5035, lng: -73.587, accuracy: 9.6 };
+
+  it("sends the visit with the device position and returns the points", async () => {
+    db().rpc.visit_spot = () => ({
+      data: { points_earned: 15, total_points: 40, distance_m: 30 },
+      error: null,
+    });
+    expect(await api.visitSpot("spot-1", here)).toEqual({
+      points_earned: 15,
+      total_points: 40,
+      distance_m: 30,
+    });
+    expect(db().rpcCalls.at(-1)).toEqual({
+      name: "visit_spot",
+      args: { p_spot_id: "spot-1", p_lat: 45.5035, p_lng: -73.587, p_accuracy_m: 10 },
+    });
+  });
+
+  it("explains a visit that is too far or already rewarded", async () => {
+    db().rpc.visit_spot = () => ({ data: null, error: { message: "TOO_FAR_FROM_SPOT (640 m)" } });
+    await expect(api.visitSpot("spot-1", here)).rejects.toThrow(
+      "You need to be within 200 m of the place to collect its points",
+    );
+    db().rpc.visit_spot = () => ({ data: null, error: { message: "ALREADY_VISITED" } });
+    await expect(api.visitSpot("spot-1", here)).rejects.toThrow(
+      "You already got the points for this place",
+    );
+  });
+
+  it("asks the leaderboard for a scope and an area", async () => {
+    const rows = [
+      {
+        rank: 1,
+        user_id: "u1",
+        display_name: "Léa",
+        area: "Verdun",
+        total_points: 80,
+        is_me: false,
+      },
+    ];
+    db().rpc.get_leaderboard = () => ({ data: rows, error: null });
+    expect(await api.getLeaderboard("area", "Verdun")).toEqual(rows);
+    expect(db().rpcCalls.at(-1)).toEqual({
+      name: "get_leaderboard",
+      args: { p_scope: "area", p_area: "Verdun" },
+    });
+    await api.getLeaderboard("world");
+    expect(db().rpcCalls.at(-1)?.args).toEqual({ p_scope: "world", p_area: null });
+  });
+
+  it("adds friends by code and explains bad codes", async () => {
+    db().rpc.add_friend = () => ({
+      data: { friend_id: "u2", display_name: "Sami" },
+      error: null,
+    });
+    expect(await api.addFriend("abc123")).toEqual({ friend_id: "u2", display_name: "Sami" });
+    db().rpc.add_friend = () => ({ data: null, error: { message: "FRIEND_CODE_NOT_FOUND" } });
+    await expect(api.addFriend("zzzzzz")).rejects.toThrow("No one has that friend code");
+    db().rpc.add_friend = () => ({ data: null, error: { message: "CANNOT_ADD_SELF" } });
+    await expect(api.addFriend("mine12")).rejects.toThrow("That's your own friend code");
+  });
+});

@@ -2208,3 +2208,283 @@
   font-size: 0.8rem;
   font-weight: 700;
 }
+
+/* ---------------------------------------------------------------------------
+   Places to visit (/places)
+   --------------------------------------------------------------------------- */
+.places-page .eyebrow,
+.rankings-page .eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.spot-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem 1.5rem;
+  margin-bottom: 1rem;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: 1rem;
+  background: var(--card);
+  font-size: 0.9rem;
+}
+.spot-summary span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+.spot-filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+}
+.spot-chips,
+.spot-filters-right {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+.spot-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1rem;
+}
+.spot-card {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 1.25rem;
+  background: var(--card);
+}
+.spot-card[data-visited="true"] {
+  border-color: color-mix(in oklch, var(--primary) 45%, var(--border));
+}
+.spot-photo {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  background: var(--muted);
+}
+.spot-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.spot-card[data-visited="true"] .spot-photo img {
+  filter: saturate(0.55);
+}
+.spot-niche {
+  position: absolute;
+  left: 0.75rem;
+  top: 0.75rem;
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 0.92);
+  color: oklch(0.3 0.05 160);
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+.spot-niche[data-level="4"],
+.spot-niche[data-level="5"] {
+  background: var(--primary);
+  color: var(--primary-foreground);
+}
+.spot-body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: 0.9rem 1rem 1rem;
+}
+.spot-body h2 {
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+.spot-area {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  color: var(--muted-foreground);
+  font-size: 0.8rem;
+}
+.spot-distance {
+  color: var(--primary);
+  font-weight: 700;
+}
+.spot-text {
+  flex: 1;
+  font-size: 0.88rem;
+}
+.spot-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-top: 0.4rem;
+}
+.spot-done {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: var(--primary);
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+.spot-signin {
+  margin-top: 1.25rem;
+  color: var(--muted-foreground);
+  font-size: 0.9rem;
+}
+
+/* ---------------------------------------------------------------------------
+   Rankings (/rankings)
+   --------------------------------------------------------------------------- */
+.ranking-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 1rem;
+}
+.ranking-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.area-picker {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+.area-picker .field {
+  min-width: min(100%, 320px);
+}
+.area-hint {
+  color: var(--muted-foreground);
+  font-size: 0.85rem;
+}
+.friends-panel {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+.friend-code {
+  display: grid;
+  gap: 0.35rem;
+  padding: 1rem;
+  border: 1px dashed var(--primary);
+  border-radius: 1rem;
+  background: var(--card);
+}
+.friend-code span {
+  color: var(--muted-foreground);
+  font-size: 0.8rem;
+}
+.friend-code strong {
+  font-size: 1.6rem;
+  letter-spacing: 0.2em;
+}
+.friend-code-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.friend-add {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.5rem;
+}
+.friend-add .field {
+  flex: 1;
+}
+.friend-add input {
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+.ranking-list {
+  display: grid;
+  gap: 0.5rem;
+}
+.ranking-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.6rem 0.9rem;
+  border: 1px solid var(--border);
+  border-radius: 1rem;
+  background: var(--card);
+}
+.ranking-row[data-me="true"] {
+  border-color: var(--primary);
+  background: color-mix(in oklch, var(--primary) 8%, var(--card));
+}
+.ranking-row[data-gap="true"] {
+  margin-top: 1rem;
+}
+.ranking-rank {
+  width: 2rem;
+  flex: none;
+  color: var(--muted-foreground);
+  font-weight: 700;
+  text-align: center;
+}
+.ranking-rank[data-podium] {
+  color: var(--primary);
+  font-size: 1.15rem;
+}
+.ranking-avatar {
+  display: grid;
+  width: 2.25rem;
+  height: 2.25rem;
+  flex: none;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--primary);
+  color: var(--primary-foreground);
+  font-weight: 700;
+}
+.ranking-name {
+  display: grid;
+  flex: 1;
+  min-width: 0;
+}
+.ranking-name strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.ranking-name em {
+  color: var(--primary);
+  font-style: normal;
+  font-weight: 600;
+}
+.ranking-name small {
+  color: var(--muted-foreground);
+  font-size: 0.78rem;
+}
+.ranking-points {
+  flex: none;
+  font-weight: 700;
+}
+.ranking-points small {
+  color: var(--muted-foreground);
+  font-weight: 400;
+}
+.ranking-empty {
+  padding: 1rem 0;
+  color: var(--muted-foreground);
+}
+@media (max-width: 640px) {
+  .spot-filters { align-items: stretch; flex-direction: column; }
+  .friend-add { flex-wrap: wrap; }
+}

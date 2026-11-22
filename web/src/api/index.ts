@@ -12,6 +12,11 @@ import type {
   Place,
   PointsEntry,
   Profile,
+  Area,
+  LeaderboardRow,
+  RankingScope,
+  Spot,
+  SpotVisit,
 } from "@/lib/types";
 import {
   createSupabaseBackend,
@@ -327,4 +332,52 @@ export async function getMyPoints(): Promise<PointsEntry[]> {
 
 export async function getMyActivities(): Promise<(Participant & { activity: ActivityBoardRow })[]> {
   return backend().getMyActivities();
+}
+
+// ---- Places to visit, rankings and friends (migration 013) -------------------------------
+
+/** The catalogue of places to visit (independent of activities). */
+export async function getSpots(): Promise<Spot[]> {
+  return backend().getSpots();
+}
+
+/** The signed-in person's visits (empty when signed out). */
+export async function getMyVisits(): Promise<SpotVisit[]> {
+  return backend().getMyVisits();
+}
+
+/** visit_spot: within 200 m, 10 + 5 × niche points, once per place. */
+export async function visitSpot(id: string, at: DevicePosition) {
+  return backend().visitSpot(id, at);
+}
+
+export async function getAreas(): Promise<Area[]> {
+  return backend().getAreas();
+}
+
+export async function getMyArea(): Promise<string | null> {
+  return backend().getMyArea();
+}
+
+export async function setMyArea(area: string | null): Promise<void> {
+  return backend().setMyArea(area);
+}
+
+export async function getLeaderboard(
+  scope: RankingScope,
+  area?: string | null,
+): Promise<LeaderboardRow[]> {
+  return backend().getLeaderboard(scope, area);
+}
+
+export async function getMyFriendCode(): Promise<string> {
+  return backend().getMyFriendCode();
+}
+
+export async function addFriend(code: string) {
+  return backend().addFriend(code);
+}
+
+export async function removeFriend(friendId: string): Promise<void> {
+  return backend().removeFriend(friendId);
 }

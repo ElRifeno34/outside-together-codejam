@@ -11,6 +11,11 @@ import type {
   Place,
   PointsEntry,
   Profile,
+  Area,
+  LeaderboardRow,
+  RankingScope,
+  Spot,
+  SpotVisit,
 } from "@/lib/types";
 
 /** Row shape of the public.activity_board view (migration 007). */
@@ -68,6 +73,12 @@ const errorText: Record<string, string> = {
   INVALID_CAPACITY: "Minimum people must be between 2 and capacity",
   NOT_CREATOR: "Only the person who created this activity can edit it",
   CAPACITY_BELOW_JOINED: "Capacity can't be lower than the number of people already in",
+  SPOT_NOT_FOUND: "This place is no longer on the list",
+  ALREADY_VISITED: "You already got the points for this place",
+  TOO_FAR_FROM_SPOT: "You need to be within 200 m of the place to collect its points",
+  FRIEND_CODE_NOT_FOUND: "No one has that friend code. Check it and try again",
+  CANNOT_ADD_SELF: "That's your own friend code",
+  INVALID_SCOPE: "Unknown ranking",
 };
 
 function fail(error: PostgrestError | { message: string; code?: string }): never {
@@ -250,6 +261,93 @@ export function createSupabaseBackend(supabase: SupabaseClient) {
         body: { text, today: torontoDate(), timezone: "America/Toronto" },
       });
       return error ? null : (data as unknown);
+    },
+
+    // ---- Places to visit, rankings and friends (migration 013) ----
+
+    async getSpots(): Promise<Spot[]> {
+      const { data, error } = await supabase
+        .from("spots")
+        .select("id, name, description, area, lat, lng, niche_value, photo")
+        .order("niche_value")
+        .order("name");
+      if (error) fail(error);
+      return data as Spot[];
+    },
+
+    async getMyVisits(): Promise<SpotVisit[]> {
+      if (!(await userId())) return [];
+      const { data, error } = await supabase
+        .from("spot_visits")
+        .select("spot_id, points, visited_at")
+        .order("visited_at", { ascending: false });
+      if (error) fail(error);
+      return data as SpotVisit[];
+    },
+
+    async visitSpot(
+      id: string,
+      at: DevicePosition,
+    ): Promise<{ points_earned: number; total_points: number; distance_m: number }> {
+      const { data, error } = await supabase.rpc("visit_spot", {
+        p_spot_id: id,
+        p_lat: at.lat,
+        p_lng: at.lng,
+        p_accuracy_m: Math.round(at.accuracy),
+      });
+      if (error) fail(error);
+      return data as { points_earned: number; total_points: number; distance_m: number };
+    },
+
+    async getAreas(): Promise<Area[]> {
+      const { data, error } = await supabase.from("areas").select("name, kind").order("name");
+      if (error) fail(error);
+      return data as Area[];
+    },
+
+    async getMyArea(): Promise<string | null> {
+      const id = await userId();
+      if (!id) return null;
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("area")
+        .eq("id", id)
+        .maybeSingle();
+      if (error) fail(error);
+      return (data as { area: string | null } | null)?.area ?? null;
+    },
+
+    async setMyArea(area: string | null): Promise<void> {
+      const id = await userId();
+      if (!id) throw new Error("Sign in required");
+      const { error } = await supabase.from("profiles").update({ area }).eq("id", id);
+      if (error) fail(error);
+    },
+
+    async getLeaderboard(scope: RankingScope, area?: string | null): Promise<LeaderboardRow[]> {
+      const { data, error } = await supabase.rpc("get_leaderboard", {
+        p_scope: scope,
+        p_area: area ?? null,
+      });
+      if (error) fail(error);
+      return (data ?? []) as LeaderboardRow[];
+    },
+
+    async getMyFriendCode(): Promise<string> {
+      const { data, error } = await supabase.rpc("my_friend_code");
+      if (error) fail(error);
+      return data as string;
+    },
+
+    async addFriend(code: string): Promise<{ friend_id: string; display_name: string }> {
+      const { data, error } = await supabase.rpc("add_friend", { p_code: code });
+      if (error) fail(error);
+      return data as { friend_id: string; display_name: string };
+    },
+
+    async removeFriend(friendId: string): Promise<void> {
+      const { error } = await supabase.rpc("remove_friend", { p_friend_id: friendId });
+      if (error) fail(error);
     },
 
     mapBoardRows(rows: unknown[], me: string | null): ActivityBoardRow[] {

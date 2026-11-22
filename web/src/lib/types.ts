@@ -56,6 +56,41 @@ export interface Profile {
   total_points: number;
 }
 
+/** A place to visit (migration 013), independent of activities. */
+export interface Spot {
+  id: string;
+  name: string;
+  description: string;
+  area: string | null;
+  lat: number;
+  lng: number;
+  niche_value: number;
+  /** Key into activityImages. */
+  photo: string;
+}
+
+export interface SpotVisit {
+  spot_id: string;
+  points: number;
+  visited_at: string;
+}
+
+export interface Area {
+  name: string;
+  kind: "borough" | "suburb";
+}
+
+export type RankingScope = "area" | "world" | "friends";
+
+export interface LeaderboardRow {
+  rank: number;
+  user_id: string;
+  display_name: string;
+  area: string | null;
+  total_points: number;
+  is_me: boolean;
+}
+
 export interface Participant {
   activity_id: string;
   user_id: string;

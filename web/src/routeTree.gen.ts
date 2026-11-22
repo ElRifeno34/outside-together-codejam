@@ -12,7 +12,9 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as CreateRouteImport } from './routes/create'
 import { Route as MapRouteImport } from './routes/map'
+import { Route as PlacesRouteImport } from './routes/places'
 import { Route as ProfileRouteImport } from './routes/profile'
+import { Route as RankingsRouteImport } from './routes/rankings'
 import { Route as ActivityIdRouteImport } from './routes/activity.$id'
 
 const IndexRoute = IndexRouteImport.update({
@@ -30,9 +32,19 @@ const MapRoute = MapRouteImport.update({
   path: '/map',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PlacesRoute = PlacesRouteImport.update({
+  id: '/places',
+  path: '/places',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ProfileRoute = ProfileRouteImport.update({
   id: '/profile',
   path: '/profile',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RankingsRoute = RankingsRouteImport.update({
+  id: '/rankings',
+  path: '/rankings',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ActivityIdRoute = ActivityIdRouteImport.update({
@@ -45,14 +57,18 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/create': typeof CreateRoute
   '/map': typeof MapRoute
+  '/places': typeof PlacesRoute
   '/profile': typeof ProfileRoute
+  '/rankings': typeof RankingsRoute
   '/activity/$id': typeof ActivityIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/create': typeof CreateRoute
   '/map': typeof MapRoute
+  '/places': typeof PlacesRoute
   '/profile': typeof ProfileRoute
+  '/rankings': typeof RankingsRoute
   '/activity/$id': typeof ActivityIdRoute
 }
 export interface FileRoutesById {
@@ -60,22 +76,48 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/create': typeof CreateRoute
   '/map': typeof MapRoute
+  '/places': typeof PlacesRoute
   '/profile': typeof ProfileRoute
+  '/rankings': typeof RankingsRoute
   '/activity/$id': typeof ActivityIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/create' | '/map' | '/profile' | '/activity/$id'
+  fullPaths:
+    | '/'
+    | '/create'
+    | '/map'
+    | '/places'
+    | '/profile'
+    | '/rankings'
+    | '/activity/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/create' | '/map' | '/profile' | '/activity/$id'
-  id: '__root__' | '/' | '/create' | '/map' | '/profile' | '/activity/$id'
+  to:
+    | '/'
+    | '/create'
+    | '/map'
+    | '/places'
+    | '/profile'
+    | '/rankings'
+    | '/activity/$id'
+  id:
+    | '__root__'
+    | '/'
+    | '/create'
+    | '/map'
+    | '/places'
+    | '/profile'
+    | '/rankings'
+    | '/activity/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   CreateRoute: typeof CreateRoute
   MapRoute: typeof MapRoute
+  PlacesRoute: typeof PlacesRoute
   ProfileRoute: typeof ProfileRoute
+  RankingsRoute: typeof RankingsRoute
   ActivityIdRoute: typeof ActivityIdRoute
 }
 
@@ -102,11 +144,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MapRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/places': {
+      id: '/places'
+      path: '/places'
+      fullPath: '/places'
+      preLoaderRoute: typeof PlacesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/profile': {
       id: '/profile'
       path: '/profile'
       fullPath: '/profile'
       preLoaderRoute: typeof ProfileRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/rankings': {
+      id: '/rankings'
+      path: '/rankings'
+      fullPath: '/rankings'
+      preLoaderRoute: typeof RankingsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/activity/$id': {
@@ -123,7 +179,9 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   CreateRoute: CreateRoute,
   MapRoute: MapRoute,
+  PlacesRoute: PlacesRoute,
   ProfileRoute: ProfileRoute,
+  RankingsRoute: RankingsRoute,
   ActivityIdRoute: ActivityIdRoute,
 }
 export const routeTree = rootRouteImport
