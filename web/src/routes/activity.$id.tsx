@@ -14,7 +14,7 @@ import {
   Download,
 } from "lucide-react";
 import { googleCalendarUrl, downloadIcs } from "@/lib/calendar";
-import { visualKey } from "@/data/fixtures";
+import { visualKey } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { useApp } from "@/components/app-provider";
 import { activityImages, formatStart } from "@/components/activity-card";
@@ -82,8 +82,6 @@ function ActivityDetail() {
     try {
       if (kind === "confirm") {
         const outcome = await api.confirmAttendance(id);
-        // Kept until the API layer drops its demo branch, which returns a number.
-        if (typeof outcome === "number") throw new Error("Please try again");
         const message = outcome.points_unlocked
           ? `We're here! +${outcome.points_earned} points`
           : `You're checked in · waiting for ${outcome.waiting_for} more ${outcome.waiting_for === 1 ? "person" : "people"}`;

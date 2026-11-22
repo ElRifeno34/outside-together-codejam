@@ -8,8 +8,8 @@ import { Button } from "@/components/ui/button";
 import { useApp } from "@/components/app-provider";
 import { activityImages } from "@/components/activity-card";
 import * as api from "@/api";
-import { visualKind } from "@/api/supabase-backend";
-import { futureDay, localToISO, torontoDate, torontoTime } from "@/data/fixtures";
+import { visualKind } from "@/lib/activity-visuals";
+import { futureDay, localToISO, torontoDate, torontoTime } from "@/lib/time";
 import { toast } from "sonner";
 const options = queryOptions({
   queryKey: ["draft-options"],
