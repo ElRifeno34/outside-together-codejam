@@ -62,6 +62,10 @@ export const AVATARS: Record<string, { emoji: string; background: string }> = {
   // Season 1 · First snow
   "av-hare": { emoji: "🐇", background: "linear-gradient(135deg,#ffffff,#cfe8ff)" },
   // Season 1 · Go Habs Go (bleu-blanc-rouge)
+  "av-captain": {
+    emoji: "C",
+    background: "radial-gradient(circle,#af1e2d 0 58%,#ffffff 58% 66%,#192168 66%)",
+  },
   "av-habs-puck": {
     emoji: "🏒",
     background: "linear-gradient(135deg,#af1e2d 0 45%,#ffffff 45% 55%,#192168 55%)",
@@ -77,6 +81,8 @@ export const BANNERS: Record<string, string> = {
   "bn-night":
     "radial-gradient(circle at 20% 30%,#fff7 0 1px,transparent 2px),radial-gradient(circle at 70% 20%,#fff6 0 1px,transparent 2px),radial-gradient(circle at 45% 60%,#fff5 0 1px,transparent 2px),linear-gradient(180deg,#0b132b 0%,#1c2541 60%,#3a506b 100%)",
   "bn-aurora": "linear-gradient(120deg,#0b3d2e 0%,#19a974 35%,#5b2a86 70%,#0b132b 100%)",
+  "bn-home-jersey":
+    "linear-gradient(180deg,#af1e2d 0 52%,#192168 52% 60%,#ffffff 60% 66%,#192168 66% 74%,#af1e2d 74% 100%)",
   "bn-habs":
     "linear-gradient(180deg,transparent 0 58%,#af1e2d 58% 68%,#ffffff 68% 74%,#192168 74% 84%,transparent 84%),radial-gradient(circle at 50% 120%,#74c69d55,transparent 60%),linear-gradient(160deg,#0b2b1f 0%,#1b4332 55%,#2d6a4f 100%)",
   "bn-firstsnow":

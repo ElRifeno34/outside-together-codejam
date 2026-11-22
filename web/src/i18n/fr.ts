@@ -1,4 +1,10 @@
 export const french: Record<string, string> = {
+  "Team logo": "Logo de l’équipe",
+  "Players on the ice": "Joueurs sur la glace",
+  "Captain's C": "Le C du capitaine",
+  "#13 Sniper": "Franc-tireur #13",
+  "#14 jersey": "Chandail #14",
+  "Red home jersey": "Chandail rouge à domicile",
   "Season 1 · Go Habs Go": "Saison 1 · Go Habs Go",
   "Hockey night in Montréal": "Soirée de hockey à Montréal",
   "Every point you earn this season moves you up, like goals on the board. 20 tiers, free for everyone. Go Habs Go!":

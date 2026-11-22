@@ -6,6 +6,7 @@ import { Check, Coins, Gift, Lock, Shield, Snowflake } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { useApp } from "@/components/app-provider";
+import { SeasonLogo, SeasonPicture } from "@/components/season-art";
 import { DisplayName, ProfileAvatar } from "@/components/profile-bits";
 import { BANNERS } from "@/lib/progression";
 import type { SeasonReward } from "@/lib/types";
@@ -99,7 +100,8 @@ function SeasonPage() {
   return (
     <main className="page-width season-page">
       <div className="season-hero" data-theme="habs">
-        <div>
+        <div className="season-hero-text">
+          <SeasonLogo alt={tr("Team logo")} />
           <div className="eyebrow">
             <Shield size={15} /> {tr("Season pass")} · {tr("Hockey night in Montréal")}
           </div>
@@ -111,9 +113,12 @@ function SeasonPage() {
             {tr("Ends")} {endDate} · {daysLeft} {tr(daysLeft === 1 ? "day left" : "days left")}
           </p>
         </div>
-        <div className="season-level" aria-label={tr("Your tier")}>
-          <strong>{s.tier}</strong>
-          <span>/ 20</span>
+        <div className="season-hero-side">
+          <SeasonPicture alt={tr("Players on the ice")} />
+          <div className="season-level" aria-label={tr("Your tier")}>
+            <strong>{s.tier}</strong>
+            <span>/ 20</span>
+          </div>
         </div>
       </div>
 

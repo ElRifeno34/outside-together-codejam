@@ -3617,3 +3617,55 @@ main h1,
   background: conic-gradient(#af1e2d 0 33%, #ffffff 33% 45%, #192168 45% 78%, #ffffff 78% 88%, #af1e2d 88%);
   box-shadow: 0 0 10px #af1e2d66;
 }
+
+/* Season hero: logo slot, photo slot / drawn scene */
+.season-hero-text { display: grid; gap: 0.35rem; flex: 1; min-width: 16rem; }
+.season-logo { width: 64px; height: 64px; object-fit: contain; filter: drop-shadow(0 3px 6px rgb(0 0 0 / 0.35)); }
+.season-hero-side { display: flex; align-items: flex-end; gap: 1rem; }
+.season-picture {
+  width: min(320px, 42vw);
+  aspect-ratio: 8 / 5;
+  overflow: hidden;
+  border: 3px solid #ffffff;
+  border-radius: 1rem;
+  background: #d6e6f0;
+  box-shadow: 0 10px 30px -10px rgb(0 0 0 / 0.5);
+  transform: rotate(2deg);
+}
+.season-picture img, .season-picture svg { display: block; width: 100%; height: 100%; object-fit: cover; }
+@media (max-width: 640px) {
+  .season-hero-side { width: 100%; justify-content: space-between; }
+  .season-picture { width: 62%; transform: none; }
+}
+
+/* Player-style cosmetics (numbers, no names) */
+.pf-avatar[data-frame="fr-jersey-14"]::after {
+  background: conic-gradient(#af1e2d 0 40%, #ffffff 40% 50%, #192168 50% 90%, #ffffff 90% 100%);
+  box-shadow: 0 0 8px #192168aa;
+}
+.pf-avatar[data-frame="fr-jersey-14"]::before {
+  content: "14";
+  position: absolute;
+  right: -10%;
+  bottom: -8%;
+  z-index: 1;
+  display: grid;
+  min-width: 42%;
+  aspect-ratio: 1;
+  place-items: center;
+  border: 2px solid #ffffff;
+  border-radius: 50%;
+  background: #af1e2d;
+  color: #ffffff;
+  font-family: var(--font-fun);
+  font-size: 0.3em;
+  line-height: 1;
+}
+.pf-name[data-effect="ne-sniper-13"] {
+  background-image: linear-gradient(90deg, #af1e2d, #ff4d5e 60%, #192168);
+}
+.pf-name[data-effect="ne-sniper-13"]::after {
+  content: " 13";
+  font-family: var(--font-fun);
+  font-size: 0.8em;
+}
