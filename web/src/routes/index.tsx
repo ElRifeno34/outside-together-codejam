@@ -20,7 +20,8 @@ import {
   Shuffle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { ActivityCard, formatStart } from "@/components/activity-card";
+import { formatStart } from "@/components/activity-card";
+import { Timetable } from "@/components/departure-row";
 import { activityIcons } from "@/components/pictogram";
 import { useApp } from "@/components/app-provider";
 import * as api from "@/api";
@@ -476,19 +477,13 @@ function Board() {
           <Button onClick={() => void board.refetch()}>{tr("Try again")}</Button>
         </div>
       ) : activities.length ? (
-        <div className="activity-grid">
-          {activities.map((a) => (
-            <ActivityCard
-              key={a.id}
-              activity={a}
-              joined={!!my.data?.some((p) => p.activity_id === a.id && p.status !== "left")}
-              onChanged={() => {
-                void board.refetch();
-                if (result) void search();
-              }}
-            />
-          ))}
-        </div>
+        <Timetable
+          rows={activities}
+          joinedIds={
+            new Set((my.data ?? []).filter((p) => p.status !== "left").map((p) => p.activity_id))
+          }
+          grouped={nicheSort === "soonest"}
+        />
       ) : (
         <div className="empty-state">
           <Search size={30} />

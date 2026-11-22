@@ -2302,3 +2302,172 @@
     padding-bottom: calc(64px + env(safe-area-inset-bottom));
   }
 }
+
+/* ---- Ligne timetable (Group 3) --------------------------------------------------------- */
+.timetable {
+  --time-col: 64px;
+  --stop-col: 20px;
+  --col-gap: var(--space-3);
+}
+.timetable-day + .timetable-day {
+  margin-top: var(--space-6);
+}
+.timetable-day-heading {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+  padding: var(--space-2) 0;
+  border-bottom: 2px solid var(--ink);
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+.timetable-day-heading span {
+  color: var(--ink-2);
+  font-size: 16px;
+  font-weight: 600;
+  text-transform: none;
+  letter-spacing: 0;
+}
+.timetable-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.departure {
+  position: relative;
+  display: grid;
+  grid-template-columns: var(--time-col) var(--stop-col) auto minmax(0, 1fr) auto;
+  align-items: center;
+  column-gap: var(--col-gap);
+  min-height: 72px;
+  padding: var(--space-3) var(--space-2) var(--space-3) 0;
+  border-bottom: 1px solid var(--rule);
+  color: var(--ink);
+}
+/* The line: one continuous vertical track through every stop. */
+.departure::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: -1px;
+  left: calc(var(--time-col) + var(--col-gap) + var(--stop-col) / 2 - 1.5px);
+  width: 3px;
+  background: var(--ink);
+  opacity: 0.18;
+}
+.departure:hover {
+  background: var(--paper-2);
+}
+.departure[data-full] {
+  color: var(--ink-2);
+}
+.departure-time {
+  display: grid;
+  justify-items: end;
+  line-height: 1;
+}
+.departure-time time {
+  font-family: var(--font-display);
+  font-size: 30px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.01em;
+}
+.departure-time small {
+  margin-top: 4px;
+  color: var(--ink-2);
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.departure-stop {
+  position: relative;
+  z-index: 1;
+  justify-self: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 3px solid var(--level);
+  background: var(--paper);
+}
+.departure-stop[data-state="happening"] {
+  background: var(--level);
+}
+.departure-stop[data-joined] {
+  box-shadow:
+    0 0 0 3px var(--paper),
+    0 0 0 5px var(--ink);
+}
+.departure-main {
+  display: grid;
+  min-width: 0;
+  gap: 2px;
+}
+.departure-main > strong {
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1.1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.departure-main > span:not(.departure-flags) {
+  color: var(--ink-2);
+  font-size: 14px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.departure-flags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+.departure-flags em {
+  font-style: normal;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--level);
+}
+.departure-flags .departure-joined {
+  color: var(--ink);
+}
+.departure-side {
+  display: grid;
+  justify-items: end;
+  gap: 6px;
+}
+.departure-count {
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+@media (max-width: 767px) {
+  .timetable {
+    --time-col: 54px;
+    --stop-col: 16px;
+    --col-gap: 10px;
+  }
+  .departure {
+    min-height: 68px;
+    padding-right: 0;
+  }
+  .departure .pictogram {
+    --plate: 30px !important;
+  }
+  .departure-time time {
+    font-size: 26px;
+  }
+  .departure-main > strong {
+    font-size: 18px;
+  }
+  .departure-stop {
+    width: 14px;
+    height: 14px;
+  }
+}
