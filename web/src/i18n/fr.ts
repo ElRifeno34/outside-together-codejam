@@ -1,4 +1,7 @@
 export const french: Record<string, string> = {
+  "This activity no longer exists.": "Cette activité n’existe plus.",
+  "Its creator may have deleted it. There's plenty more happening.":
+    "Son créateur l’a peut-être supprimée. Il se passe plein d’autres choses.",
   "This activity has already started, so it can't be deleted":
     "Cette activité a déjà commencé : elle ne peut plus être supprimée",
   "Delete activity": "Supprimer l’activité",

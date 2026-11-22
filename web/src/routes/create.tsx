@@ -1,6 +1,6 @@
 import { useLanguage } from "@/i18n";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { queryOptions, useQuery, useSuspenseQuery } from "@tanstack/react-query";
+import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { ArrowLeft, ArrowUpRight, ImagePlus, MapPin, Sparkles, Trash2 } from "lucide-react";
 import { z } from "zod";
@@ -9,18 +9,10 @@ import { useApp } from "@/components/app-provider";
 import { activityImages } from "@/components/activity-card";
 import { LocationPicker } from "@/components/location-picker";
 import * as api from "@/api";
+import { activityOptions as editOptions, draftOptions as options } from "@/api/queries";
 import { visualKind } from "@/lib/activity-visuals";
 import { futureDay, localToISO, torontoDate, torontoTime } from "@/lib/time";
 import { toast } from "sonner";
-const options = queryOptions({
-  queryKey: ["draft-options"],
-  queryFn: async () => ({
-    types: await api.getActivityTypes(),
-    places: await api.getPublicPlaces(),
-  }),
-});
-const editOptions = (id: string) =>
-  queryOptions({ queryKey: ["activity", id], queryFn: () => api.getActivity(id) });
 export const Route = createFileRoute("/create")({
   validateSearch: z.object({
     type: z.string().optional(),

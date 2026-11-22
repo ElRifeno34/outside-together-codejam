@@ -1,6 +1,6 @@
 import { useLanguage } from "@/i18n";
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { queryOptions, useQuery, useQueryClient } from "@tanstack/react-query";
+import { createFileRoute, Link, notFound, useNavigate } from "@tanstack/react-router";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import {
   ArrowLeft,
@@ -32,13 +32,21 @@ import {
 import { useApp } from "@/components/app-provider";
 import { activityPhoto, formatStart } from "@/components/activity-card";
 import * as api from "@/api";
+import { activityOptions } from "@/api/queries";
 /** Absolute link back to this activity for calendar events (only called from click handlers). */
 const pageUrl = (id: string) => `${window.location.origin}/activity/${id}`;
 import { toast } from "sonner";
-const activityOptions = (id: string) =>
-  queryOptions({ queryKey: ["activity", id], queryFn: () => api.getActivity(id) });
 export const Route = createFileRoute("/activity/$id")({
-  loader: ({ context, params }) => context.queryClient.ensureQueryData(activityOptions(params.id)),
+  loader: async ({ context, params }) => {
+    try {
+      return await context.queryClient.ensureQueryData(activityOptions(params.id));
+    } catch (e) {
+      // Deleted (or mistyped) activities get a friendly page instead of a server error.
+      if (e instanceof Error && e.message === "Activity not found") throw notFound();
+      throw e;
+    }
+  },
+  notFoundComponent: ActivityGone,
   head: ({ loaderData }) => {
     const image = loaderData ? activityPhoto(loaderData) : undefined;
     return {
@@ -324,6 +332,21 @@ function ActivityDetail() {
           </p>
         </div>
       </section>
+    </main>
+  );
+}
+
+function ActivityGone() {
+  const { tr } = useLanguage();
+  return (
+    <main className="page-width">
+      <div className="empty-state">
+        <h2>{tr("This activity no longer exists.")}</h2>
+        <p>{tr("Its creator may have deleted it. There's plenty more happening.")}</p>
+        <Button asChild>
+          <Link to="/">{tr("Back to activities")}</Link>
+        </Button>
+      </div>
     </main>
   );
 }

@@ -1,6 +1,6 @@
 import { useLanguage } from "@/i18n";
 import { createFileRoute } from "@tanstack/react-router";
-import { queryOptions, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { Check, Compass, LocateFixed, MapPin, Navigation, Sparkles } from "lucide-react";
 import { toast } from "sonner";
@@ -11,8 +11,7 @@ import { locateOnce } from "@/api/board-options";
 import { distanceMeters, locatePrecise } from "@/lib/geo";
 import type { Spot } from "@/lib/types";
 import * as api from "@/api";
-
-const spotsOptions = queryOptions({ queryKey: ["spots"], queryFn: () => api.getSpots() });
+import { spotsOptions } from "@/api/queries";
 
 export const Route = createFileRoute("/places")({
   loader: ({ context }) => context.queryClient.ensureQueryData(spotsOptions).catch(() => []),
@@ -38,7 +37,9 @@ function PlacesPage() {
   const { tr } = useLanguage();
   const { profile, openAuth, refreshProfile } = useApp();
   const client = useQueryClient();
-  const spots = useQuery(spotsOptions);
+  // Start from the loader's data so the first browser render matches the server's HTML.
+  const initial = Route.useLoaderData();
+  const spots = useQuery({ ...spotsOptions, initialData: initial, initialDataUpdatedAt: 0 });
   const visits = useQuery({
     queryKey: ["spot-visits", profile?.id],
     queryFn: () => api.getMyVisits(),
