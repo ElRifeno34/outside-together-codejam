@@ -2603,3 +2603,165 @@
 .detail-delete {
   color: var(--destructive);
 }
+
+/* ---------------------------------------------------------------------------
+   Side quests (form editor + activity page + organizer grid)
+   --------------------------------------------------------------------------- */
+.quest-editor {
+  display: grid;
+  gap: 0.6rem;
+  margin-top: 0.35rem;
+}
+.quest-hint,
+.side-quests-note {
+  color: var(--muted-foreground);
+  font-size: 0.85rem;
+}
+.quest-list,
+.side-quest-list {
+  display: grid;
+  gap: 0.4rem;
+}
+.quest-list li,
+.side-quest-list li {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 0.75rem;
+  background: var(--card);
+}
+.quest-list li span,
+.side-quest-list li span {
+  flex: 1;
+}
+.side-quest-list li[data-done="true"] {
+  border-color: var(--primary);
+  background: color-mix(in oklch, var(--primary) 8%, var(--card));
+}
+.side-quest-list em {
+  color: var(--primary);
+  font-size: 0.8rem;
+  font-style: normal;
+  font-weight: 700;
+}
+.quest-suggestions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+.quest-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.35rem 0.7rem;
+  border: 1px dashed var(--border);
+  border-radius: 999px;
+  background: var(--card);
+  font-size: 0.82rem;
+}
+.quest-chip[data-own-type="true"] {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+.quest-chip:hover {
+  background: var(--muted);
+}
+.quest-own {
+  display: flex;
+  gap: 0.5rem;
+}
+.quest-own input {
+  flex: 1;
+  min-width: 0;
+  padding: 0.55rem 0.8rem;
+  border: 1px solid var(--border);
+  border-radius: 0.75rem;
+  background: var(--card);
+}
+.side-quests {
+  display: grid;
+  gap: 0.75rem;
+  margin: 1.5rem 0;
+  padding: 1.25rem;
+  border: 1px solid var(--border);
+  border-radius: 1.25rem;
+  background: var(--card);
+}
+.side-quests-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+.side-quests-head h2 {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+.side-quests-worth {
+  color: var(--primary);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+.quest-admin {
+  display: grid;
+  gap: 0.5rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--border);
+}
+.quest-admin h3 {
+  font-weight: 700;
+}
+.quest-grid-wrap {
+  overflow-x: auto;
+}
+.quest-grid {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.88rem;
+}
+.quest-grid th,
+.quest-grid td {
+  padding: 0.5rem;
+  border-bottom: 1px solid var(--border);
+  text-align: center;
+  vertical-align: middle;
+}
+.quest-grid tbody th,
+.quest-grid thead th:first-child {
+  text-align: left;
+}
+.quest-grid thead th {
+  max-width: 9rem;
+  font-weight: 600;
+}
+.quest-grid-num {
+  display: none;
+}
+.quest-grid-title {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  font-size: 0.78rem;
+}
+.quest-grid input[type="checkbox"] {
+  width: 1.15rem;
+  height: 1.15rem;
+  accent-color: var(--primary);
+  cursor: pointer;
+}
+.quest-here {
+  display: block;
+  color: var(--primary);
+  font-size: 0.72rem;
+}
+@media (max-width: 640px) {
+  .quest-grid-title { display: none; }
+  .quest-grid-num { display: inline; }
+}

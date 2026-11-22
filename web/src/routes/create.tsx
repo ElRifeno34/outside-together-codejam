@@ -1,13 +1,15 @@
 import { useLanguage } from "@/i18n";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ArrowLeft, ArrowUpRight, ImagePlus, MapPin, Sparkles, Trash2 } from "lucide-react";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { useApp } from "@/components/app-provider";
 import { activityImages } from "@/components/activity-card";
 import { LocationPicker } from "@/components/location-picker";
+import { QuestEditor } from "@/components/quest-editor";
+import type { QuestDraft } from "@/lib/types";
 import * as api from "@/api";
 import { activityOptions as editOptions, draftOptions as options } from "@/api/queries";
 import { visualKind } from "@/lib/activity-visuals";
@@ -85,6 +87,18 @@ function CreateActivity() {
       : null,
   );
   const alreadyIn = editing ? editing.capacity - editing.available_spots : 1;
+  // Side quests: load the activity's current ones when editing, once.
+  const [quests, setQuests] = useState<QuestDraft[]>([]);
+  const questsTouched = useRef(false);
+  const currentQuests = useQuery({
+    queryKey: ["activity-quests", editId],
+    queryFn: () => api.getActivityQuests(editId!),
+    enabled: !!editId,
+  });
+  useEffect(() => {
+    if (currentQuests.data && !questsTouched.current)
+      setQuests(currentQuests.data.map((q) => ({ title: q.title, template_id: q.template_id })));
+  }, [currentQuests.data]);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const chosen = data.types.find((t) => t.id === type);
@@ -128,6 +142,14 @@ function CreateActivity() {
       } else {
         id = await api.createActivity(input);
         toast.success(tr("Published! Your activity is on the board."));
+      }
+      // Quests are saved separately; the activity itself is already safe if this fails.
+      if (questsTouched.current || (!editId && quests.length)) {
+        try {
+          await api.setActivityQuests(id, quests);
+        } catch (e) {
+          toast.error(tr(e instanceof Error ? e.message : "Side quests couldn't be saved"));
+        }
       }
       await refreshProfile();
       await navigate({ to: "/activity/$id", params: { id } });
@@ -302,6 +324,20 @@ function CreateActivity() {
               onChange={(e) => setMinimum(Number(e.target.value))}
             />
           </label>
+          {chosen && (
+            <div className="field full">
+              {tr("Side quests (optional)")}
+              <QuestEditor
+                typeId={chosen.id}
+                nicheValue={chosen.niche_value}
+                value={quests}
+                onChange={(next) => {
+                  questsTouched.current = true;
+                  setQuests(next);
+                }}
+              />
+            </div>
+          )}
           {!chosen && (
             <p className="full text-sm text-destructive" role="alert">
               {tr("No activity types or public places are available yet.")}

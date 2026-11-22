@@ -1,4 +1,62 @@
 export const french: Record<string, string> = {
+  "Side quests (optional)": "Quêtes secondaires (facultatif)",
+  "Side quests": "Quêtes secondaires",
+  "Optional mini-challenges. Each is worth": "Des mini-défis facultatifs. Chacun vaut",
+  "and you validate them for attendees once the activity starts.":
+    "et c’est vous qui les validez pour les participants une fois l’activité commencée.",
+  Suggestions: "Suggestions",
+  "That's the maximum of 5 side quests.": "C’est le maximum de 5 quêtes secondaires.",
+  "Write your own side quest": "Écrivez votre propre quête",
+  "pts each, validated by the organizer": "pts chacune, validées par l’organisateur",
+  "No side quests yet. Add some by editing the activity (before it starts).":
+    "Pas encore de quêtes secondaires. Ajoutez-en en modifiant l’activité (avant son début).",
+  "Validate attendees": "Valider les participants",
+  "You'll tick who completed each side quest here once the activity starts.":
+    "Vous cocherez ici qui a réussi chaque quête une fois l’activité commencée.",
+  "Points taken back from": "Points retirés à",
+  "Loading attendees…": "Chargement des participants…",
+  "Couldn't load attendees. Try again.": "Impossible de charger les participants. Réessayez.",
+  "No one else has joined, so there's no one to validate yet.":
+    "Personne d’autre n’est inscrit : il n’y a encore personne à valider.",
+  "Validation closed 48 h after the activity. This is the final result.":
+    "La validation a fermé 48 h après l’activité. Voici le résultat final.",
+  Attendee: "Participant",
+  "checked in": "présent",
+  "Side quests couldn't be saved": "Les quêtes secondaires n’ont pas pu être enregistrées",
+  "Side quests can't change once the activity has started":
+    "Les quêtes ne peuvent plus changer une fois l’activité commencée",
+  "Up to 5 side quests per activity": "5 quêtes secondaires maximum par activité",
+  "A side quest needs 3 to 80 characters": "Une quête doit faire entre 3 et 80 caractères",
+  "This side quest no longer exists": "Cette quête n’existe plus",
+  "You can't validate your own side quests": "Vous ne pouvez pas valider vos propres quêtes",
+  "You can validate side quests once the activity has started":
+    "Vous pourrez valider les quêtes une fois l’activité commencée",
+  "Side quests can be validated until 48 h after the activity":
+    "Les quêtes peuvent être validées jusqu’à 48 h après l’activité",
+  "Learn everyone's first name": "Apprendre le prénom de tout le monde",
+  "Take a group photo": "Prendre une photo de groupe",
+  "Bring someone who has never come before": "Amener quelqu’un qui n’est jamais venu",
+  "Find something here none of you had noticed":
+    "Trouver ici quelque chose que personne n’avait remarqué",
+  "Make 3 baskets in a row": "Marquer 3 paniers d’affilée",
+  "Play a full game of H-O-R-S-E": "Jouer une partie complète de H-O-R-S-E",
+  "Try a café none of you know": "Essayer un café que personne ne connaît",
+  "Run 3 km without stopping": "Courir 3 km sans s’arrêter",
+  "Share a homemade dish": "Partager un plat fait maison",
+  "Walk 5,000 steps together": "Marcher 5 000 pas ensemble",
+  "Find a mural and learn who painted it": "Trouver une murale et apprendre qui l’a peinte",
+  "Finish a 45-minute focus session": "Terminer une séance de concentration de 45 minutes",
+  "Photograph the moment the sun touches the horizon":
+    "Photographier le moment où le soleil touche l’horizon",
+  "Spot 5 different bird species": "Repérer 5 espèces d’oiseaux différentes",
+  "Win a game against someone new": "Gagner une partie contre quelqu’un de nouveau",
+  "Find a cache and log it": "Trouver une cache et la consigner",
+  "Fold a crane and leave it for someone to find": "Plier une grue et la laisser à quelqu’un",
+  "Take one photo everyone agrees is the best":
+    "Prendre une photo que tout le monde juge la meilleure",
+  "Record 3 sounds you would never notice": "Enregistrer 3 sons qu’on ne remarque jamais",
+  "Find 3 different kinds of moss or lichen": "Trouver 3 sortes de mousses ou de lichens",
+  "Sketch the same building from two angles": "Dessiner le même bâtiment sous deux angles",
   "This activity no longer exists.": "Cette activité n’existe plus.",
   "Its creator may have deleted it. There's plenty more happening.":
     "Son créateur l’a peut-être supprimée. Il se passe plein d’autres choses.",

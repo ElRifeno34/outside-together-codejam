@@ -524,3 +524,43 @@ describe("deleting an activity (migration 016)", () => {
     );
   });
 });
+
+describe("side quests (migration 017)", () => {
+  it("saves the activity's quests with their suggestion ids", async () => {
+    db().rpc.set_activity_quests = () => ({ data: 2, error: null });
+    await api.setActivityQuests("act-1", [
+      { title: " Make 3 baskets in a row ", template_id: "tpl-1" },
+      { title: "Dunk once", template_id: null },
+    ]);
+    expect(db().rpcCalls.at(-1)).toEqual({
+      name: "set_activity_quests",
+      args: {
+        p_activity_id: "act-1",
+        p_quests: [
+          { title: "Make 3 baskets in a row", template_id: "tpl-1" },
+          { title: "Dunk once", template_id: null },
+        ],
+      },
+    });
+  });
+
+  it("lets the organizer tick and untick an attendee's quest", async () => {
+    db().rpc.validate_quest = () => ({ data: { done: true }, error: null });
+    await api.validateQuest("q-1", "u-2", true);
+    expect(db().rpcCalls.at(-1)).toEqual({
+      name: "validate_quest",
+      args: { p_quest_id: "q-1", p_user_id: "u-2", p_done: true },
+    });
+  });
+
+  it("explains refusals from the database", async () => {
+    db().rpc.validate_quest = () => ({ data: null, error: { message: "CANNOT_VALIDATE_SELF" } });
+    await expect(api.validateQuest("q-1", "me", true)).rejects.toThrow(
+      "You can't validate your own side quests",
+    );
+    db().rpc.set_activity_quests = () => ({ data: null, error: { message: "QUESTS_LOCKED" } });
+    await expect(api.setActivityQuests("act-1", [])).rejects.toThrow(
+      "Side quests can't change once the activity has started",
+    );
+  });
+});

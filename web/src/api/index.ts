@@ -12,8 +12,12 @@ import type {
   Place,
   PointsEntry,
   Profile,
+  ActivityQuest,
   Area,
   LeaderboardRow,
+  QuestBoardRow,
+  QuestDraft,
+  QuestTemplate,
   RankingScope,
   Spot,
   SpotVisit,
@@ -412,4 +416,33 @@ export async function addFriend(code: string) {
 
 export async function removeFriend(friendId: string): Promise<void> {
   return backend().removeFriend(friendId);
+}
+
+// ---- Side quests (migration 017) ------------------------------------------------------------
+
+export async function getQuestTemplates(): Promise<QuestTemplate[]> {
+  return backend().getQuestTemplates();
+}
+
+export async function getActivityQuests(activityId: string): Promise<ActivityQuest[]> {
+  return backend().getActivityQuests(activityId);
+}
+
+export async function getMyQuestCompletions() {
+  return backend().getMyQuestCompletions();
+}
+
+/** Replaces the activity's side quests (creator, before the start; up to 5). */
+export async function setActivityQuests(activityId: string, quests: QuestDraft[]): Promise<void> {
+  return backend().setActivityQuests(activityId, quests);
+}
+
+/** The creator's grid: attendees and the quests already validated for each. */
+export async function getQuestBoard(activityId: string): Promise<QuestBoardRow[]> {
+  return backend().getQuestBoard(activityId);
+}
+
+/** The creator ticks (or unticks) an attendee's side quest: 5 × niche points. */
+export async function validateQuest(questId: string, userId: string, done: boolean) {
+  return backend().validateQuest(questId, userId, done);
 }

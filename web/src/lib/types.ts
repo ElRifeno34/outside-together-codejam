@@ -94,6 +94,41 @@ export interface Area {
 
 export type RankingScope = "area" | "world" | "friends";
 
+/** A suggested side quest: for one activity type, or for any activity (type_id null). */
+export interface QuestTemplate {
+  id: string;
+  type_id: string | null;
+  title: string;
+}
+
+/** A side quest attached to an activity (migration 017). */
+export interface ActivityQuest {
+  id: string;
+  activity_id: string;
+  title: string;
+  template_id: string | null;
+  position: number;
+}
+
+/** What the form sends: a suggestion (template_id) or the creator's own text. */
+export interface QuestDraft {
+  title: string;
+  template_id: string | null;
+}
+
+/** One attendee on the creator's validation grid. */
+export interface QuestBoardRow {
+  user_id: string;
+  display_name: string;
+  status: "joined" | "confirmed";
+  completed: string[];
+}
+
+/** Side quest worth: 5 × the activity's niche value. */
+export function questPoints(nicheValue: number): number {
+  return 5 * nicheValue;
+}
+
 export interface LeaderboardRow {
   rank: number;
   user_id: string;

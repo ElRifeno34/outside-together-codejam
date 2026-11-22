@@ -11,8 +11,12 @@ import type {
   Place,
   PointsEntry,
   Profile,
+  ActivityQuest,
   Area,
   LeaderboardRow,
+  QuestBoardRow,
+  QuestDraft,
+  QuestTemplate,
   RankingScope,
   Spot,
   SpotVisit,
@@ -114,6 +118,13 @@ const errorText: Record<string, string> = {
   INVALID_CAPACITY: "Minimum people must be between 2 and capacity",
   NOT_CREATOR: "Only the person who created this activity can edit it",
   DELETE_TOO_LATE: "This activity has already started, so it can't be deleted",
+  QUESTS_LOCKED: "Side quests can't change once the activity has started",
+  TOO_MANY_QUESTS: "Up to 5 side quests per activity",
+  INVALID_QUEST: "A side quest needs 3 to 80 characters",
+  QUEST_NOT_FOUND: "This side quest no longer exists",
+  CANNOT_VALIDATE_SELF: "You can't validate your own side quests",
+  QUESTS_NOT_STARTED: "You can validate side quests once the activity has started",
+  QUESTS_CLOSED: "Side quests can be validated until 48 h after the activity",
   CAPACITY_BELOW_JOINED: "Capacity can't be lower than the number of people already in",
   SPOT_NOT_FOUND: "This place is no longer on the list",
   ALREADY_VISITED: "You already got the points for this place",
@@ -276,6 +287,60 @@ export function createSupabaseBackend(supabase: SupabaseClient) {
       const { error } = await supabase.rpc("update_activity", {
         p_activity_id: id,
         ...detailArgs(input),
+      });
+      if (error) fail(error);
+    },
+
+    // ---- Side quests (migration 017) ----
+
+    async getQuestTemplates(): Promise<QuestTemplate[]> {
+      const { data, error } = await supabase
+        .from("quest_templates")
+        .select("id, type_id, title")
+        .order("title");
+      if (error) fail(error);
+      return data as QuestTemplate[];
+    },
+
+    async getActivityQuests(activityId: string): Promise<ActivityQuest[]> {
+      const { data, error } = await supabase
+        .from("activity_quests")
+        .select("id, activity_id, title, template_id, position")
+        .eq("activity_id", activityId)
+        .order("position");
+      if (error) fail(error);
+      return data as ActivityQuest[];
+    },
+
+    /** Quest ids the signed-in person has had validated (any activity). */
+    async getMyQuestCompletions(): Promise<{ quest_id: string; points: number }[]> {
+      if (!(await userId())) return [];
+      const { data, error } = await supabase.from("quest_completions").select("quest_id, points");
+      if (error) fail(error);
+      return data as { quest_id: string; points: number }[];
+    },
+
+    async setActivityQuests(activityId: string, quests: QuestDraft[]): Promise<void> {
+      const { error } = await supabase.rpc("set_activity_quests", {
+        p_activity_id: activityId,
+        p_quests: quests.map((q) => ({ title: q.title.trim(), template_id: q.template_id })),
+      });
+      if (error) fail(error);
+    },
+
+    async getQuestBoard(activityId: string): Promise<QuestBoardRow[]> {
+      const { data, error } = await supabase.rpc("get_quest_board", {
+        p_activity_id: activityId,
+      });
+      if (error) fail(error);
+      return (data ?? []) as QuestBoardRow[];
+    },
+
+    async validateQuest(questId: string, userIdToValidate: string, done: boolean): Promise<void> {
+      const { error } = await supabase.rpc("validate_quest", {
+        p_quest_id: questId,
+        p_user_id: userIdToValidate,
+        p_done: done,
       });
       if (error) fail(error);
     },

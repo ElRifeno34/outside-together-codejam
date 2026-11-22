@@ -17,7 +17,10 @@ type RpcName =
   | "add_friend"
   | "my_friend_code"
   | "remove_friend"
-  | "delete_activity";
+  | "delete_activity"
+  | "set_activity_quests"
+  | "get_quest_board"
+  | "validate_quest";
 
 export type FakeState = {
   tables: { [K in TableName]?: Row[] };

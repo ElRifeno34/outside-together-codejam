@@ -33,6 +33,7 @@ import { useApp } from "@/components/app-provider";
 import { activityPhoto, formatStart } from "@/components/activity-card";
 import * as api from "@/api";
 import { activityOptions } from "@/api/queries";
+import { SideQuests } from "@/components/side-quests";
 /** Absolute link back to this activity for calendar events (only called from click handlers). */
 const pageUrl = (id: string) => `${window.location.origin}/activity/${id}`;
 import { toast } from "sonner";
@@ -323,6 +324,11 @@ function ActivityDetail() {
           )}
         </section>
       </div>
+      <SideQuests
+        activity={a}
+        isCreator={!!profile && a.creator_id === profile.id}
+        signedIn={!!profile}
+      />
       <section className="points-band">
         <Users />
         <div>
