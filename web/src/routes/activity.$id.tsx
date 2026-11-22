@@ -1,6 +1,6 @@
 import { useLanguage } from "@/i18n";
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { queryOptions, useQuery } from "@tanstack/react-query";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { queryOptions, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import {
   ArrowLeft,
@@ -13,11 +13,22 @@ import {
   CalendarPlus,
   Download,
   Pencil,
+  Trash2,
 } from "lucide-react";
 import { googleCalendarUrl, downloadIcs } from "@/lib/calendar";
 import { locatePrecise } from "@/lib/geo";
 import { activityTitle } from "@/lib/types";
 import { Button } from "@/components/ui/button";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { useApp } from "@/components/app-provider";
 import { activityPhoto, formatStart } from "@/components/activity-card";
 import * as api from "@/api";
@@ -67,6 +78,8 @@ function ActivityDetail() {
   const { data: a } = useQuery({ ...activityOptions(id), initialData: initial });
   const { profile, openAuth, refreshProfile } = useApp();
   const [busy, setBusy] = useState(false);
+  const client = useQueryClient();
+  const navigate = useNavigate();
   const [locating, setLocating] = useState(false);
   const [result, setResult] = useState("");
   const [resultOwner, setResultOwner] = useState<string | null>(null);
@@ -89,6 +102,24 @@ function ActivityDetail() {
     !started &&
     a.status !== "cancelled" &&
     a.status !== "done";
+  // People other than the creator who are registered (shown in the delete confirmation).
+  const othersIn = Math.max(0, a.capacity - a.available_spots - 1);
+  const remove = async () => {
+    setBusy(true);
+    try {
+      const { others_removed } = await api.deleteActivity(id);
+      await client.invalidateQueries();
+      toast.success(
+        others_removed > 0
+          ? `${tr("Activity deleted.")} ${others_removed} ${tr(others_removed === 1 ? "registration was removed." : "registrations were removed.")}`
+          : tr("Activity deleted."),
+      );
+      await navigate({ to: "/" });
+    } catch (e) {
+      toast.error(tr(e instanceof Error ? e.message : "Please try again"));
+      setBusy(false);
+    }
+  };
   const action = async (kind: "join" | "leave" | "confirm") => {
     setBusy(true);
     try {
@@ -212,6 +243,33 @@ function ActivityDetail() {
                   {tr("Edit activity")}
                 </Link>
               </Button>
+            )}
+            {canEdit && (
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button variant="ghost" className="detail-delete" disabled={busy}>
+                    <Trash2 />
+                    {tr("Delete activity")}
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogTitle>{tr("Delete this activity?")}</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    {othersIn > 0
+                      ? `${tr("It will disappear for everyone, including the")} ${othersIn} ${tr(othersIn === 1 ? "person who joined." : "people who joined.")} ${tr("This can't be undone.")}`
+                      : tr("It will disappear from the board. This can't be undone.")}
+                  </AlertDialogDescription>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>{tr("Keep it")}</AlertDialogCancel>
+                    <AlertDialogAction
+                      className="bg-destructive text-white hover:bg-destructive/90"
+                      onClick={() => void remove()}
+                    >
+                      {tr("Delete")}
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
             )}
           </div>
           {checkedIn && a.status !== "done" && (

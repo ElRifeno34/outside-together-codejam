@@ -1,4 +1,19 @@
 export const french: Record<string, string> = {
+  "This activity has already started, so it can't be deleted":
+    "Cette activité a déjà commencé : elle ne peut plus être supprimée",
+  "Delete activity": "Supprimer l’activité",
+  "Delete this activity?": "Supprimer cette activité ?",
+  "It will disappear for everyone, including the": "Elle disparaîtra pour tout le monde, y compris",
+  "person who joined.": "personne inscrite.",
+  "people who joined.": "personnes inscrites.",
+  "This can't be undone.": "C’est irréversible.",
+  "It will disappear from the board. This can't be undone.":
+    "Elle disparaîtra du tableau. C’est irréversible.",
+  "Keep it": "La garder",
+  Delete: "Supprimer",
+  "Activity deleted.": "Activité supprimée.",
+  "registration was removed.": "inscription a été retirée.",
+  "registrations were removed.": "inscriptions ont été retirées.",
   "Title (optional)": "Titre (facultatif)",
   "Photo (optional)": "Photo (facultative)",
   "Uploading…": "Envoi…",

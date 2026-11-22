@@ -503,3 +503,24 @@ describe("custom title, photo and map location (migration 015)", () => {
     ).rejects.toThrow("Pick a spot in the Montréal area");
   });
 });
+
+describe("deleting an activity (migration 016)", () => {
+  it("asks delete_activity and reports removed registrations", async () => {
+    db().rpc.delete_activity = () => ({
+      data: { activity_id: "act-1", others_removed: 2, photo_path: null },
+      error: null,
+    });
+    expect(await api.deleteActivity("act-1")).toEqual({ others_removed: 2 });
+    expect(db().rpcCalls.at(-1)).toEqual({
+      name: "delete_activity",
+      args: { p_activity_id: "act-1" },
+    });
+  });
+
+  it("explains why it can't be deleted any more", async () => {
+    db().rpc.delete_activity = () => ({ data: null, error: { message: "DELETE_TOO_LATE" } });
+    await expect(api.deleteActivity("act-1")).rejects.toThrow(
+      "This activity has already started, so it can't be deleted",
+    );
+  });
+});

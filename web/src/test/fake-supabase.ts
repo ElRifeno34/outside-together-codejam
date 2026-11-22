@@ -16,7 +16,8 @@ type RpcName =
   | "get_leaderboard"
   | "add_friend"
   | "my_friend_code"
-  | "remove_friend";
+  | "remove_friend"
+  | "delete_activity";
 
 export type FakeState = {
   tables: { [K in TableName]?: Row[] };

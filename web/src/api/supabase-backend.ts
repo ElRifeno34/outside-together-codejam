@@ -113,6 +113,7 @@ const errorText: Record<string, string> = {
   INVALID_DURATION: "Choose a duration between 15 minutes and 4 hours",
   INVALID_CAPACITY: "Minimum people must be between 2 and capacity",
   NOT_CREATOR: "Only the person who created this activity can edit it",
+  DELETE_TOO_LATE: "This activity has already started, so it can't be deleted",
   CAPACITY_BELOW_JOINED: "Capacity can't be lower than the number of people already in",
   SPOT_NOT_FOUND: "This place is no longer on the list",
   ALREADY_VISITED: "You already got the points for this place",
@@ -277,6 +278,15 @@ export function createSupabaseBackend(supabase: SupabaseClient) {
         ...detailArgs(input),
       });
       if (error) fail(error);
+    },
+
+    /** delete_activity (migration 016); also removes the uploaded photo, best effort. */
+    async deleteActivity(id: string): Promise<{ others_removed: number }> {
+      const { data, error } = await supabase.rpc("delete_activity", { p_activity_id: id });
+      if (error) fail(error);
+      const result = data as { others_removed: number; photo_path: string | null };
+      if (result.photo_path) await supabase.storage.from(PHOTO_BUCKET).remove([result.photo_path]);
+      return { others_removed: result.others_removed };
     },
 
     /** Uploads a (resized) photo under <user id>/ and returns its storage path. */

@@ -93,6 +93,11 @@ export async function updateActivity(id: string, input: ActivityInput): Promise<
   return backend().updateActivity(id, input);
 }
 
+/** delete_activity: the creator removes their activity before it starts (migration 016). */
+export async function deleteActivity(id: string): Promise<{ others_removed: number }> {
+  return backend().deleteActivity(id);
+}
+
 /**
  * Shrinks a photo in the browser (longest side 1600 px, WebP) and uploads it to the
  * activity-photos bucket. Re-encoding also drops the camera's EXIF data (incl. GPS).
