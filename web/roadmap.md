@@ -1,5 +1,7 @@
 # Outside Together
 
+> Historical Lovable build log. Since the product rework (branch `product-rework-arold`), the demo-only items below (fixtures, leaderboards, challenges, chat, credits, rewards, approvals, place visits) have been removed; see [README.md](README.md) for what ships now.
+
 - [x] Typed fixtures and async mock API with tested joining, creation, search, and points rules.
 - [x] Public board, search, detail, draft publishing, fake auth, and profile screens.
 - [x] Outdoor visual design, mobile check, and end-to-end demo verification.
