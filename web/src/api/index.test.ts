@@ -211,12 +211,31 @@ describe("join, leave and create through the Role B RPCs", () => {
 });
 
 describe("We're here: confirmation and points", () => {
+  const here = { lat: 45.5, lng: -73.6, accuracy: 12.4 };
+
+  it("refuses a check-in far from the place", async () => {
+    db().rpc.confirm_attendance = () => ({
+      data: null,
+      error: { message: "TOO_FAR_FROM_PLACE (850 m)" },
+    });
+    await expect(api.confirmAttendance("act-chess", here)).rejects.toThrow(
+      "You need to be within 200 m of the place to check in",
+    );
+  });
+
+  it("asks for location when the server gets none", async () => {
+    db().rpc.confirm_attendance = () => ({ data: null, error: { message: "LOCATION_REQUIRED" } });
+    await expect(api.confirmAttendance("act-chess", here)).rejects.toThrow(
+      "Allow location access to check in",
+    );
+  });
+
   it("first check-in waits for one more participant", async () => {
     db().rpc.confirm_attendance = () => ({
       data: { points_earned: 0, points_unlocked: false, waiting_for: 1, total_points: 0 },
       error: null,
     });
-    expect(await api.confirmAttendance("act-chess")).toEqual({
+    expect(await api.confirmAttendance("act-chess", here)).toEqual({
       points_earned: 0,
       points_unlocked: false,
       waiting_for: 1,
@@ -224,7 +243,7 @@ describe("We're here: confirmation and points", () => {
     });
     expect(db().rpcCalls.at(-1)).toEqual({
       name: "confirm_attendance",
-      args: { p_activity_id: "act-chess" },
+      args: { p_activity_id: "act-chess", p_lat: 45.5, p_lng: -73.6, p_accuracy_m: 12 },
     });
   });
 
@@ -233,7 +252,7 @@ describe("We're here: confirmation and points", () => {
       data: { points_earned: 25, points_unlocked: true, waiting_for: 0, total_points: 25 },
       error: null,
     });
-    expect(await api.confirmAttendance("act-chess")).toMatchObject({
+    expect(await api.confirmAttendance("act-chess", here)).toMatchObject({
       points_unlocked: true,
       points_earned: 25,
     });
@@ -244,7 +263,7 @@ describe("We're here: confirmation and points", () => {
       data: null,
       error: { message: "ACTIVITY_NOT_STARTED" },
     });
-    await expect(api.confirmAttendance("act-chess")).rejects.toThrow(
+    await expect(api.confirmAttendance("act-chess", here)).rejects.toThrow(
       "You can confirm once the activity has started",
     );
   });

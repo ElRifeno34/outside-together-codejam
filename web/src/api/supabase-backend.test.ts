@@ -87,7 +87,9 @@ test("turns backend error codes into readable messages", async () => {
   const anon = createSupabaseBackend(
     fakeClient({ rpc: { data: null, error: { message: "permission denied", code: "42501" } } }),
   );
-  await expect(anon.confirmAttendance("a1")).rejects.toThrow("Sign in required");
+  await expect(
+    anon.confirmAttendance("a1", { lat: 45.5, lng: -73.6, accuracy: 10 }),
+  ).rejects.toThrow("Sign in required");
 });
 
 test("returns the confirm_attendance outcome", async () => {
@@ -98,7 +100,9 @@ test("returns the confirm_attendance outcome", async () => {
     total_points: 0,
   };
   const backend = createSupabaseBackend(fakeClient({ rpc: { data: outcome, error: null } }));
-  expect(await backend.confirmAttendance("a1")).toEqual(outcome);
+  expect(await backend.confirmAttendance("a1", { lat: 45.5, lng: -73.6, accuracy: 10 })).toEqual(
+    outcome,
+  );
 });
 
 test("picks a local photo for backend activity names", () => {

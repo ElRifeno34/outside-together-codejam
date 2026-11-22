@@ -2,6 +2,7 @@
 // (supabase-backend.ts, migrations 001–007). Without the Supabase environment variables
 // each call throws SupabaseNotConfiguredError; the root route shows a setup screen first.
 import { supabase, SupabaseNotConfiguredError } from "@/lib/supabase";
+import type { DevicePosition } from "@/lib/geo";
 import { futureDay, localToISO, nextWeekday, torontoDate, torontoTime } from "@/lib/time";
 import { visualKind } from "@/lib/activity-visuals";
 import type {
@@ -70,9 +71,9 @@ export async function leaveActivity(id: string): Promise<number> {
   return backend().leaveActivity(id);
 }
 
-/** confirm_attendance ("We're here"): points unlock once 2 participants have checked in. */
-export async function confirmAttendance(id: string): Promise<ConfirmResult> {
-  return backend().confirmAttendance(id);
+/** confirm_attendance ("We're here"): needs the device within 200 m of the place; points unlock once 2 participants have checked in. */
+export async function confirmAttendance(id: string, at: DevicePosition): Promise<ConfirmResult> {
+  return backend().confirmAttendance(id, at);
 }
 
 /** create_activity: one hour at a public place; the creator is registered automatically. */

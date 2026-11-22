@@ -3,6 +3,7 @@
 import type { PostgrestError, SupabaseClient } from "@supabase/supabase-js";
 import { torontoDate, torontoTime } from "@/lib/time";
 import { visualKind } from "@/lib/activity-visuals";
+import type { DevicePosition } from "@/lib/geo";
 import type {
   ActivityBoardRow,
   ActivityType,
@@ -57,6 +58,9 @@ const errorText: Record<string, string> = {
   ALREADY_JOINED: "You're already in",
   ACTIVITY_FULL: "Activity is full",
   NOT_A_PARTICIPANT: "You haven't joined this activity",
+  LOCATION_REQUIRED: "Allow location access to check in",
+  INVALID_LOCATION: "Location is unavailable on this device",
+  TOO_FAR_FROM_PLACE: "You need to be within 200 m of the place to check in",
   INVALID_TYPE: "Choose an activity type",
   INVALID_PLACE: "Choose a public place",
   INVALID_TIME: "Start time must be in the future",
@@ -186,8 +190,13 @@ export function createSupabaseBackend(supabase: SupabaseClient) {
       return (data as { participant_count: number }).participant_count;
     },
 
-    async confirmAttendance(id: string): Promise<ConfirmResult> {
-      const { data, error } = await supabase.rpc("confirm_attendance", { p_activity_id: id });
+    async confirmAttendance(id: string, at: DevicePosition): Promise<ConfirmResult> {
+      const { data, error } = await supabase.rpc("confirm_attendance", {
+        p_activity_id: id,
+        p_lat: at.lat,
+        p_lng: at.lng,
+        p_accuracy_m: Math.round(at.accuracy),
+      });
       if (error) fail(error);
       return data as ConfirmResult;
     },

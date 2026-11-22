@@ -14,6 +14,7 @@ import {
   Download,
 } from "lucide-react";
 import { googleCalendarUrl, downloadIcs } from "@/lib/calendar";
+import { locatePrecise } from "@/lib/geo";
 import { visualKey } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { useApp } from "@/components/app-provider";
@@ -63,6 +64,7 @@ function ActivityDetail() {
   const { data: a } = useQuery({ ...activityOptions(id), initialData: initial });
   const { profile, openAuth, refreshProfile } = useApp();
   const [busy, setBusy] = useState(false);
+  const [locating, setLocating] = useState(false);
   const [result, setResult] = useState("");
   const [resultOwner, setResultOwner] = useState<string | null>(null);
   const my = useQuery({
@@ -81,7 +83,10 @@ function ActivityDetail() {
     setBusy(true);
     try {
       if (kind === "confirm") {
-        const outcome = await api.confirmAttendance(id);
+        // Proof of presence: the server only accepts a position within 200 m of the place.
+        setLocating(true);
+        const position = await locatePrecise().finally(() => setLocating(false));
+        const outcome = await api.confirmAttendance(id, position);
         const message = outcome.points_unlocked
           ? `We're here! +${outcome.points_earned} points`
           : `You're checked in · waiting for ${outcome.waiting_for} more ${outcome.waiting_for === 1 ? "person" : "people"}`;
@@ -168,6 +173,8 @@ function ActivityDetail() {
                     <Check />
                     {tr("You're checked in")}
                   </>
+                ) : locating ? (
+                  tr("Checking your location…")
                 ) : (
                   tr("We're here")
                 )}
@@ -199,7 +206,9 @@ function ActivityDetail() {
           )}
           {joined && started && !checkedIn && (
             <p className="detail-note">
-              {tr("Tap “We're here” once you've met up. Points unlock when 2 of you check in.")}
+              {tr(
+                "Tap “We're here” once you've met up. Your location confirms you're within 200 m of the place. Points unlock when 2 of you check in.",
+              )}
             </p>
           )}
           {result && resultOwner === profile?.id && (
