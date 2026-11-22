@@ -93,7 +93,10 @@ function ShopPage() {
     }
   };
 
-  const list = (items.data ?? []).filter((i) => i.kind === kind);
+  // Season-pass rewards are owned or not, but never sold.
+  const list = (items.data ?? []).filter(
+    (i) => i.kind === kind && (i.purchasable !== false || owned.has(i.id)),
+  );
   const name = profile?.display_name ?? tr("You");
 
   return (

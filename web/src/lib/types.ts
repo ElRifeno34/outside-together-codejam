@@ -162,6 +162,8 @@ export interface ShopItem {
   name: string;
   price: number;
   sort: number;
+  /** false for season-pass rewards (migration 020): not sold in the shop. */
+  purchasable?: boolean;
 }
 
 export interface TrophyDef {
@@ -192,6 +194,57 @@ export interface PublicProfile {
   checkins: number;
   places: number;
   is_me: boolean;
+  /** Migration 020: ranks and social links (absent before it). */
+  links?: SocialLinks;
+  world_rank?: number;
+  world_total?: number;
+  area_rank?: number | null;
+  area_total?: number | null;
+}
+
+export type SocialNetwork =
+  "linkedin" | "instagram" | "tiktok" | "x" | "github" | "youtube" | "website";
+export type SocialLinks = Partial<Record<SocialNetwork, string>>;
+
+export interface SeasonReward {
+  tier: number;
+  credits: number;
+  item_id: string | null;
+  item_kind: "avatar" | "frame" | "banner" | "name_effect" | null;
+  item_name: string | null;
+}
+
+export interface Season {
+  id: string;
+  name: string;
+  starts_at: string;
+  ends_at: string;
+  points_per_tier: number;
+  points: number;
+  tier: number;
+  claimed: number[];
+  rewards: SeasonReward[];
+}
+
+export interface ChatMessage {
+  id: string;
+  sender_id: string;
+  recipient_id: string | null;
+  activity_id: string | null;
+  body: string;
+  created_at: string;
+}
+
+export interface Conversation {
+  friend_id: string;
+  display_name: string;
+  avatar_item: string | null;
+  frame_item: string | null;
+  name_effect_item: string | null;
+  last_body: string | null;
+  last_at: string | null;
+  last_from_me: boolean | null;
+  unread: number;
 }
 
 export interface Participant {

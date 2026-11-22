@@ -12,9 +12,11 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as CreateRouteImport } from './routes/create'
 import { Route as MapRouteImport } from './routes/map'
+import { Route as MessagesRouteImport } from './routes/messages'
 import { Route as PlacesRouteImport } from './routes/places'
 import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as RankingsRouteImport } from './routes/rankings'
+import { Route as SeasonRouteImport } from './routes/season'
 import { Route as ShopRouteImport } from './routes/shop'
 import { Route as ActivityIdRouteImport } from './routes/activity.$id'
 import { Route as UIdRouteImport } from './routes/u.$id'
@@ -34,6 +36,11 @@ const MapRoute = MapRouteImport.update({
   path: '/map',
   getParentRoute: () => rootRouteImport,
 } as any)
+const MessagesRoute = MessagesRouteImport.update({
+  id: '/messages',
+  path: '/messages',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PlacesRoute = PlacesRouteImport.update({
   id: '/places',
   path: '/places',
@@ -47,6 +54,11 @@ const ProfileRoute = ProfileRouteImport.update({
 const RankingsRoute = RankingsRouteImport.update({
   id: '/rankings',
   path: '/rankings',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SeasonRoute = SeasonRouteImport.update({
+  id: '/season',
+  path: '/season',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ShopRoute = ShopRouteImport.update({
@@ -69,9 +81,11 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/create': typeof CreateRoute
   '/map': typeof MapRoute
+  '/messages': typeof MessagesRoute
   '/places': typeof PlacesRoute
   '/profile': typeof ProfileRoute
   '/rankings': typeof RankingsRoute
+  '/season': typeof SeasonRoute
   '/shop': typeof ShopRoute
   '/activity/$id': typeof ActivityIdRoute
   '/u/$id': typeof UIdRoute
@@ -80,9 +94,11 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/create': typeof CreateRoute
   '/map': typeof MapRoute
+  '/messages': typeof MessagesRoute
   '/places': typeof PlacesRoute
   '/profile': typeof ProfileRoute
   '/rankings': typeof RankingsRoute
+  '/season': typeof SeasonRoute
   '/shop': typeof ShopRoute
   '/activity/$id': typeof ActivityIdRoute
   '/u/$id': typeof UIdRoute
@@ -92,9 +108,11 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/create': typeof CreateRoute
   '/map': typeof MapRoute
+  '/messages': typeof MessagesRoute
   '/places': typeof PlacesRoute
   '/profile': typeof ProfileRoute
   '/rankings': typeof RankingsRoute
+  '/season': typeof SeasonRoute
   '/shop': typeof ShopRoute
   '/activity/$id': typeof ActivityIdRoute
   '/u/$id': typeof UIdRoute
@@ -105,9 +123,11 @@ export interface FileRouteTypes {
     | '/'
     | '/create'
     | '/map'
+    | '/messages'
     | '/places'
     | '/profile'
     | '/rankings'
+    | '/season'
     | '/shop'
     | '/activity/$id'
     | '/u/$id'
@@ -116,9 +136,11 @@ export interface FileRouteTypes {
     | '/'
     | '/create'
     | '/map'
+    | '/messages'
     | '/places'
     | '/profile'
     | '/rankings'
+    | '/season'
     | '/shop'
     | '/activity/$id'
     | '/u/$id'
@@ -127,9 +149,11 @@ export interface FileRouteTypes {
     | '/'
     | '/create'
     | '/map'
+    | '/messages'
     | '/places'
     | '/profile'
     | '/rankings'
+    | '/season'
     | '/shop'
     | '/activity/$id'
     | '/u/$id'
@@ -139,9 +163,11 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   CreateRoute: typeof CreateRoute
   MapRoute: typeof MapRoute
+  MessagesRoute: typeof MessagesRoute
   PlacesRoute: typeof PlacesRoute
   ProfileRoute: typeof ProfileRoute
   RankingsRoute: typeof RankingsRoute
+  SeasonRoute: typeof SeasonRoute
   ShopRoute: typeof ShopRoute
   ActivityIdRoute: typeof ActivityIdRoute
   UIdRoute: typeof UIdRoute
@@ -170,6 +196,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MapRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/messages': {
+      id: '/messages'
+      path: '/messages'
+      fullPath: '/messages'
+      preLoaderRoute: typeof MessagesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/places': {
       id: '/places'
       path: '/places'
@@ -189,6 +222,13 @@ declare module '@tanstack/react-router' {
       path: '/rankings'
       fullPath: '/rankings'
       preLoaderRoute: typeof RankingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/season': {
+      id: '/season'
+      path: '/season'
+      fullPath: '/season'
+      preLoaderRoute: typeof SeasonRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/shop': {
@@ -219,9 +259,11 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   CreateRoute: CreateRoute,
   MapRoute: MapRoute,
+  MessagesRoute: MessagesRoute,
   PlacesRoute: PlacesRoute,
   ProfileRoute: ProfileRoute,
   RankingsRoute: RankingsRoute,
+  SeasonRoute: SeasonRoute,
   ShopRoute: ShopRoute,
   ActivityIdRoute: ActivityIdRoute,
   UIdRoute: UIdRoute,

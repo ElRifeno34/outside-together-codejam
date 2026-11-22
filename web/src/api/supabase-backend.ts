@@ -12,6 +12,10 @@ import type {
   PointsEntry,
   Profile,
   ActivityQuest,
+  ChatMessage,
+  Conversation,
+  Season,
+  SocialLinks,
   MyProgress,
   PublicProfile,
   ShopItem,
@@ -125,6 +129,16 @@ const errorText: Record<string, string> = {
   NOT_CREATOR: "Only the person who created this activity can edit it",
   DELETE_TOO_LATE: "This activity has already started, so it can't be deleted",
   ITEM_NOT_FOUND: "This item is no longer in the shop",
+  SEASON_ONLY: "This one is a season pass reward",
+  NO_SEASON: "There's no season running right now",
+  TIER_NOT_FOUND: "This tier doesn't exist",
+  TIER_LOCKED: "Earn more points this season to unlock this tier",
+  ALREADY_CLAIMED: "You already claimed this reward",
+  INVALID_LINK: "Use a full https:// link to that site",
+  INVALID_MESSAGE: "Messages need 1 to 1000 characters",
+  NOT_FRIENDS: "You can only message your friends",
+  NOT_IN_ACTIVITY: "Join this activity to use its chat",
+  SLOW_DOWN: "Slow down a little. Try again in a minute",
   ALREADY_OWNED: "You already own this",
   NOT_ENOUGH_CREDITS: "Not enough credits yet. Get outside to earn more!",
   NOT_OWNED: "Buy this item before using it",
@@ -312,7 +326,7 @@ export function createSupabaseBackend(supabase: SupabaseClient) {
     async getShopItems(): Promise<ShopItem[]> {
       const { data, error } = await supabase
         .from("shop_items")
-        .select("id, kind, name, price, sort")
+        .select("*")
         .order("kind")
         .order("sort");
       if (error) fail(error);
@@ -362,6 +376,112 @@ export function createSupabaseBackend(supabase: SupabaseClient) {
       const { data, error } = await supabase.rpc("get_public_profile", { p_user_id: id });
       if (error) fail(error);
       return data as PublicProfile;
+    },
+
+    // ---- Season pass, social links, chat (migration 020) ----
+
+    async getSeason(): Promise<Season | null> {
+      const { data, error } = await supabase.rpc("my_season");
+      if (error) fail(error);
+      return (data ?? null) as Season | null;
+    },
+
+    async claimSeasonReward(tier: number): Promise<{ credits: number; item_id: string | null }> {
+      const { data, error } = await supabase.rpc("claim_season_reward", { p_tier: tier });
+      if (error) fail(error);
+      return data as { credits: number; item_id: string | null };
+    },
+
+    async setSocialLinks(links: SocialLinks): Promise<SocialLinks> {
+      const { data, error } = await supabase.rpc("set_social_links", { p_links: links });
+      if (error) fail(error);
+      return data as SocialLinks;
+    },
+
+    async getConversations(): Promise<Conversation[]> {
+      const { data, error } = await supabase.rpc("my_conversations");
+      if (error) fail(error);
+      return (data ?? []) as Conversation[];
+    },
+
+    async getDirectMessages(friendId: string): Promise<ChatMessage[]> {
+      const me = await userId();
+      if (!me) return [];
+      const { data, error } = await supabase
+        .from("messages")
+        .select("id, sender_id, recipient_id, activity_id, body, created_at")
+        .or(
+          `and(sender_id.eq.${me},recipient_id.eq.${friendId}),and(sender_id.eq.${friendId},recipient_id.eq.${me})`,
+        )
+        .order("created_at", { ascending: false })
+        .limit(100);
+      if (error) fail(error);
+      return (data as ChatMessage[]).reverse();
+    },
+
+    async getActivityMessages(activityId: string): Promise<ChatMessage[]> {
+      const { data, error } = await supabase
+        .from("messages")
+        .select("id, sender_id, recipient_id, activity_id, body, created_at")
+        .eq("activity_id", activityId)
+        .order("created_at", { ascending: false })
+        .limit(100);
+      if (error) fail(error);
+      return (data as ChatMessage[]).reverse();
+    },
+
+    async sendMessage(body: string, to: { friendId?: string; activityId?: string }): Promise<void> {
+      const { error } = await supabase.rpc("send_message", {
+        p_body: body,
+        p_to: to.friendId ?? null,
+        p_activity_id: to.activityId ?? null,
+      });
+      if (error) fail(error);
+    },
+
+    async markChatRead(friendId: string): Promise<void> {
+      const { error } = await supabase.rpc("mark_chat_read", { p_other: friendId });
+      if (error) fail(error);
+    },
+
+    /** Names and cosmetics for a set of people (profiles are public). */
+    async getPeople(ids: string[]): Promise<
+      {
+        id: string;
+        display_name: string;
+        avatar_item: string | null;
+        frame_item: string | null;
+        name_effect_item: string | null;
+      }[]
+    > {
+      if (!ids.length) return [];
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("id, display_name, avatar_item, frame_item, name_effect_item")
+        .in("id", ids);
+      if (error) fail(error);
+      return data as {
+        id: string;
+        display_name: string;
+        avatar_item: string | null;
+        frame_item: string | null;
+        name_effect_item: string | null;
+      }[];
+    },
+
+    /** Live new messages (Supabase Realtime; RLS decides who receives what). */
+    onNewMessage(callback: (message: ChatMessage) => void): () => void {
+      const channel = supabase
+        .channel(`messages-${Math.random().toString(36).slice(2)}`)
+        .on(
+          "postgres_changes",
+          { event: "INSERT", schema: "public", table: "messages" },
+          (payload) => callback(payload.new as ChatMessage),
+        )
+        .subscribe();
+      return () => {
+        void supabase.removeChannel(channel);
+      };
     },
 
     // ---- Side quests (migration 017) ----

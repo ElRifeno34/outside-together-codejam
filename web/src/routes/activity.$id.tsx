@@ -12,6 +12,7 @@ import {
   Check,
   CalendarPlus,
   Download,
+  MessagesSquare,
   Pencil,
   Trash2,
 } from "lucide-react";
@@ -34,6 +35,7 @@ import { activityPhoto, formatStart } from "@/components/activity-card";
 import * as api from "@/api";
 import { activityOptions } from "@/api/queries";
 import { SideQuests } from "@/components/side-quests";
+import { ChatThread } from "@/components/chat-thread";
 import { activityPhase, useNow } from "@/lib/participation";
 /** Absolute link back to this activity for calendar events (only called from click handlers). */
 const pageUrl = (id: string) => `${window.location.origin}/activity/${id}`;
@@ -342,6 +344,17 @@ function ActivityDetail() {
         isCreator={!!profile && a.creator_id === profile.id}
         signedIn={!!profile}
       />
+      {profile && (joined || a.creator_id === profile.id) && (
+        <section className="activity-chat" aria-labelledby="activity-chat-title">
+          <h2 id="activity-chat-title">
+            <MessagesSquare size={18} aria-hidden="true" /> {tr("Group chat")}
+          </h2>
+          <p className="side-quests-note">
+            {tr("Only people who joined see this. Handy for “I'm at the north entrance”.")}
+          </p>
+          <ChatThread target={{ activityId: id }} meId={profile.id} />
+        </section>
+      )}
       <section className="points-band">
         <Users />
         <div>

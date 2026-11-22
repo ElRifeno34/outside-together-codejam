@@ -29,7 +29,13 @@ type RpcName =
   | "equip_item"
   | "refresh_my_trophies"
   | "set_showcase"
-  | "get_public_profile";
+  | "get_public_profile"
+  | "my_season"
+  | "claim_season_reward"
+  | "set_social_links"
+  | "send_message"
+  | "mark_chat_read"
+  | "my_conversations";
 
 export type FakeState = {
   tables: { [K in TableName]?: Row[] };

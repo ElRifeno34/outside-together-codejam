@@ -13,6 +13,10 @@ import type {
   PointsEntry,
   Profile,
   ActivityQuest,
+  ChatMessage,
+  Conversation,
+  Season,
+  SocialLinks,
   MyProgress,
   PublicProfile,
   ShopItem,
@@ -502,4 +506,55 @@ export async function setShowcase(trophyIds: string[]): Promise<void> {
 
 export async function getPublicProfile(id: string): Promise<PublicProfile> {
   return backend().getPublicProfile(id);
+}
+
+// ---- Season pass, social links, chat (migration 020) -----------------------------------------
+
+/** The running season with my season points, tier and claimed rewards (null between seasons). */
+export async function getSeason(): Promise<Season | null> {
+  return backend().getSeason();
+}
+
+export async function claimSeasonReward(tier: number) {
+  return backend().claimSeasonReward(tier);
+}
+
+/** Saves my social links (https links on each network's own site). */
+export async function setSocialLinks(links: SocialLinks): Promise<SocialLinks> {
+  return backend().setSocialLinks(links);
+}
+
+/** My friends, each with the last message and the unread count. */
+export async function getConversations(): Promise<Conversation[]> {
+  return backend().getConversations();
+}
+
+export async function getDirectMessages(friendId: string): Promise<ChatMessage[]> {
+  return backend().getDirectMessages(friendId);
+}
+
+export async function getActivityMessages(activityId: string): Promise<ChatMessage[]> {
+  return backend().getActivityMessages(activityId);
+}
+
+export async function sendMessage(
+  body: string,
+  to: { friendId?: string; activityId?: string },
+): Promise<void> {
+  return backend().sendMessage(body, to);
+}
+
+export async function markChatRead(friendId: string): Promise<void> {
+  return backend().markChatRead(friendId);
+}
+
+/** Subscribes to new messages I'm allowed to see; returns the unsubscribe function. */
+export function onNewMessage(callback: (message: ChatMessage) => void): () => void {
+  if (!supabase) return () => {};
+  return backend().onNewMessage(callback);
+}
+
+/** Names and cosmetics for the people in a chat. */
+export async function getPeople(ids: string[]) {
+  return backend().getPeople(ids);
 }

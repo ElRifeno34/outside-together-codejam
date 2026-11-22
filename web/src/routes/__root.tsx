@@ -166,9 +166,13 @@ function RootComponent() {
       {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
       <LanguageProvider>
         <AppProvider>
-          <AppHeader />
-          <Outlet />
-          <AppFooter />
+          <div className="app-shell">
+            <AppHeader />
+            <div className="app-main">
+              <Outlet />
+              <AppFooter />
+            </div>
+          </div>
           <Toaster position="bottom-right" richColors />
         </AppProvider>
       </LanguageProvider>

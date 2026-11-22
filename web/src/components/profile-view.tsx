@@ -2,12 +2,13 @@ import { useLanguage } from "@/i18n";
 import { Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import { Coins, MapPin, Pin, PinOff, ShoppingBag } from "lucide-react";
+import { Coins, MapPin, MessageCircle, Pin, PinOff, ShoppingBag, Trophy } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { DisplayName, GradeBadge, ProfileAvatar, TrophyBadge } from "@/components/profile-bits";
 import { BANNERS, gradeFor, gradeProgress, TROPHY_TIERS } from "@/lib/progression";
 import * as api from "@/api";
+import { SocialLinksEditor, SocialLinksRow } from "@/components/social-links";
 
 /** Banner, avatar, grade, stats and trophies for one person (mine or someone else's). */
 export function ProfileView({ userId }: { userId: string }) {
@@ -82,6 +83,20 @@ export function ProfileView({ userId }: { userId: string }) {
                 </span>
               )}
             </div>
+            {p.world_rank !== undefined && (
+              <Link to="/rankings" search={{ tab: "world" }} className="pf-rank">
+                <Trophy size={14} />
+                <strong>#{p.world_rank}</strong> {tr("worldwide")}
+                {p.world_total ? <small> / {p.world_total}</small> : null}
+                {p.area && p.area_rank ? (
+                  <>
+                    {" · "}
+                    <strong>#{p.area_rank}</strong> {tr("in")} {p.area}
+                  </>
+                ) : null}
+              </Link>
+            )}
+            {p.links && Object.keys(p.links).length > 0 && <SocialLinksRow links={p.links} />}
             {showcase.length > 0 && (
               <div className="pf-showcase" aria-label={tr("Showcased trophies")}>
                 {showcase.map((t) => (
@@ -90,6 +105,15 @@ export function ProfileView({ userId }: { userId: string }) {
               </div>
             )}
           </div>
+          {!mine && (
+            <div className="pf-actions">
+              <Button asChild variant="outline" size="sm">
+                <Link to="/messages" search={{ with: p.id }}>
+                  <MessageCircle /> {tr("Message")}
+                </Link>
+              </Button>
+            </div>
+          )}
           {mine && (
             <div className="pf-actions">
               <span className="pf-credits">
@@ -128,6 +152,8 @@ export function ProfileView({ userId }: { userId: string }) {
           </small>
         </div>
       </div>
+
+      {mine && p.links !== undefined && <SocialLinksEditor current={p.links} userId={userId} />}
 
       <div className="pf-trophies">
         <h2 className="section-label">

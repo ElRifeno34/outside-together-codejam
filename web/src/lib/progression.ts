@@ -59,6 +59,8 @@ export const AVATARS: Record<string, { emoji: string; background: string }> = {
   "av-heron": { emoji: "🪶", background: "linear-gradient(135deg,#a1c4fd,#c2e9fb)" },
   "av-bear": { emoji: "🐻", background: "linear-gradient(135deg,#d4a373,#7f5539)" },
   "av-moose": { emoji: "🫎", background: "linear-gradient(135deg,#b7e4c7,#2d6a4f)" },
+  // Season 1 · First snow
+  "av-hare": { emoji: "🐇", background: "linear-gradient(135deg,#ffffff,#cfe8ff)" },
 };
 
 /** Banners: a gradient (and optional pattern) behind the profile header. */
@@ -70,6 +72,8 @@ export const BANNERS: Record<string, string> = {
   "bn-night":
     "radial-gradient(circle at 20% 30%,#fff7 0 1px,transparent 2px),radial-gradient(circle at 70% 20%,#fff6 0 1px,transparent 2px),radial-gradient(circle at 45% 60%,#fff5 0 1px,transparent 2px),linear-gradient(180deg,#0b132b 0%,#1c2541 60%,#3a506b 100%)",
   "bn-aurora": "linear-gradient(120deg,#0b3d2e 0%,#19a974 35%,#5b2a86 70%,#0b132b 100%)",
+  "bn-firstsnow":
+    "radial-gradient(circle at 15% 25%,#fff 0 2px,transparent 3px),radial-gradient(circle at 55% 15%,#fff 0 1.5px,transparent 2.5px),radial-gradient(circle at 80% 45%,#fff 0 2px,transparent 3px),radial-gradient(circle at 35% 70%,#fff 0 1.5px,transparent 2.5px),linear-gradient(180deg,#a8c8e8 0%,#dcecf8 60%,#ffffff 100%)",
 };
 
 export const ITEM_KIND_LABEL: Record<ItemKind, string> = {
