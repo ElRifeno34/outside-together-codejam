@@ -21,7 +21,7 @@ import {
   Compass,
   Sun,
 } from "lucide-react";
-import { visualKey, type ActivityBoardRow } from "@/lib/types";
+import { activityTitle, visualKey, type ActivityBoardRow } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { useApp } from "./app-provider";
 import { joinActivity } from "@/api";
@@ -54,6 +54,13 @@ export const activityImages: Record<string, string> = {
   moss: walk,
   sound: photo,
 };
+/** The photo to show: the creator's upload, else the activity type's photo. */
+export function activityPhoto(
+  row: Pick<ActivityBoardRow, "photo_url" | "type_id" | "kind">,
+): string {
+  return row.photo_url || activityImages[visualKey(row)] || activityImages["walk"]!;
+}
+
 export const activityIcons = {
   walk: Footprints,
   basketball: Dribbble,
@@ -102,8 +109,8 @@ export function ActivityCard({
       await joinActivity(activity.id);
       toast.success(
         language === "fr"
-          ? `Vous participez à ${tr(activity.activity_name)} !`
-          : `You're joining ${activity.activity_name.toLowerCase()}!`,
+          ? `Vous participez à ${tr(activityTitle(activity))} !`
+          : `You're joining ${activityTitle(activity)}!`,
       );
       await refreshProfile();
       onChanged?.();
@@ -115,8 +122,8 @@ export function ActivityCard({
     <article className="activity-card">
       <Link to="/activity/$id" params={{ id: activity.id }} className="card-photo-link">
         <img
-          src={activityImages[visualKey(activity)]}
-          alt={tr(activity.activity_name)}
+          src={activityPhoto(activity)}
+          alt={tr(activityTitle(activity))}
           className="card-photo"
         />
         <span className={`status-chip ${activity.status === "confirmed" ? "is-confirmed" : ""}`}>
@@ -136,7 +143,7 @@ export function ActivityCard({
           <Link to="/activity/$id" params={{ id: activity.id }}>
             <h3>
               <Icon size={19} />
-              {tr(activity.activity_name ?? "")}
+              {tr(activityTitle(activity))}
             </h3>
           </Link>
           <span className="niche-badge" title={`${tr("Niche value")} ${activity.niche_value}`}>

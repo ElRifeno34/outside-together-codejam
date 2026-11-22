@@ -2,12 +2,13 @@
 // - a Google Calendar template link (the person confirms the event in their own calendar)
 // - a standard .ics file for Apple Calendar, Outlook and others.
 // Writing events directly with the Google Calendar API is a later step (see PlanOff §3.5).
-import type { ActivityBoardRow } from "@/lib/types";
+import { activityTitle, type ActivityBoardRow } from "@/lib/types";
 
 type CalendarActivity = Pick<
   ActivityBoardRow,
   "id" | "activity_name" | "place_name" | "address" | "starts_at" | "duration_min"
->;
+> &
+  Partial<Pick<ActivityBoardRow, "title">>;
 
 /** 2026-11-27T20:00:00.000Z → 20261127T200000Z */
 function utcStamp(date: Date): string {
@@ -31,7 +32,7 @@ export function googleCalendarUrl(a: CalendarActivity, pageUrl: string): string 
   const { start, end } = range(a);
   const params = new URLSearchParams({
     action: "TEMPLATE",
-    text: `${a.activity_name} · Outside Together`,
+    text: `${activityTitle(a)} · Outside Together`,
     dates: `${utcStamp(start)}/${utcStamp(end)}`,
     details: details(a, pageUrl),
     location: [a.place_name, a.address].filter(Boolean).join(", "),
@@ -62,7 +63,7 @@ export function icsContent(a: CalendarActivity, pageUrl: string, now = new Date(
     `DTSTAMP:${utcStamp(now)}`,
     `DTSTART:${utcStamp(start)}`,
     `DTEND:${utcStamp(end)}`,
-    `SUMMARY:${escapeText(`${a.activity_name} · Outside Together`)}`,
+    `SUMMARY:${escapeText(`${activityTitle(a)} · Outside Together`)}`,
     `LOCATION:${escapeText([a.place_name, a.address].filter(Boolean).join(", "))}`,
     `DESCRIPTION:${escapeText(details(a, pageUrl))}`,
     `URL:${pageUrl}`,
@@ -76,7 +77,7 @@ export function downloadIcs(a: CalendarActivity, pageUrl: string): void {
   const blob = new Blob([icsContent(a, pageUrl)], { type: "text/calendar;charset=utf-8" });
   const link = document.createElement("a");
   link.href = URL.createObjectURL(blob);
-  link.download = `outside-together-${a.activity_name.toLowerCase().replace(/\W+/g, "-")}.ics`;
+  link.download = `outside-together-${activityTitle(a).toLowerCase().replace(/\W+/g, "-")}.ics`;
   link.click();
   URL.revokeObjectURL(link.href);
 }

@@ -27,6 +27,18 @@ export interface ActivityBoardRow {
   kind?: string;
   /** Caller's registration from activity_board.my_status. */
   my_status?: "joined" | "confirmed" | null;
+  /** Custom title set by the creator (migration 015); null → the type name. */
+  title?: string | null;
+  /** Storage path and public URL of the creator's photo; null → the type's photo. */
+  photo_path?: string | null;
+  photo_url?: string | null;
+  /** True when the creator dropped a pin on the map instead of a preset place. */
+  is_custom_location?: boolean;
+}
+
+/** The name to show: the creator's custom title, else the activity type. */
+export function activityTitle(row: Pick<ActivityBoardRow, "title" | "activity_name">): string {
+  return row.title?.trim() || row.activity_name;
 }
 
 /** Key into activityImages / activityIcons for any board row. */

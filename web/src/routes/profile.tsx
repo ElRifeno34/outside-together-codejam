@@ -4,8 +4,8 @@ import { useQuery } from "@tanstack/react-query";
 import { ArrowUpRight, ArrowLeft, Sparkles, UserRound } from "lucide-react";
 import { useApp } from "@/components/app-provider";
 import { Button } from "@/components/ui/button";
-import { activityImages, formatStart } from "@/components/activity-card";
-import { visualKey } from "@/lib/types";
+import { activityImages, activityPhoto, formatStart } from "@/components/activity-card";
+import { activityTitle, visualKey } from "@/lib/types";
 import * as api from "@/api";
 export const Route = createFileRoute("/profile")({
   head: () => ({
@@ -93,12 +93,9 @@ function ProfilePage() {
                     params={{ id: p.activity_id }}
                     className="my-activity"
                   >
-                    <img
-                      src={activityImages[visualKey(p.activity)]}
-                      alt={tr(p.activity.activity_name ?? "")}
-                    />
+                    <img src={activityPhoto(p.activity)} alt={tr(activityTitle(p.activity))} />
                     <div>
-                      <h3>{tr(p.activity.activity_name ?? "")}</h3>
+                      <h3>{tr(activityTitle(p.activity))}</h3>
                       <p>
                         {tr(p.activity.place_name ?? "")} {" · "}
                         {formatStart(p.activity.starts_at, language)}

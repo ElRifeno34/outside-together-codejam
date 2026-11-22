@@ -2492,3 +2492,109 @@
   .spot-filters { align-items: stretch; flex-direction: column; }
   .friend-add { flex-wrap: wrap; }
 }
+
+/* ---------------------------------------------------------------------------
+   Create / edit: photo upload and map location picker
+   --------------------------------------------------------------------------- */
+.photo-picker,
+.location-mode {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.35rem;
+}
+.photo-upload {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.5rem 0.9rem;
+  border: 1px dashed var(--primary);
+  border-radius: 999px;
+  color: var(--primary);
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+.photo-upload:focus-within {
+  outline: 2px solid var(--ring, var(--primary));
+  outline-offset: 2px;
+}
+.photo-upload input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+}
+.draft-type {
+  margin-top: -0.25rem;
+  color: var(--muted-foreground);
+  font-size: 0.85rem;
+}
+.location-picker {
+  display: grid;
+  gap: 0.6rem;
+}
+.picker-search {
+  display: flex;
+  gap: 0.5rem;
+}
+.picker-search input {
+  flex: 1;
+  min-width: 0;
+  padding: 0.6rem 0.8rem;
+  border: 1px solid var(--border);
+  border-radius: 0.75rem;
+  background: var(--card);
+}
+.picker-results {
+  display: grid;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 0.75rem;
+  background: var(--card);
+}
+.picker-results button {
+  display: flex;
+  width: 100%;
+  align-items: flex-start;
+  gap: 0.5rem;
+  padding: 0.55rem 0.75rem;
+  text-align: left;
+}
+.picker-results li + li button {
+  border-top: 1px solid var(--border);
+}
+.picker-results button:hover {
+  background: var(--muted);
+}
+.picker-results span {
+  display: grid;
+}
+.picker-results small,
+.picker-address,
+.picker-hint,
+.picker-message {
+  color: var(--muted-foreground);
+  font-size: 0.8rem;
+}
+.picker-map {
+  height: 300px;
+  border: 1px solid var(--border);
+  border-radius: 1rem;
+  overflow: hidden;
+  z-index: 0;
+}
+.picker-pin-wrap {
+  background: none;
+  border: 0;
+}
+.picker-pin {
+  width: 28px;
+  height: 28px;
+  border: 3px solid #fff;
+  border-radius: 50% 50% 50% 0;
+  background: var(--primary);
+  box-shadow: 0 4px 12px rgb(0 0 0 / 0.3);
+  transform: rotate(-45deg);
+}

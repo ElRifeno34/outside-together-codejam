@@ -6,8 +6,8 @@ import { LocateFixed, MapPin } from "lucide-react";
 import type { Map as LeafletMap, LayerGroup, CircleMarker, Marker } from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { Button } from "@/components/ui/button";
-import { activityImages, formatStart } from "@/components/activity-card";
-import { visualKey, type ActivityBoardRow } from "@/lib/types";
+import { activityPhoto, formatStart } from "@/components/activity-card";
+import { activityTitle, type ActivityBoardRow } from "@/lib/types";
 import { locateOnce } from "@/api/board-options";
 import { distanceMeters } from "@/lib/geo";
 import * as api from "@/api";
@@ -131,7 +131,7 @@ function MapPage() {
       for (const place of places) {
         const next = place.rows[0];
         if (!next) continue;
-        const photo = activityImages[visualKey(next)] ?? activityImages["walk"];
+        const photo = activityPhoto(next);
         const soon = new Date(next.starts_at).getTime() - Date.now() < 2 * 3600_000;
         const icon = L.divIcon({
           className: "snap-pin-wrap",
@@ -151,7 +151,7 @@ function MapPage() {
                 ? `${r.available_spots} ${tr(r.available_spots === 1 ? "spot left" : "spots left")}`
                 : tr("Full");
             return `<a class="snap-pop-item" href="/activity/${encodeURIComponent(r.id)}" data-activity="${escapeHtml(r.id)}">
-                <strong>${escapeHtml(tr(r.activity_name))}</strong>
+                <strong>${escapeHtml(tr(activityTitle(r)))}</strong>
                 <span>${escapeHtml(formatStart(r.starts_at, language))} · ${escapeHtml(spots)}</span>
               </a>`;
           })
@@ -227,9 +227,9 @@ function MapPage() {
             {nearby.map(({ row, meters }) => (
               <li key={row.id}>
                 <Link to="/activity/$id" params={{ id: row.id }} className="nearby-item">
-                  <img src={activityImages[visualKey(row)] ?? activityImages["walk"]} alt="" />
+                  <img src={activityPhoto(row)} alt="" />
                   <span className="nearby-text">
-                    <strong>{tr(row.activity_name)}</strong>
+                    <strong>{tr(activityTitle(row))}</strong>
                     <span>
                       {tr(row.place_name)} · {formatStart(row.starts_at, language)}
                     </span>

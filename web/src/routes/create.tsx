@@ -2,11 +2,12 @@ import { useLanguage } from "@/i18n";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { queryOptions, useQuery, useSuspenseQuery } from "@tanstack/react-query";
 import { useState } from "react";
-import { ArrowLeft, ArrowUpRight, Sparkles } from "lucide-react";
+import { ArrowLeft, ArrowUpRight, ImagePlus, MapPin, Sparkles, Trash2 } from "lucide-react";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { useApp } from "@/components/app-provider";
 import { activityImages } from "@/components/activity-card";
+import { LocationPicker } from "@/components/location-picker";
 import * as api from "@/api";
 import { visualKind } from "@/lib/activity-visuals";
 import { futureDay, localToISO, torontoDate, torontoTime } from "@/lib/time";
@@ -79,22 +80,53 @@ function CreateActivity() {
   const [time, setTime] = useState(validStart ? torontoTime(validStart) : "15:00");
   const [capacity, setCapacity] = useState(editing?.capacity ?? 6);
   const [minimum, setMinimum] = useState(editing?.min_people ?? 3);
+  const [title, setTitle] = useState(editing?.title ?? "");
+  // Photo: an uploaded file (storage path + preview URL), or none → the activity type's photo.
+  const [photoPath, setPhotoPath] = useState<string | null>(editing?.photo_path ?? null);
+  const [photoPreview, setPhotoPreview] = useState<string | null>(editing?.photo_url ?? null);
+  const [uploading, setUploading] = useState(false);
+  // Location: a preset public place, or a pin on the map for this activity only.
+  const [mode, setMode] = useState<"place" | "map">(editing?.is_custom_location ? "map" : "place");
+  const [pin, setPin] = useState<api.ActivityLocation | null>(
+    editing?.is_custom_location
+      ? { name: editing.place_name, address: editing.address, lat: editing.lat, lng: editing.lng }
+      : null,
+  );
   const alreadyIn = editing ? editing.capacity - editing.available_spots : 1;
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const chosen = data.types.find((t) => t.id === type);
   const chosenPlace = data.places.find((p) => p.id === place);
-  const ready = !!chosen && !!chosenPlace;
+  const locationReady = mode === "map" ? !!pin && pin.name.trim().length > 0 : !!chosenPlace;
+  const ready = !!chosen && locationReady && !uploading;
+  const pickPhoto = async (file: File | undefined) => {
+    if (!file) return;
+    if (!profile) return openAuth();
+    setUploading(true);
+    setError("");
+    try {
+      const path = await api.uploadActivityPhoto(file);
+      setPhotoPath(path);
+      setPhotoPreview(api.activityPhotoUrl(path));
+    } catch (e) {
+      setError(tr(e instanceof Error ? e.message : "Couldn't upload that photo"));
+    } finally {
+      setUploading(false);
+    }
+  };
   const publish = async () => {
     setBusy(true);
     setError("");
     try {
-      const input = {
+      const input: api.ActivityInput = {
         type_id: type,
-        place_id: place,
+        place_id: mode === "place" ? place : null,
         starts_at: localToISO(day, time),
         capacity,
         min_people: minimum,
+        title: title.trim() || null,
+        photo_path: photoPath,
+        location: mode === "map" ? pin : null,
       };
       let id: string;
       if (editId) {
@@ -158,19 +190,90 @@ function CreateActivity() {
             </select>
           </label>
           <label className="field full">
-            {tr("Public place")}
-            <select
-              aria-label={tr("Public place")}
-              value={place}
-              onChange={(e) => setPlace(e.target.value)}
-            >
-              {data.places.map((p) => (
-                <option key={p.id} value={p.id}>
-                  {tr(p.name ?? "")}
-                </option>
-              ))}
-            </select>
+            {tr("Title (optional)")}
+            <input
+              value={title}
+              maxLength={80}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder={tr(chosen?.name ?? "Activity")}
+            />
           </label>
+          <div className="field full">
+            {tr("Photo (optional)")}
+            <div className="photo-picker">
+              <label className="photo-upload">
+                <ImagePlus size={16} />
+                {tr(uploading ? "Uploading…" : photoPath ? "Change photo" : "Upload a photo")}
+                <input
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp"
+                  disabled={uploading}
+                  onChange={(e) => {
+                    void pickPhoto(e.target.files?.[0]);
+                    e.target.value = "";
+                  }}
+                />
+              </label>
+              {photoPath && (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    setPhotoPath(null);
+                    setPhotoPreview(null);
+                  }}
+                >
+                  <Trash2 /> {tr("Use the activity's photo")}
+                </Button>
+              )}
+            </div>
+          </div>
+          <div className="field full">
+            {tr("Where")}
+            <div className="location-mode" role="radiogroup" aria-label={tr("Where")}>
+              <Button
+                type="button"
+                variant="pill"
+                role="radio"
+                aria-checked={mode === "place"}
+                data-active={mode === "place"}
+                onClick={() => setMode("place")}
+              >
+                {tr("Public place")}
+              </Button>
+              <Button
+                type="button"
+                variant="pill"
+                role="radio"
+                aria-checked={mode === "map"}
+                data-active={mode === "map"}
+                onClick={() => setMode("map")}
+              >
+                <MapPin /> {tr("Pick on the map")}
+              </Button>
+            </div>
+          </div>
+          {mode === "place" ? (
+            <label className="field full">
+              {tr("Public place")}
+              <select
+                aria-label={tr("Public place")}
+                value={place}
+                onChange={(e) => setPlace(e.target.value)}
+              >
+                {data.places.map((p) => (
+                  <option key={p.id} value={p.id}>
+                    {tr(p.name ?? "")}
+                  </option>
+                ))}
+              </select>
+            </label>
+          ) : (
+            <div className="full">
+              <LocationPicker value={pin} onChange={setPin} />
+            </div>
+          )}
           <label className="field">
             {tr("Date")}
             <input
@@ -207,9 +310,14 @@ function CreateActivity() {
               onChange={(e) => setMinimum(Number(e.target.value))}
             />
           </label>
-          {!ready && (
+          {!chosen && (
             <p className="full text-sm text-destructive" role="alert">
               {tr("No activity types or public places are available yet.")}
+            </p>
+          )}
+          {mode === "map" && !locationReady && (
+            <p className="full text-sm text-muted-foreground">
+              {tr("Drop a pin on the map and give the spot a name")}
             </p>
           )}
           {error && (
@@ -248,15 +356,18 @@ function CreateActivity() {
         <aside className="draft-summary">
           {chosen && (
             <img
-              src={activityImages[visualKind(chosen.name, chosen.keywords)]}
-              alt={tr(chosen.name)}
+              src={photoPreview ?? activityImages[visualKind(chosen.name, chosen.keywords)]}
+              alt={title.trim() || tr(chosen.name)}
             />
           )}
-          <h2>{tr(chosen?.name ?? "")}</h2>
+          <h2>{title.trim() || tr(chosen?.name ?? "")}</h2>
+          {title.trim() && chosen && <p className="draft-type">{tr(chosen.name)}</p>}
           <p>
-            {tr(chosenPlace?.name ?? "")}
+            {mode === "map"
+              ? (pin?.name ?? tr("Pick a spot on the map"))
+              : tr(chosenPlace?.name ?? "")}
             <br />
-            {chosenPlace?.address}
+            {mode === "map" ? pin?.address : chosenPlace?.address}
           </p>
           <span className="points-label">
             <Sparkles size={15} />

@@ -1,4 +1,35 @@
 export const french: Record<string, string> = {
+  "Title (optional)": "Titre (facultatif)",
+  "Photo (optional)": "Photo (facultative)",
+  "Uploading…": "Envoi…",
+  "Change photo": "Changer la photo",
+  "Upload a photo": "Ajouter une photo",
+  "Use the activity's photo": "Utiliser la photo de l’activité",
+  Where: "Où",
+  "Pick on the map": "Choisir sur la carte",
+  "Pick a spot on the map": "Choisissez un endroit sur la carte",
+  "Drop a pin on the map and give the spot a name":
+    "Placez une épingle sur la carte et donnez un nom à l’endroit",
+  "Couldn't upload that photo": "Impossible d’envoyer cette photo",
+  "Choose a JPG, PNG or WebP photo": "Choisissez une photo JPG, PNG ou WebP",
+  "That photo is too large (max 15 MB)": "Cette photo est trop lourde (15 Mo max.)",
+  "Couldn't read that photo": "Impossible de lire cette photo",
+  "A title needs 3 to 80 characters": "Le titre doit faire entre 3 et 80 caractères",
+  "That photo can't be used. Upload it again":
+    "Cette photo ne peut pas être utilisée. Envoyez-la de nouveau",
+  "Pick a spot in the Montréal area": "Choisissez un endroit dans la région de Montréal",
+  "Search a place or address in Montréal": "Cherchez un lieu ou une adresse à Montréal",
+  "Searching…": "Recherche…",
+  Search: "Rechercher",
+  "No match in the Montréal area. Try another name, or drop a pin.":
+    "Aucun résultat dans la région de Montréal. Essayez un autre nom, ou placez une épingle.",
+  "Place search is unavailable. Drop a pin instead.":
+    "La recherche de lieux est indisponible. Placez plutôt une épingle.",
+  "Map: click to drop the pin": "Carte : cliquez pour placer l’épingle",
+  "Click the map to drop the pin, then drag it to the exact spot. Check-in counts within 200 m of it.":
+    "Cliquez sur la carte pour placer l’épingle, puis glissez-la à l’endroit exact. La présence est validée à moins de 200 m.",
+  "Name of the spot": "Nom de l’endroit",
+  "e.g. North entrance of Parc Jarry": "ex. entrée nord du parc Jarry",
   "Go somewhere new.": "Allez quelque part de nouveau.",
   "Each place pays once: 10 + 5 × its niche level, when you're within 200 m. The more niche, the more points.":
     "Chaque lieu rapporte une seule fois : 10 + 5 × son niveau de niche, quand vous êtes à moins de 200 m. Plus c’est niche, plus ça rapporte.",

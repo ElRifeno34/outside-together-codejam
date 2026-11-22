@@ -26,7 +26,7 @@ type BoardViewRow = {
   niche_value: number;
   keywords: string[] | null;
   points_value: number;
-  place_id: string;
+  place_id: string | null;
   place_name: string;
   place_address: string | null;
   lat: number | null;
@@ -42,7 +42,44 @@ type BoardViewRow = {
   spots_left: number;
   is_full: boolean;
   my_status: "joined" | "confirmed" | null;
+  title?: string | null;
+  photo_path?: string | null;
+  is_custom_location?: boolean | null;
 };
+
+/** Where an activity happens: a preset public place, or a pin dropped on the map. */
+export type ActivityLocation = { name: string; address: string; lat: number; lng: number };
+
+export type ActivityInput = {
+  type_id: string;
+  place_id: string | null;
+  starts_at: string;
+  capacity: number;
+  min_people: number;
+  title?: string | null;
+  photo_path?: string | null;
+  location?: ActivityLocation | null;
+};
+
+export const PHOTO_BUCKET = "activity-photos";
+
+function detailArgs(input: ActivityInput) {
+  const loc = input.location ?? null;
+  return {
+    p_type_id: input.type_id,
+    p_place_id: loc ? null : input.place_id,
+    p_starts_at: input.starts_at,
+    p_duration_min: 60,
+    p_capacity: input.capacity,
+    p_min_people: input.min_people,
+    p_title: input.title?.trim() || null,
+    p_photo_path: input.photo_path ?? null,
+    p_location_name: loc?.name ?? null,
+    p_location_address: loc?.address ?? null,
+    p_location_lat: loc?.lat ?? null,
+    p_location_lng: loc?.lng ?? null,
+  };
+}
 
 export type BoardFilters = { typeId?: string; date?: string; timeFrom?: string; timeTo?: string };
 
@@ -68,6 +105,10 @@ const errorText: Record<string, string> = {
   TOO_FAR_FROM_PLACE: "You need to be within 200 m of the place to check in",
   INVALID_TYPE: "Choose an activity type",
   INVALID_PLACE: "Choose a public place",
+  INVALID_TITLE: "A title needs 3 to 80 characters",
+  INVALID_PHOTO: "That photo can't be used. Upload it again",
+  LOCATION_OUTSIDE_MONTREAL: "Pick a spot in the Montréal area",
+  INVALID_PIN: "Drop a pin on the map and give the spot a name",
   INVALID_TIME: "Start time must be in the future",
   INVALID_DURATION: "Choose a duration between 15 minutes and 4 hours",
   INVALID_CAPACITY: "Minimum people must be between 2 and capacity",
@@ -87,7 +128,11 @@ function fail(error: PostgrestError | { message: string; code?: string }): never
   throw new Error(code ? errorText[code] : error.message);
 }
 
-function toBoardRow(row: BoardViewRow, userId: string | null): ActivityBoardRow {
+function toBoardRow(
+  row: BoardViewRow,
+  userId: string | null,
+  photoUrl: (path: string) => string = (p) => p,
+): ActivityBoardRow {
   const status =
     row.status === "open" && row.participant_count >= row.min_people ? "confirmed" : row.status;
   return {
@@ -96,7 +141,7 @@ function toBoardRow(row: BoardViewRow, userId: string | null): ActivityBoardRow 
     kind: visualKind(row.activity_name, row.keywords ?? []),
     activity_name: row.activity_name,
     niche_value: row.niche_value,
-    place_id: row.place_id,
+    place_id: row.place_id ?? "",
     place_name: row.place_name,
     address: row.place_address ?? "",
     lat: row.lat ?? 0,
@@ -110,6 +155,10 @@ function toBoardRow(row: BoardViewRow, userId: string | null): ActivityBoardRow 
     available_spots: row.spots_left,
     creator_id: row.is_mine && userId ? userId : "",
     my_status: row.my_status,
+    title: row.title ?? null,
+    photo_path: row.photo_path ?? null,
+    photo_url: row.photo_path ? photoUrl(row.photo_path) : null,
+    is_custom_location: !!row.is_custom_location,
   };
 }
 
@@ -118,6 +167,8 @@ export function createSupabaseBackend(supabase: SupabaseClient) {
     const { data } = await supabase.auth.getSession();
     return data.session?.user.id ?? null;
   }
+  const photoUrl = (path: string) =>
+    supabase.storage.from(PHOTO_BUCKET).getPublicUrl(path).data.publicUrl;
   async function requireUserId(): Promise<string> {
     const id = await userId();
     if (!id) throw new Error("Sign in required");
@@ -136,7 +187,7 @@ export function createSupabaseBackend(supabase: SupabaseClient) {
       const [{ data, error }, me] = await Promise.all([query, userId()]);
       if (error) fail(error);
       return (data as BoardViewRow[])
-        .map((r) => toBoardRow(r, me))
+        .map((r) => toBoardRow(r, me, photoUrl))
         .filter(
           (r) =>
             (!filters.date || torontoDate(r.starts_at) === filters.date) &&
@@ -152,7 +203,7 @@ export function createSupabaseBackend(supabase: SupabaseClient) {
       ]);
       if (error) fail(error);
       if (!data) throw new Error("Activity not found");
-      return toBoardRow(data as BoardViewRow, me);
+      return toBoardRow(data as BoardViewRow, me, photoUrl);
     },
 
     async getActivityTypes(): Promise<ActivityType[]> {
@@ -214,46 +265,33 @@ export function createSupabaseBackend(supabase: SupabaseClient) {
       return data as ConfirmResult;
     },
 
-    async createActivity(input: {
-      type_id: string;
-      place_id: string;
-      starts_at: string;
-      capacity: number;
-      min_people: number;
-    }): Promise<string> {
-      const { data, error } = await supabase.rpc("create_activity", {
-        p_type_id: input.type_id,
-        p_place_id: input.place_id,
-        p_starts_at: input.starts_at,
-        p_duration_min: 60,
-        p_capacity: input.capacity,
-        p_min_people: input.min_people,
-      });
+    async createActivity(input: ActivityInput): Promise<string> {
+      const { data, error } = await supabase.rpc("create_activity", detailArgs(input));
       if (error) fail(error);
       return (data as { activity_id: string }).activity_id;
     },
 
-    async updateActivity(
-      id: string,
-      input: {
-        type_id: string;
-        place_id: string;
-        starts_at: string;
-        capacity: number;
-        min_people: number;
-      },
-    ): Promise<void> {
+    async updateActivity(id: string, input: ActivityInput): Promise<void> {
       const { error } = await supabase.rpc("update_activity", {
         p_activity_id: id,
-        p_type_id: input.type_id,
-        p_place_id: input.place_id,
-        p_starts_at: input.starts_at,
-        p_duration_min: 60,
-        p_capacity: input.capacity,
-        p_min_people: input.min_people,
+        ...detailArgs(input),
       });
       if (error) fail(error);
     },
+
+    /** Uploads a (resized) photo under <user id>/ and returns its storage path. */
+    async uploadActivityPhoto(file: Blob, extension: string): Promise<string> {
+      const id = await userId();
+      if (!id) throw new Error("Sign in required");
+      const path = `${id}/${crypto.randomUUID()}.${extension}`;
+      const { error } = await supabase.storage
+        .from(PHOTO_BUCKET)
+        .upload(path, file, { contentType: file.type, upsert: false });
+      if (error) throw new Error(error.message);
+      return path;
+    },
+
+    photoUrl,
 
     /** Calls the planned ai-search Edge Function. Returns null when it isn't deployed or fails. */
     async aiSearch(text: string): Promise<unknown> {
@@ -351,7 +389,7 @@ export function createSupabaseBackend(supabase: SupabaseClient) {
     },
 
     mapBoardRows(rows: unknown[], me: string | null): ActivityBoardRow[] {
-      return (rows as BoardViewRow[]).map((r) => toBoardRow(r, me));
+      return (rows as BoardViewRow[]).map((r) => toBoardRow(r, me, photoUrl));
     },
 
     userId,
@@ -408,7 +446,7 @@ export function createSupabaseBackend(supabase: SupabaseClient) {
         user_id: id,
         status: r.my_status ?? "joined",
         joined_at: r.starts_at,
-        activity: toBoardRow(r, id),
+        activity: toBoardRow(r, id, photoUrl),
       }));
     },
   };

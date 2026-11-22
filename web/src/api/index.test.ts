@@ -191,6 +191,12 @@ describe("join, leave and create through the Role B RPCs", () => {
         p_duration_min: 60,
         p_capacity: 6,
         p_min_people: 2,
+        p_title: null,
+        p_photo_path: null,
+        p_location_name: null,
+        p_location_address: null,
+        p_location_lat: null,
+        p_location_lng: null,
       },
     });
   });
@@ -231,6 +237,12 @@ describe("editing an activity", () => {
         p_duration_min: 60,
         p_capacity: 8,
         p_min_people: 2,
+        p_title: null,
+        p_photo_path: null,
+        p_location_name: null,
+        p_location_address: null,
+        p_location_lat: null,
+        p_location_lng: null,
       },
     });
   });
@@ -447,5 +459,47 @@ describe("places to visit, rankings and friends (migration 013)", () => {
     await expect(api.addFriend("zzzzzz")).rejects.toThrow("No one has that friend code");
     db().rpc.add_friend = () => ({ data: null, error: { message: "CANNOT_ADD_SELF" } });
     await expect(api.addFriend("mine12")).rejects.toThrow("That's your own friend code");
+  });
+});
+
+describe("custom title, photo and map location (migration 015)", () => {
+  it("sends the pin instead of a preset place, with the custom title", async () => {
+    db().rpc.create_activity = () => ({ data: { activity_id: "new-1" }, error: null });
+    await api.createActivity({
+      type_id: "type-chess",
+      place_id: "place-park",
+      starts_at: "2099-03-01T18:00:00.000Z",
+      capacity: 6,
+      min_people: 2,
+      title: "  Speed chess by the fountain ",
+      photo_path: "me/abc.webp",
+      location: { name: "Fountain", address: "Parc Jarry", lat: 45.535, lng: -73.628 },
+    });
+    expect(db().rpcCalls.at(-1)?.args).toMatchObject({
+      p_place_id: null,
+      p_title: "Speed chess by the fountain",
+      p_photo_path: "me/abc.webp",
+      p_location_name: "Fountain",
+      p_location_address: "Parc Jarry",
+      p_location_lat: 45.535,
+      p_location_lng: -73.628,
+    });
+  });
+
+  it("explains a pin outside Montréal", async () => {
+    db().rpc.create_activity = () => ({
+      data: null,
+      error: { message: "LOCATION_OUTSIDE_MONTREAL" },
+    });
+    await expect(
+      api.createActivity({
+        type_id: "type-chess",
+        place_id: null,
+        starts_at: "2099-03-01T18:00:00.000Z",
+        capacity: 6,
+        min_people: 2,
+        location: { name: "Far", address: "", lat: 48.85, lng: 2.35 },
+      }),
+    ).rejects.toThrow("Pick a spot in the Montréal area");
   });
 });

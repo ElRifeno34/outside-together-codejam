@@ -23,9 +23,11 @@ import {
   type BoardFilters,
   type ConfirmResult,
   type SupabaseBackend,
+  type ActivityInput,
+  type ActivityLocation,
 } from "./supabase-backend";
 
-export type { BoardFilters, ConfirmResult };
+export type { ActivityInput, ActivityLocation, BoardFilters, ConfirmResult };
 
 /** A prefilled "Start one" form: real type/place ids from the backend. */
 export type Draft = {
@@ -82,16 +84,41 @@ export async function confirmAttendance(id: string, at: DevicePosition): Promise
 }
 
 /** create_activity: one hour at a public place; the creator is registered automatically. */
-export async function createActivity(input: Draft & { min_people: number }): Promise<string> {
+export async function createActivity(input: ActivityInput): Promise<string> {
   return backend().createActivity(input);
 }
 
 /** update_activity: the creator edits their activity before it starts (migration 009). */
-export async function updateActivity(
-  id: string,
-  input: Draft & { min_people: number },
-): Promise<void> {
+export async function updateActivity(id: string, input: ActivityInput): Promise<void> {
   return backend().updateActivity(id, input);
+}
+
+/**
+ * Shrinks a photo in the browser (longest side 1600 px, WebP) and uploads it to the
+ * activity-photos bucket. Re-encoding also drops the camera's EXIF data (incl. GPS).
+ * Returns the storage path to pass as photo_path.
+ */
+export async function uploadActivityPhoto(file: File): Promise<string> {
+  if (!/^image\/(jpeg|png|webp)$/.test(file.type))
+    throw new Error("Choose a JPG, PNG or WebP photo");
+  if (file.size > 15 * 1024 * 1024) throw new Error("That photo is too large (max 15 MB)");
+  const bitmap = await createImageBitmap(file);
+  const scale = Math.min(1, 1600 / Math.max(bitmap.width, bitmap.height));
+  const canvas = document.createElement("canvas");
+  canvas.width = Math.round(bitmap.width * scale);
+  canvas.height = Math.round(bitmap.height * scale);
+  canvas.getContext("2d")!.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+  bitmap.close();
+  const blob = await new Promise<Blob | null>((resolve) =>
+    canvas.toBlob(resolve, "image/webp", 0.85),
+  );
+  if (!blob) throw new Error("Couldn't read that photo");
+  return backend().uploadActivityPhoto(blob, "webp");
+}
+
+/** Public URL of an uploaded activity photo. */
+export function activityPhotoUrl(path: string): string {
+  return backend().photoUrl(path);
 }
 
 // ---- Search (AI optional) ---------------------------------------------------------------

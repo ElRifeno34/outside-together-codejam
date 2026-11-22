@@ -366,7 +366,10 @@ function Board() {
                     {tr("All activities")}
                   </Button>
                   {types.map((type) => {
-                    const Icon = activityIcons[visualKind(type.name, type.keywords) as keyof typeof activityIcons] ?? Sprout;
+                    const Icon =
+                      activityIcons[
+                        visualKind(type.name, type.keywords) as keyof typeof activityIcons
+                      ] ?? Sprout;
                     return (
                       <Button
                         key={type.id}
@@ -481,9 +484,7 @@ function Board() {
                         </span>
                       </p>
                     ))}
-                    <small>
-                      {tr("Points unlock when 2 participants check in.")}
-                    </small>
+                    <small>{tr("Points unlock when 2 participants check in.")}</small>
                   </div>
                 </details>
               </fieldset>

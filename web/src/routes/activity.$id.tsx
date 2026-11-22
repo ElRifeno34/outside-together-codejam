@@ -16,10 +16,10 @@ import {
 } from "lucide-react";
 import { googleCalendarUrl, downloadIcs } from "@/lib/calendar";
 import { locatePrecise } from "@/lib/geo";
-import { visualKey } from "@/lib/types";
+import { activityTitle } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { useApp } from "@/components/app-provider";
-import { activityImages, formatStart } from "@/components/activity-card";
+import { activityPhoto, formatStart } from "@/components/activity-card";
 import * as api from "@/api";
 /** Absolute link back to this activity for calendar events (only called from click handlers). */
 const pageUrl = (id: string) => `${window.location.origin}/activity/${id}`;
@@ -29,17 +29,19 @@ const activityOptions = (id: string) =>
 export const Route = createFileRoute("/activity/$id")({
   loader: ({ context, params }) => context.queryClient.ensureQueryData(activityOptions(params.id)),
   head: ({ loaderData }) => {
-    const image = loaderData ? activityImages[visualKey(loaderData)] : undefined;
+    const image = loaderData ? activityPhoto(loaderData) : undefined;
     return {
       meta: [
-        { title: `${loaderData?.activity_name ?? "Activity"} in Montréal · Outside Together` },
+        {
+          title: `${loaderData ? activityTitle(loaderData) : "Activity"} in Montréal · Outside Together`,
+        },
         {
           name: "description",
-          content: `Join a one-hour ${loaderData?.activity_name.toLowerCase() ?? "activity"} at ${loaderData?.place_name ?? "a public Montréal place"}.`,
+          content: `Join a one-hour ${loaderData ? activityTitle(loaderData) : "activity"} at ${loaderData?.place_name ?? "a public Montréal place"}.`,
         },
         {
           property: "og:title",
-          content: `${loaderData?.activity_name ?? "Activity"} · Outside Together`,
+          content: `${loaderData ? activityTitle(loaderData) : "Activity"} · Outside Together`,
         },
         {
           property: "og:description",
@@ -121,11 +123,7 @@ function ActivityDetail() {
         </Link>
       </div>
       <div className="detail-grid">
-        <img
-          className="detail-photo"
-          src={activityImages[visualKey(a)]}
-          alt={tr(a.activity_name)}
-        />
+        <img className="detail-photo" src={activityPhoto(a)} alt={tr(activityTitle(a))} />
         <section className="detail-content">
           <span className="detail-status">
             {a.status === "done"
@@ -136,7 +134,8 @@ function ActivityDetail() {
                   ? tr("Cancelled")
                   : tr("Open to join")}
           </span>
-          <h1>{tr(a.activity_name ?? "")}</h1>
+          <h1>{tr(activityTitle(a))}</h1>
+          {a.title && <p className="detail-type">{tr(a.activity_name)}</p>}
           <div className="detail-row">
             <MapPin />
             <div>
