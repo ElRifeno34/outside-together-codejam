@@ -94,6 +94,20 @@ export interface Area {
 
 export type RankingScope = "area" | "world" | "friends";
 
+/** A pending friend request: someone asked you (incoming) or you asked them (outgoing). */
+export interface FriendRequest {
+  direction: "incoming" | "outgoing";
+  user_id: string;
+  display_name: string;
+  created_at: string;
+}
+
+export type AddFriendResult = {
+  status: "requested" | "accepted";
+  friend_id: string;
+  display_name: string;
+};
+
 /** A suggested side quest: for one activity type, or for any activity (type_id null). */
 export interface QuestTemplate {
   id: string;

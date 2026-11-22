@@ -454,7 +454,12 @@ describe("places to visit, rankings and friends (migration 013)", () => {
       data: { friend_id: "u2", display_name: "Sami" },
       error: null,
     });
-    expect(await api.addFriend("abc123")).toEqual({ friend_id: "u2", display_name: "Sami" });
+    // Before migration 018 there was no status: treated as an immediate friendship.
+    expect(await api.addFriend("abc123")).toEqual({
+      status: "accepted",
+      friend_id: "u2",
+      display_name: "Sami",
+    });
     db().rpc.add_friend = () => ({ data: null, error: { message: "FRIEND_CODE_NOT_FOUND" } });
     await expect(api.addFriend("zzzzzz")).rejects.toThrow("No one has that friend code");
     db().rpc.add_friend = () => ({ data: null, error: { message: "CANNOT_ADD_SELF" } });
@@ -562,5 +567,34 @@ describe("side quests (migration 017)", () => {
     await expect(api.setActivityQuests("act-1", [])).rejects.toThrow(
       "Side quests can't change once the activity has started",
     );
+  });
+});
+
+describe("friend requests (migration 018)", () => {
+  it("sending a code creates a request the other person must accept", async () => {
+    db().rpc.add_friend = () => ({
+      data: { status: "requested", friend_id: "u2", display_name: "Sami" },
+      error: null,
+    });
+    expect(await api.addFriend("abc123")).toMatchObject({ status: "requested" });
+  });
+
+  it("accepts, declines and cancels requests", async () => {
+    db().rpc.respond_friend_request = () => ({ data: { accepted: true }, error: null });
+    await api.respondFriendRequest("u3", true);
+    expect(db().rpcCalls.at(-1)).toEqual({
+      name: "respond_friend_request",
+      args: { p_from: "u3", p_accept: true },
+    });
+    await api.respondFriendRequest("u3", false);
+    expect(db().rpcCalls.at(-1)?.args).toEqual({ p_from: "u3", p_accept: false });
+    db().rpc.cancel_friend_request = () => ({ data: null, error: null });
+    await api.cancelFriendRequest("u4");
+    expect(db().rpcCalls.at(-1)).toEqual({ name: "cancel_friend_request", args: { p_to: "u4" } });
+  });
+
+  it("explains a duplicate request", async () => {
+    db().rpc.add_friend = () => ({ data: null, error: { message: "REQUEST_ALREADY_SENT" } });
+    await expect(api.addFriend("abc123")).rejects.toThrow("You already sent them a request");
   });
 });

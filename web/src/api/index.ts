@@ -13,6 +13,7 @@ import type {
   PointsEntry,
   Profile,
   ActivityQuest,
+  FriendRequest,
   Area,
   LeaderboardRow,
   QuestBoardRow,
@@ -410,8 +411,22 @@ export async function getMyFriendCode(): Promise<string> {
   return backend().getMyFriendCode();
 }
 
+/** Sends a friend request; if they had already asked you, you become friends right away. */
 export async function addFriend(code: string) {
   return backend().addFriend(code);
+}
+
+/** Pending requests: incoming (to accept or decline) and outgoing (to cancel). */
+export async function getFriendRequests(): Promise<FriendRequest[]> {
+  return backend().getFriendRequests();
+}
+
+export async function respondFriendRequest(fromUser: string, accept: boolean): Promise<void> {
+  return backend().respondFriendRequest(fromUser, accept);
+}
+
+export async function cancelFriendRequest(toUser: string): Promise<void> {
+  return backend().cancelFriendRequest(toUser);
 }
 
 export async function removeFriend(friendId: string): Promise<void> {

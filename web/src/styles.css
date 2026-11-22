@@ -2765,3 +2765,55 @@
   .quest-grid-title { display: none; }
   .quest-grid-num { display: inline; }
 }
+
+/* Friend requests */
+.friend-requests {
+  display: grid;
+  grid-column: 1 / -1;
+  gap: 0.5rem;
+}
+.friend-requests h3 {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-weight: 700;
+}
+.friend-requests ul {
+  display: grid;
+  gap: 0.4rem;
+}
+.friend-requests li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.55rem 0.8rem;
+  border: 1px solid var(--border);
+  border-radius: 1rem;
+  background: var(--card);
+}
+.friend-request-name {
+  display: grid;
+  flex: 1;
+  min-width: 8rem;
+}
+.friend-request-name small {
+  color: var(--muted-foreground);
+  font-size: 0.78rem;
+}
+.ranking-avatar.is-pending {
+  background: var(--muted);
+  color: var(--muted-foreground);
+}
+.friend-badge {
+  display: inline-grid;
+  min-width: 1.25rem;
+  height: 1.25rem;
+  padding: 0 0.35rem;
+  place-items: center;
+  border-radius: 999px;
+  background: #d9480f;
+  color: #fff;
+  font-size: 0.72rem;
+  font-weight: 700;
+}

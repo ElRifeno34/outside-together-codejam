@@ -12,6 +12,8 @@ import type {
   PointsEntry,
   Profile,
   ActivityQuest,
+  AddFriendResult,
+  FriendRequest,
   Area,
   LeaderboardRow,
   QuestBoardRow,
@@ -131,6 +133,9 @@ const errorText: Record<string, string> = {
   TOO_FAR_FROM_SPOT: "You need to be within 200 m of the place to collect its points",
   FRIEND_CODE_NOT_FOUND: "No one has that friend code. Check it and try again",
   CANNOT_ADD_SELF: "That's your own friend code",
+  ALREADY_FRIENDS: "You're already friends",
+  REQUEST_ALREADY_SENT: "You already sent them a request. Waiting for their answer",
+  REQUEST_NOT_FOUND: "This friend request no longer exists",
   INVALID_SCOPE: "Unknown ranking",
 };
 
@@ -452,10 +457,32 @@ export function createSupabaseBackend(supabase: SupabaseClient) {
       return data as string;
     },
 
-    async addFriend(code: string): Promise<{ friend_id: string; display_name: string }> {
+    /** Sends a friend request (migration 018), or accepts theirs if they already asked. */
+    async addFriend(code: string): Promise<AddFriendResult> {
       const { data, error } = await supabase.rpc("add_friend", { p_code: code });
       if (error) fail(error);
-      return data as { friend_id: string; display_name: string };
+      const result = data as Partial<AddFriendResult>;
+      // Before migration 018 add_friend made the friendship at once and had no status.
+      return { status: result.status ?? "accepted", ...result } as AddFriendResult;
+    },
+
+    async getFriendRequests(): Promise<FriendRequest[]> {
+      const { data, error } = await supabase.rpc("my_friend_requests");
+      if (error) fail(error);
+      return (data ?? []) as FriendRequest[];
+    },
+
+    async respondFriendRequest(fromUser: string, accept: boolean): Promise<void> {
+      const { error } = await supabase.rpc("respond_friend_request", {
+        p_from: fromUser,
+        p_accept: accept,
+      });
+      if (error) fail(error);
+    },
+
+    async cancelFriendRequest(toUser: string): Promise<void> {
+      const { error } = await supabase.rpc("cancel_friend_request", { p_to: toUser });
+      if (error) fail(error);
     },
 
     async removeFriend(friendId: string): Promise<void> {

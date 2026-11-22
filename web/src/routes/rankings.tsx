@@ -3,6 +3,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
 import {
+  Check,
   Copy,
   Globe2,
   Link2,
@@ -12,12 +13,13 @@ import {
   UserMinus,
   UserPlus,
   Users,
+  X,
 } from "lucide-react";
 import { toast } from "sonner";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { useApp } from "@/components/app-provider";
-import type { Area, LeaderboardRow, RankingScope } from "@/lib/types";
+import type { Area, FriendRequest, LeaderboardRow, RankingScope } from "@/lib/types";
 import * as api from "@/api";
 
 export const Route = createFileRoute("/rankings")({
@@ -52,6 +54,16 @@ function RankingsPage() {
   const { profile, openAuth } = useApp();
   const client = useQueryClient();
   const tab: RankingScope = search.tab ?? (search.friend ? "friends" : "area");
+  // Incoming friend requests, shown as a counter on the Friends tab.
+  const pendingRequests = useQuery({
+    queryKey: ["friend-requests"],
+    queryFn: () => api.getFriendRequests(),
+    enabled: !!profile,
+    refetchInterval: 30_000,
+  });
+  const incomingCount = (pendingRequests.data ?? []).filter(
+    (q) => q.direction === "incoming",
+  ).length;
 
   const areas = useQuery({ queryKey: ["areas"], queryFn: () => api.getAreas() });
   const myArea = useQuery({
@@ -104,6 +116,14 @@ function RankingsPage() {
             >
               <Icon />
               {tr(label)}
+              {id === "friends" && incomingCount > 0 && (
+                <span
+                  className="friend-badge"
+                  aria-label={`${incomingCount} ${tr("friend requests")}`}
+                >
+                  {incomingCount}
+                </span>
+              )}
             </Button>
           ))}
         </div>
@@ -221,6 +241,34 @@ function FriendsPanel({
 }) {
   const { tr } = useLanguage();
   const code = useQuery({ queryKey: ["friend-code"], queryFn: () => api.getMyFriendCode() });
+  const requests = useQuery({
+    queryKey: ["friend-requests"],
+    queryFn: () => api.getFriendRequests(),
+    refetchInterval: 30_000,
+  });
+  const [answering, setAnswering] = useState<string | null>(null);
+  const answer = async (row: FriendRequest, accept: boolean) => {
+    setAnswering(row.user_id);
+    try {
+      if (row.direction === "incoming") await api.respondFriendRequest(row.user_id, accept);
+      else await api.cancelFriendRequest(row.user_id);
+      toast.success(
+        row.direction === "outgoing"
+          ? `${tr("Request to")} ${row.display_name} ${tr("cancelled")}`
+          : accept
+            ? `${row.display_name} ${tr("is now your friend")}`
+            : `${tr("Request from")} ${row.display_name} ${tr("declined")}`,
+      );
+      await requests.refetch();
+      onChanged();
+    } catch (e) {
+      toast.error(tr(e instanceof Error ? e.message : "Please try again"));
+    } finally {
+      setAnswering(null);
+    }
+  };
+  const incoming = (requests.data ?? []).filter((q) => q.direction === "incoming");
+  const outgoing = (requests.data ?? []).filter((q) => q.direction === "outgoing");
   const [input, setInput] = useState(invite ?? "");
   const [busy, setBusy] = useState(false);
   useEffect(() => {
@@ -241,8 +289,13 @@ function FriendsPanel({
     setBusy(true);
     try {
       const friend = await api.addFriend(input);
-      toast.success(`${friend.display_name} ${tr("is now your friend")}`);
+      toast.success(
+        friend.status === "accepted"
+          ? `${friend.display_name} ${tr("is now your friend")}`
+          : `${tr("Request sent to")} ${friend.display_name}. ${tr("They'll appear here once they accept.")}`,
+      );
       setInput("");
+      await requests.refetch();
       onChanged();
     } catch (e) {
       toast.error(tr(e instanceof Error ? e.message : "Please try again"));
@@ -296,6 +349,71 @@ function FriendsPanel({
           <UserPlus /> {tr(busy ? "Adding…" : "Add")}
         </Button>
       </form>
+      {(incoming.length > 0 || outgoing.length > 0) && (
+        <div className="friend-requests">
+          {incoming.length > 0 && (
+            <>
+              <h3>
+                {tr("Friend requests")} <span className="friend-badge">{incoming.length}</span>
+              </h3>
+              <ul>
+                {incoming.map((row) => (
+                  <li key={row.user_id}>
+                    <span className="ranking-avatar" aria-hidden="true">
+                      {row.display_name.charAt(0).toUpperCase()}
+                    </span>
+                    <span className="friend-request-name">
+                      <strong>{row.display_name}</strong>
+                      <small>{tr("wants to be your friend")}</small>
+                    </span>
+                    <Button
+                      size="sm"
+                      disabled={answering !== null}
+                      onClick={() => void answer(row, true)}
+                    >
+                      <Check /> {tr("Accept")}
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      disabled={answering !== null}
+                      onClick={() => void answer(row, false)}
+                    >
+                      <X /> {tr("Decline")}
+                    </Button>
+                  </li>
+                ))}
+              </ul>
+            </>
+          )}
+          {outgoing.length > 0 && (
+            <>
+              <h3>{tr("Sent requests")}</h3>
+              <ul>
+                {outgoing.map((row) => (
+                  <li key={row.user_id}>
+                    <span className="ranking-avatar is-pending" aria-hidden="true">
+                      {row.display_name.charAt(0).toUpperCase()}
+                    </span>
+                    <span className="friend-request-name">
+                      <strong>{row.display_name}</strong>
+                      <small>{tr("Waiting for their answer")}</small>
+                    </span>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      disabled={answering !== null}
+                      onClick={() => void answer(row, false)}
+                    >
+                      {tr("Cancel")}
+                    </Button>
+                  </li>
+                ))}
+              </ul>
+            </>
+          )}
+        </div>
+      )}
     </div>
   );
 }
