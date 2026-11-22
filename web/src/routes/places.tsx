@@ -55,6 +55,11 @@ function PlacesPage() {
     [visits.data],
   );
   const earned = (visits.data ?? []).reduce((n, v) => n + v.points, 0);
+  // Levels that exist in the catalogue (places go up to niche 6).
+  const levels = useMemo(
+    () => [...new Set((spots.data ?? []).map((s) => s.niche_value))].sort((a, b) => a - b),
+    [spots.data],
+  );
   const list = useMemo(() => {
     const rows = (spots.data ?? [])
       .filter((s) => !niche || s.niche_value === niche)
@@ -118,7 +123,7 @@ function PlacesPage() {
 
       <div className="spot-filters">
         <div className="spot-chips" role="group" aria-label={tr("Niche level")}>
-          {[0, 1, 2, 3, 4, 5].map((n) => (
+          {[0, ...levels].map((n) => (
             <Button key={n} variant="pill" data-active={niche === n} onClick={() => setNiche(n)}>
               {n === 0 ? tr("All levels") : `${tr("Niche")} ${n}`}
             </Button>
@@ -164,7 +169,7 @@ function PlacesPage() {
                 <div className="spot-photo">
                   <img src={activityImages[spot.photo] ?? activityImages["walk"]} alt="" />
                   <span className="spot-niche" data-level={spot.niche_value}>
-                    {tr("Niche")} {spot.niche_value}/5
+                    {tr("Niche")} {spot.niche_value}
                   </span>
                 </div>
                 <div className="spot-body">

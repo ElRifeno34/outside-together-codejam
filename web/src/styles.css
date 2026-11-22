@@ -2294,6 +2294,10 @@
   background: var(--primary);
   color: var(--primary-foreground);
 }
+.spot-niche[data-level="6"] {
+  background: linear-gradient(135deg, #f6d365, #e0a526);
+  color: #3a2a00;
+}
 .spot-body {
   display: flex;
   flex: 1;

@@ -7,7 +7,16 @@ type Result = { data: unknown; error: { message: string; code?: string } | null 
 
 type TableName = "activity_board" | "activity_types" | "places" | "profiles" | "points";
 type RpcName =
-  "create_activity" | "update_activity" | "join_activity" | "leave_activity" | "confirm_attendance";
+  | "create_activity"
+  | "update_activity"
+  | "join_activity"
+  | "leave_activity"
+  | "confirm_attendance"
+  | "visit_spot"
+  | "get_leaderboard"
+  | "add_friend"
+  | "my_friend_code"
+  | "remove_friend";
 
 export type FakeState = {
   tables: { [K in TableName]?: Row[] };
