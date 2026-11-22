@@ -1994,3 +1994,150 @@
     overflow-wrap: anywhere;
   }
 }
+
+/* ---------------------------------------------------------------------------
+   Activity map (/map): Snap Map–style bubbles on an OpenStreetMap basemap
+   --------------------------------------------------------------------------- */
+.map-page {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding-bottom: 1.5rem;
+}
+.map-head {
+  width: 100%;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-top: 1.5rem;
+}
+.map-head h1 {
+  font-size: clamp(1.6rem, 3vw, 2.2rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+.map-head p {
+  color: var(--muted-foreground);
+  font-size: 0.9rem;
+}
+.map-frame {
+  position: relative;
+  width: min(100% - 2rem, 1180px);
+  margin-inline: auto;
+  height: calc(100dvh - 15rem);
+  min-height: 420px;
+  border: 1px solid var(--border);
+  border-radius: 1.25rem;
+  overflow: hidden;
+  background: var(--muted);
+}
+.map-canvas {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+.map-overlay {
+  position: absolute;
+  z-index: 500;
+  left: 50%;
+  top: 1rem;
+  transform: translateX(-50%);
+  padding: 0.5rem 0.9rem;
+  border-radius: 999px;
+  background: var(--card);
+  color: var(--foreground);
+  font-size: 0.85rem;
+  box-shadow: 0 4px 16px rgb(0 0 0 / 0.12);
+}
+.snap-pin-wrap {
+  background: none;
+  border: 0;
+}
+.snap-pin {
+  position: relative;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  border: 3px solid #fff;
+  box-shadow: 0 6px 18px rgb(0 0 0 / 0.28);
+  background: var(--primary);
+  transition: transform 0.15s ease;
+}
+.snap-pin:hover {
+  transform: scale(1.08);
+}
+.snap-pin-wrap .snap-pin img {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+  border-radius: 50%;
+  object-fit: cover;
+}
+.snap-pin.is-soon::after {
+  content: "";
+  position: absolute;
+  inset: -7px;
+  border-radius: 50%;
+  border: 2px solid var(--primary);
+  animation: snap-pulse 1.8s ease-out infinite;
+}
+@keyframes snap-pulse {
+  from { opacity: 0.9; transform: scale(0.9); }
+  to { opacity: 0; transform: scale(1.25); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .snap-pin.is-soon::after { animation: none; }
+}
+.snap-pin-count {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 6px;
+  border-radius: 999px;
+  border: 2px solid #fff;
+  background: var(--primary);
+  color: var(--primary-foreground);
+  font: 700 0.72rem/18px system-ui, sans-serif;
+  text-align: center;
+}
+.snap-pop {
+  display: grid;
+  gap: 0.35rem;
+  min-width: 200px;
+}
+.snap-pop-place {
+  margin: 0 0 0.15rem !important;
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+.snap-pop-item {
+  display: grid;
+  gap: 0.1rem;
+  padding: 0.45rem 0.6rem;
+  border-radius: 0.6rem;
+  background: oklch(0.96 0.01 150);
+  color: inherit !important;
+  text-decoration: none;
+}
+.snap-pop-item:hover {
+  background: oklch(0.92 0.025 150);
+}
+.snap-pop-item span {
+  font-size: 0.78rem;
+  opacity: 0.75;
+}
+.snap-pop-more {
+  margin: 0 !important;
+  font-size: 0.78rem;
+  opacity: 0.7;
+}
+.leaflet-popup-content-wrapper {
+  border-radius: 1rem;
+}
+@media (max-width: 640px) {
+  .map-head { align-items: flex-start; flex-direction: column; }
+  .map-frame { width: calc(100% - 2rem); height: calc(100dvh - 17rem); }
+}

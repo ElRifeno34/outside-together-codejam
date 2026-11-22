@@ -1,4 +1,22 @@
 export const french: Record<string, string> = {
+  Map: "Carte",
+  "Activity map": "Carte des activités",
+  "Loading activities…": "Chargement des activités…",
+  activity: "activité",
+  place: "lieu",
+  places: "lieux",
+  "Near me": "Près de moi",
+  "spot left": "place restante",
+  Full: "Complet",
+  more: "de plus",
+  "Couldn't load activities": "Impossible de charger les activités",
+  "No upcoming activities on the map yet": "Aucune activité à venir sur la carte pour l’instant",
+  "Allow location access to check in": "Autorisez la localisation pour confirmer votre présence",
+  "Location is unavailable on this device": "La localisation n’est pas disponible sur cet appareil",
+  "You need to be within 200 m of the place to check in":
+    "Vous devez être à moins de 200 m du lieu pour confirmer votre présence",
+  "Tap “We're here” once you've met up. Your location confirms you're within 200 m of the place. Points unlock when 2 of you check in.":
+    "Touchez « On est là » une fois réunis. Votre position confirme que vous êtes à moins de 200 m du lieu. Les points se débloquent quand 2 d’entre vous confirment.",
   "My Places": "Mes lieux",
   "Save a little discovery. Visit somewhere unexpected.":
     "Gardez vos découvertes. Visitez un lieu inattendu.",

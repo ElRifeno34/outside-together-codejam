@@ -24,6 +24,9 @@ export function AppHeader() {
           <Link to="/" data-active={pathname === "/"}>
             {tr("Explore")}
           </Link>
+          <Link to="/map" data-active={pathname === "/map"}>
+            {tr("Map")}
+          </Link>
           <Link to="/profile" data-active={pathname === "/profile"}>
             {tr("My activities")}
           </Link>
