@@ -2,7 +2,7 @@
 // - a Google Calendar template link (the person confirms the event in their own calendar)
 // - a standard .ics file for Apple Calendar, Outlook and others.
 // Writing events directly with the Google Calendar API is a later step (see PlanOff §3.5).
-import type { ActivityBoardRow } from "@/data/fixtures";
+import type { ActivityBoardRow } from "@/lib/types";
 
 type CalendarActivity = Pick<
   ActivityBoardRow,

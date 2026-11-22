@@ -5,7 +5,7 @@ import { ArrowUpRight, ArrowLeft, Sparkles, UserRound } from "lucide-react";
 import { useApp } from "@/components/app-provider";
 import { Button } from "@/components/ui/button";
 import { activityImages, formatStart } from "@/components/activity-card";
-import { visualKey } from "@/data/fixtures";
+import { visualKey } from "@/lib/types";
 import * as api from "@/api";
 export const Route = createFileRoute("/profile")({
   head: () => ({

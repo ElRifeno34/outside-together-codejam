@@ -21,7 +21,7 @@ import {
   Compass,
   Sun,
 } from "lucide-react";
-import { visualKey, type ActivityBoardRow } from "@/data/fixtures";
+import { visualKey, type ActivityBoardRow } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { useApp } from "./app-provider";
 import { joinActivity } from "@/api";

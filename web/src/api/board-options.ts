@@ -1,5 +1,5 @@
-import type { ActivityBoardRow } from "@/data/fixtures";
-import { distanceMeters } from "@/data/place-discovery";
+import type { ActivityBoardRow } from "@/lib/types";
+import { distanceMeters } from "@/lib/geo";
 export type NicheSort = "soonest" | "most-niche" | "least-niche" | "nearest";
 /** A rounded position kept in memory only; never sent to the backend. */
 export type Origin = { lat: number; lng: number };

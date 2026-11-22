@@ -32,8 +32,8 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { ActivityCard, activityIcons, formatStart } from "@/components/activity-card";
 import { useApp } from "@/components/app-provider";
 import * as api from "@/api";
-import { visualKind } from "@/api/supabase-backend";
-import { futureDay } from "@/data/fixtures";
+import { visualKind } from "@/lib/activity-visuals";
+import { futureDay } from "@/lib/time";
 import { toast } from "sonner";
 import { selectBoardRows, locateOnce, type NicheSort, type Origin } from "@/api/board-options";
 const boardOptions = queryOptions({ queryKey: ["board"], queryFn: () => api.getBoard() });
@@ -366,7 +366,7 @@ function Board() {
                     {tr("All activities")}
                   </Button>
                   {types.map((type) => {
-                    const Icon = activityIcons[type.id as keyof typeof activityIcons] ?? Sprout;
+                    const Icon = activityIcons[visualKind(type.name, type.keywords) as keyof typeof activityIcons] ?? Sprout;
                     return (
                       <Button
                         key={type.id}
