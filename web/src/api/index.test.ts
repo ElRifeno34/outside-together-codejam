@@ -144,10 +144,11 @@ describe("accounts", () => {
   });
 
   it("starts Google sign-in through Supabase with the return address", async () => {
-    await api.signInWithGoogle("http://localhost:8080/activity/act-1");
-    expect(db().oauthCalls).toEqual([
-      { provider: "google", redirectTo: "http://localhost:8080/activity/act-1" },
-    ]);
+    await api.signInWithGoogle("http://localhost:8080/activity/act-1?tab=info");
+    // Redirect to the bare origin (always on the allow list) and remember the page.
+    expect(db().oauthCalls).toEqual([{ provider: "google", redirectTo: "http://localhost:8080/" }]);
+    expect(api.takeReturnPath()).toBe("/activity/act-1?tab=info");
+    expect(api.takeReturnPath()).toBeNull();
   });
 });
 
@@ -207,6 +208,40 @@ describe("join, leave and create through the Role B RPCs", () => {
         min_people: 2,
       }),
     ).rejects.toThrow("Start time must be in the future");
+  });
+});
+
+describe("editing an activity", () => {
+  const changes = {
+    type_id: "type-chess",
+    place_id: "place-park",
+    starts_at: "2099-02-01T15:00:00.000Z",
+    capacity: 8,
+    min_people: 2,
+  };
+
+  it("sends the new details to update_activity", async () => {
+    db().rpc.update_activity = () => ({ data: { activity_id: "act-1" }, error: null });
+    await api.updateActivity("act-1", changes);
+    expect(db().rpcCalls.at(-1)).toEqual({
+      name: "update_activity",
+      args: {
+        p_activity_id: "act-1",
+        p_type_id: "type-chess",
+        p_place_id: "place-park",
+        p_starts_at: "2099-02-01T15:00:00.000Z",
+        p_duration_min: 60,
+        p_capacity: 8,
+        p_min_people: 2,
+      },
+    });
+  });
+
+  it("explains why someone else can't edit it", async () => {
+    db().rpc.update_activity = () => ({ data: null, error: { message: "NOT_CREATOR" } });
+    await expect(api.updateActivity("act-1", changes)).rejects.toThrow(
+      "Only the person who created this activity can edit it",
+    );
   });
 });
 
@@ -304,8 +339,30 @@ describe("search without AI", () => {
   it("falls back to keyword search when the assistant answers filters only", async () => {
     db().aiSearch = { filters: { activity: "chess" } };
     const result = await api.aiSearch("chess anyone?");
-    expect(result.status).toBe("fallback");
+    expect(result.status).toBe("match");
     expect(result.status !== "no_match" && result.matches.map((r) => r.id)).toEqual(["act-chess"]);
+  });
+
+  it("matches French keywords and the activity name", async () => {
+    for (const q of ["des échecs ce soir?", "Chess"]) {
+      const result = await api.aiSearch(q.replace(" ce soir", ""));
+      expect(result.status !== "no_match" && result.matches.map((r) => r.id)).toEqual([
+        "act-chess",
+      ]);
+    }
+  });
+
+  it("finds activities by place name", async () => {
+    db().tables.activity_board!.push(
+      boardRow({ id: "act-park", place_id: "place-park", place_name: "Parc La Fontaine" }),
+    );
+    const result = await api.aiSearch("something at La Fontaine");
+    expect(result.status !== "no_match" && result.matches.map((r) => r.id)).toEqual(["act-park"]);
+  });
+
+  it("says nothing matches instead of listing everything for unknown words", async () => {
+    const result = await api.aiSearch("xyzzy");
+    expect(result).toMatchObject({ status: "match", matches: [] });
   });
 
   it("uses the assistant's answer when it has the expected shape", async () => {

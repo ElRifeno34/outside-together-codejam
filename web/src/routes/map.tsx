@@ -1,14 +1,15 @@
 import { useLanguage } from "@/i18n";
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { queryOptions, useQuery } from "@tanstack/react-query";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { LocateFixed } from "lucide-react";
-import type { Map as LeafletMap, LayerGroup, CircleMarker } from "leaflet";
+import { LocateFixed, MapPin } from "lucide-react";
+import type { Map as LeafletMap, LayerGroup, CircleMarker, Marker } from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { Button } from "@/components/ui/button";
 import { activityImages, formatStart } from "@/components/activity-card";
 import { visualKey, type ActivityBoardRow } from "@/lib/types";
 import { locateOnce } from "@/api/board-options";
+import { distanceMeters } from "@/lib/geo";
 import * as api from "@/api";
 import { toast } from "sonner";
 
@@ -67,6 +68,21 @@ function MapPage() {
   const me = useRef<CircleMarker | null>(null);
   const [ready, setReady] = useState(false);
   const [locating, setLocating] = useState(false);
+  const markers = useRef(new Map<string, Marker>());
+  // Where "near" is measured from: the person once they tap "Near me", otherwise central Montréal.
+  const [origin, setOrigin] = useState<{ lat: number; lng: number } | null>(null);
+  const nearby = useMemo(() => {
+    const from = origin ?? { lat: START[0], lng: START[1] };
+    return places
+      .flatMap((p) => p.rows.map((r) => ({ row: r, meters: distanceMeters(from, p) })))
+      .sort((a, b) => a.meters - b.meters || a.row.starts_at.localeCompare(b.row.starts_at))
+      .slice(0, 6);
+  }, [places, origin]);
+  const showOnMap = (placeId: string, lat: number, lng: number) => {
+    map.current?.flyTo([lat, lng], 16);
+    markers.current.get(placeId)?.openPopup();
+    el.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+  };
 
   // Leaflet needs `window`, so it is loaded in the browser only (pages also render on the server).
   useEffect(() => {
@@ -111,6 +127,7 @@ function MapPage() {
     void import("leaflet").then((L) => {
       const layer = pins.current!;
       layer.clearLayers();
+      markers.current.clear();
       for (const place of places) {
         const next = place.rows[0];
         if (!next) continue;
@@ -143,12 +160,13 @@ function MapPage() {
           place.rows.length > 5
             ? `<p class="snap-pop-more">+${place.rows.length - 5} ${escapeHtml(tr("more"))}</p>`
             : "";
-        L.marker([place.lat, place.lng], { icon, title: place.name })
+        const marker = L.marker([place.lat, place.lng], { icon, title: place.name })
           .bindPopup(
             `<div class="snap-pop"><p class="snap-pop-place">${escapeHtml(place.name)}</p>${items}${more}</div>`,
             { closeButton: false, maxWidth: 280 },
           )
           .addTo(layer);
+        markers.current.set(place.id, marker);
       }
     });
   }, [ready, places, language, tr]);
@@ -157,6 +175,7 @@ function MapPage() {
     setLocating(true);
     try {
       const at = await locateOnce();
+      setOrigin(at);
       const L = await import("leaflet");
       if (!map.current) return;
       me.current?.remove();
@@ -198,6 +217,42 @@ function MapPage() {
           <p className="map-overlay">{tr("No upcoming activities on the map yet")}</p>
         )}
       </div>
+      {nearby.length > 0 && (
+        <section className="nearby page-width" aria-labelledby="nearby-title">
+          <div className="nearby-head">
+            <h2 id="nearby-title">{tr(origin ? "Near you" : "Near the centre of Montréal")}</h2>
+            {!origin && <p>{tr("Tap “Near me” to sort by your location.")}</p>}
+          </div>
+          <ul className="nearby-list">
+            {nearby.map(({ row, meters }) => (
+              <li key={row.id}>
+                <Link to="/activity/$id" params={{ id: row.id }} className="nearby-item">
+                  <img src={activityImages[visualKey(row)] ?? activityImages["walk"]} alt="" />
+                  <span className="nearby-text">
+                    <strong>{tr(row.activity_name)}</strong>
+                    <span>
+                      {tr(row.place_name)} · {formatStart(row.starts_at, language)}
+                    </span>
+                  </span>
+                  <span className="nearby-distance">
+                    {meters < 1000
+                      ? `${Math.round(meters / 10) * 10} m`
+                      : `${(meters / 1000).toFixed(1)} km`}
+                  </span>
+                </Link>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  aria-label={`${tr("Show on map")}: ${tr(row.place_name)}`}
+                  onClick={() => showOnMap(row.place_id, row.lat, row.lng)}
+                >
+                  <MapPin />
+                </Button>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
     </main>
   );
 }

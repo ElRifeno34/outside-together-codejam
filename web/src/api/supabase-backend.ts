@@ -66,6 +66,8 @@ const errorText: Record<string, string> = {
   INVALID_TIME: "Start time must be in the future",
   INVALID_DURATION: "Choose a duration between 15 minutes and 4 hours",
   INVALID_CAPACITY: "Minimum people must be between 2 and capacity",
+  NOT_CREATOR: "Only the person who created this activity can edit it",
+  CAPACITY_BELOW_JOINED: "Capacity can't be lower than the number of people already in",
 };
 
 function fail(error: PostgrestError | { message: string; code?: string }): never {
@@ -218,6 +220,28 @@ export function createSupabaseBackend(supabase: SupabaseClient) {
       });
       if (error) fail(error);
       return (data as { activity_id: string }).activity_id;
+    },
+
+    async updateActivity(
+      id: string,
+      input: {
+        type_id: string;
+        place_id: string;
+        starts_at: string;
+        capacity: number;
+        min_people: number;
+      },
+    ): Promise<void> {
+      const { error } = await supabase.rpc("update_activity", {
+        p_activity_id: id,
+        p_type_id: input.type_id,
+        p_place_id: input.place_id,
+        p_starts_at: input.starts_at,
+        p_duration_min: 60,
+        p_capacity: input.capacity,
+        p_min_people: input.min_people,
+      });
+      if (error) fail(error);
     },
 
     /** Calls the planned ai-search Edge Function. Returns null when it isn't deployed or fails. */

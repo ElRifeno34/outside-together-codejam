@@ -81,6 +81,14 @@ export async function createActivity(input: Draft & { min_people: number }): Pro
   return backend().createActivity(input);
 }
 
+/** update_activity: the creator edits their activity before it starts (migration 009). */
+export async function updateActivity(
+  id: string,
+  input: Draft & { min_people: number },
+): Promise<void> {
+  return backend().updateActivity(id, input);
+}
+
 // ---- Search (AI optional) ---------------------------------------------------------------
 
 /** Accepts the ai-search Edge Function answer (PlanOff §3.2) if it has the expected shape. */
@@ -115,6 +123,16 @@ function parseSearchAnswer(
   return null;
 }
 
+/** Filler words ignored by the keyword search (EN + FR). */
+const STOP_WORDS = new Set(
+  "a an and the to of in on at for with some something anything do want like feel go play "
+    .concat("me my i we us people someone friends find any near around this next ")
+    .concat("un une des le la les du de et a au aux pour avec quelque chose faire envie jouer ")
+    .concat("je moi nous on ce cette prochain pres autour dans")
+    .split(" ")
+    .filter(Boolean),
+);
+
 const plain = (text: string) => text.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
 
 /**
@@ -129,11 +147,25 @@ export async function aiSearch(text: string): Promise<SearchResult> {
 
   const types = await b.getActivityTypes();
   const normalized = plain(text);
-  const type = [...types]
-    .reverse()
-    .find((t) => t.keywords.some((k) => normalized.includes(plain(k))));
-  const board = await b.getBoard(type ? { typeId: type.id } : {});
-  if (/offline|unavailable|fail/.test(normalized)) return { status: "fallback", matches: board };
+  const words = normalized.split(/[^a-z0-9]+/).filter((w) => w.length > 1);
+  // A query word names a keyword when they're equal or one starts the other (≥4 letters),
+  // so "birdwatching" finds "birdwatch" but "art" doesn't hide inside "start".
+  const sameWord = (w: string, k: string) =>
+    w === k || (w.length >= 4 && k.length >= 4 && (w.startsWith(k) || k.startsWith(w)));
+  const typeWords = (t: ActivityType) => [
+    ...plain(t.name).split(/[^a-z0-9]+/),
+    ...t.keywords.flatMap((k) => plain(k).split(/[^a-z0-9]+/)),
+  ];
+  let type: ActivityType | undefined;
+  let typeScore = 0;
+  for (const t of types) {
+    const vocab = typeWords(t).filter((k) => k.length > 1 && !STOP_WORDS.has(k));
+    const score = words.filter((w) => vocab.some((k) => sameWord(w, k))).length;
+    if (score > typeScore) [type, typeScore] = [t, score];
+  }
+  const all = await b.getBoard();
+  if (/offline|unavailable|fail/.test(normalized)) return { status: "fallback", matches: all };
+  const board = type ? all.filter((r) => r.type_id === type.id) : all;
   const weekdays = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
   const frenchDays = ["dimanche", "lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi"];
   const weekday = weekdays.findIndex(
@@ -165,15 +197,39 @@ export async function aiSearch(text: string): Promise<SearchResult> {
   const exact = clock
     ? `${String((Number(clock[1]) % 12) + (clock[3] === "pm" ? 12 : 0)).padStart(2, "0")}:${clock[2] ?? "00"}`
     : undefined;
+  // Words that aren't the activity, a time or filler may name a place ("Mont-Royal", "Laurier").
+  const vocab = type ? typeWords(type) : [];
+  const timeWords =
+    /^(\d{1,2}(am|pm)?|am|pm|today|tonight|tomorrow|morning|afternoon|evening|aujourd|hui|demain|soir|matin|apres|midi|sunday|monday|tuesday|wednesday|thursday|friday|saturday|dimanche|lundi|mardi|mercredi|jeudi|vendredi|samedi)$/;
+  const rest = words.filter(
+    (w) => !STOP_WORDS.has(w) && !timeWords.test(w) && !vocab.some((k) => sameWord(w, k)),
+  );
+  const placeText = (r: ActivityBoardRow) => plain(`${r.place_name} ${r.address}`);
+  const placeWords = rest.filter((w) => w.length >= 3 && all.some((r) => placeText(r).includes(w)));
+  // Something was typed but none of it is an activity, place or time: say so instead of
+  // pretending every activity matches.
+  if (rest.length && !placeWords.length && !type && !day && !from && !exact)
+    return {
+      status: "match",
+      matches: [],
+      message: "Nothing matches that yet. Try an activity, a place or a day.",
+    };
   const matches = board.filter(
     (r) =>
+      placeWords.every((w) => placeText(r).includes(w)) &&
       (!day || torontoDate(r.starts_at) === day) &&
       (!from || torontoTime(r.starts_at) >= from) &&
       (!to || torontoTime(r.starts_at) <= to) &&
       (!exact || torontoTime(r.starts_at) === exact),
   );
-  // The assistant didn't answer in the expected shape, so these are keyword results.
-  if (matches.length) return { status: "fallback", matches };
+  if (matches.length)
+    return { status: "match", matches, message: "Here's what matches your search" };
+  if (placeWords.length && !type)
+    return {
+      status: "match",
+      matches: [],
+      message: "Nothing planned there yet. Try another place or day.",
+    };
 
   const chosen = type ?? types[0];
   if (!chosen) throw new Error("No activity types available");
@@ -209,15 +265,41 @@ export async function signUp(
   return backend().signUp(email.trim(), displayName, password);
 }
 
-/** Google sign-in through Supabase Auth. Leaves the page; the session is restored on return. */
-export async function signInWithGoogle(redirectTo: string): Promise<void> {
-  await backend().signInWithGoogle(redirectTo);
+const RETURN_KEY = "ot:return-to";
+
+/**
+ * Google sign-in through Supabase Auth. Leaves the page.
+ *
+ * Supabase only redirects back to URLs on its allow list and otherwise falls back to the
+ * project's Site URL, where the PKCE code can't be exchanged (the verifier lives in this
+ * origin's storage), so the person lands signed out. Returning to the bare origin matches
+ * a plain "http://host:port" entry; the page they were on is restored by takeReturnPath().
+ */
+export async function signInWithGoogle(currentUrl: string): Promise<void> {
+  const url = new URL(currentUrl);
+  try {
+    sessionStorage.setItem(RETURN_KEY, url.pathname + url.search);
+  } catch {
+    // Private mode or blocked storage: they simply land on the home page.
+  }
+  await backend().signInWithGoogle(`${url.origin}/`);
+}
+
+/** The in-app path saved before the Google redirect (once), or null. */
+export function takeReturnPath(): string | null {
+  try {
+    const path = sessionStorage.getItem(RETURN_KEY);
+    sessionStorage.removeItem(RETURN_KEY);
+    return path && path.startsWith("/") && !path.startsWith("//") ? path : null;
+  } catch {
+    return null;
+  }
 }
 
 /** Calls back whenever Supabase signs a user in or out (also after the Google redirect). */
-export function onAuthChange(callback: () => void): () => void {
+export function onAuthChange(callback: (event: string) => void): () => void {
   if (!supabase) return () => {};
-  const { data } = supabase.auth.onAuthStateChange(() => callback());
+  const { data } = supabase.auth.onAuthStateChange((event) => callback(event));
   return () => data.subscription.unsubscribe();
 }
 

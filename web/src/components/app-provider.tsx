@@ -1,6 +1,7 @@
 import { useLanguage } from "@/i18n";
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 import { useQueryClient } from "@tanstack/react-query";
+import { useRouter } from "@tanstack/react-router";
 import { toast } from "sonner";
 import * as api from "@/api";
 import type { Profile } from "@/lib/types";
@@ -22,6 +23,7 @@ export function useApp() {
 export function AppProvider({ children }: { children: ReactNode }) {
   const { tr, language } = useLanguage();
   const client = useQueryClient();
+  const router = useRouter();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [open, setOpen] = useState(false);
   const [signup, setSignup] = useState(false);
@@ -33,18 +35,32 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [after, setAfter] = useState<(() => Promise<void>) | undefined>();
   useEffect(() => {
     const load = () =>
-      void api
+      api
         .getMyProfile()
-        .then(setProfile)
-        .catch(() => setProfile(null));
-    load();
+        .then((p) => {
+          setProfile(p);
+          return p;
+        })
+        .catch(() => {
+          setProfile(null);
+          return null;
+        });
+    void load();
     // Pick up the session restored after the Google redirect, token refreshes and
     // sign-outs in other tabs.
-    return api.onAuthChange(() => {
-      load();
+    return api.onAuthChange((event) => {
+      void load().then((p) => {
+        if (event !== "SIGNED_IN" || !p) return;
+        // Back from Google: return to the page they started from and greet them.
+        const back = api.takeReturnPath();
+        if (back === null) return;
+        if (back !== window.location.pathname + window.location.search) router.history.push(back);
+        toast.success(tr(`You're in, ${p.display_name}!`));
+      });
       void client.invalidateQueries();
     });
-  }, [client]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- subscribe once; tr only formats the toast
+  }, [client, router]);
   const refreshProfile = async () => {
     setProfile(await api.getMyProfile());
     await client.invalidateQueries();

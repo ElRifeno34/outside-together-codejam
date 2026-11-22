@@ -1,6 +1,6 @@
 import { useLanguage } from "@/i18n";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
+import { queryOptions, useQuery, useSuspenseQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { ArrowLeft, ArrowUpRight, Sparkles } from "lucide-react";
 import { z } from "zod";
@@ -18,13 +18,21 @@ const options = queryOptions({
     places: await api.getPublicPlaces(),
   }),
 });
+const editOptions = (id: string) =>
+  queryOptions({ queryKey: ["activity", id], queryFn: () => api.getActivity(id) });
 export const Route = createFileRoute("/create")({
   validateSearch: z.object({
     type: z.string().optional(),
     place: z.string().optional(),
     start: z.string().optional(),
+    /** Editing an existing activity (its id) instead of creating one. */
+    edit: z.string().optional(),
   }),
-  loader: ({ context }) => context.queryClient.ensureQueryData(options),
+  loaderDeps: ({ search }) => ({ edit: search.edit }),
+  loader: async ({ context, deps }) => {
+    await context.queryClient.ensureQueryData(options);
+    if (deps.edit) await context.queryClient.ensureQueryData(editOptions(deps.edit));
+  },
   head: () => ({
     meta: [
       { title: "Create an activity · Outside Together" },
@@ -50,19 +58,28 @@ function CreateActivity() {
   const search = Route.useSearch();
   const navigate = useNavigate();
   const { profile, openAuth, refreshProfile } = useApp();
+  // Editing: the loader already fetched the activity, so its values are here on first render.
+  const editing = useQuery({ ...editOptions(search.edit ?? ""), enabled: !!search.edit }).data;
+  const editId = search.edit && editing ? search.edit : null;
+  const prefill = {
+    type: editing?.type_id ?? search.type,
+    place: editing?.place_id ?? search.place,
+    start: editing?.starts_at ?? search.start,
+  };
   // Real backends use uuids: only accept a prefilled id that exists, otherwise the first option.
   const [type, setType] = useState(
-    data.types.some((t) => t.id === search.type) ? search.type! : (data.types[0]?.id ?? ""),
+    data.types.some((t) => t.id === prefill.type) ? prefill.type! : (data.types[0]?.id ?? ""),
   );
   const [place, setPlace] = useState(
-    data.places.some((p) => p.id === search.place) ? search.place! : (data.places[0]?.id ?? ""),
+    data.places.some((p) => p.id === prefill.place) ? prefill.place! : (data.places[0]?.id ?? ""),
   );
   const validStart =
-    search.start && Number.isFinite(new Date(search.start).getTime()) ? search.start : null;
+    prefill.start && Number.isFinite(new Date(prefill.start).getTime()) ? prefill.start : null;
   const [day, setDay] = useState(validStart ? torontoDate(validStart) : futureDay(1));
   const [time, setTime] = useState(validStart ? torontoTime(validStart) : "15:00");
-  const [capacity, setCapacity] = useState(6);
-  const [minimum, setMinimum] = useState(3);
+  const [capacity, setCapacity] = useState(editing?.capacity ?? 6);
+  const [minimum, setMinimum] = useState(editing?.min_people ?? 3);
+  const alreadyIn = editing ? editing.capacity - editing.available_spots : 1;
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const chosen = data.types.find((t) => t.id === type);
@@ -72,18 +89,28 @@ function CreateActivity() {
     setBusy(true);
     setError("");
     try {
-      const id = await api.createActivity({
+      const input = {
         type_id: type,
         place_id: place,
         starts_at: localToISO(day, time),
         capacity,
         min_people: minimum,
-      });
+      };
+      let id: string;
+      if (editId) {
+        await api.updateActivity(editId, input);
+        id = editId;
+        toast.success(tr("Saved! Your activity is updated."));
+      } else {
+        id = await api.createActivity(input);
+        toast.success(tr("Published! Your activity is on the board."));
+      }
       await refreshProfile();
-      toast.success(tr("Published! Your activity is on the board."));
       await navigate({ to: "/activity/$id", params: { id } });
     } catch (e) {
-      setError(tr(e instanceof Error ? e.message : "Could not publish"));
+      setError(
+        tr(e instanceof Error ? e.message : editId ? "Could not save" : "Could not publish"),
+      );
     } finally {
       setBusy(false);
     }
@@ -95,8 +122,14 @@ function CreateActivity() {
           <ArrowLeft size={15} />
           {tr("Back to activities")}
         </Link>
-        <h1>{tr("A little plan starts with you.")}</h1>
-        <p>{tr("Review your activity, then put it out into the world.")}</p>
+        <h1>{tr(editId ? "Edit your activity" : "A little plan starts with you.")}</h1>
+        <p>
+          {tr(
+            editId
+              ? "Change the details before it starts. People who joined will see the update."
+              : "Review your activity, then put it out into the world.",
+          )}
+        </p>
       </div>
       <div className="draft-layout">
         <form
@@ -157,7 +190,7 @@ function CreateActivity() {
             <input
               required
               type="number"
-              min={2}
+              min={Math.max(2, alreadyIn)}
               max={20}
               value={capacity}
               onChange={(e) => setCapacity(Number(e.target.value))}
@@ -185,15 +218,25 @@ function CreateActivity() {
             </p>
           )}
           <p className="full text-xs text-muted-foreground">
-            {tr("1 hour · You’ll be the first person registered.")}
+            {editId
+              ? `${tr("1 hour · Already in: ")}${alreadyIn}`
+              : tr("1 hour · You’ll be the first person registered.")}
           </p>
           <div className="form-actions full">
             <Button disabled={busy || !ready} type="submit">
-              {busy ? tr("Publishing…") : tr("Publish")}
+              {busy
+                ? tr(editId ? "Saving…" : "Publishing…")
+                : tr(editId ? "Save changes" : "Publish")}
               <ArrowUpRight />
             </Button>
             <Button variant="outline" asChild>
-              <Link to="/">{tr("Cancel")}</Link>
+              {editId ? (
+                <Link to="/activity/$id" params={{ id: editId }}>
+                  {tr("Cancel")}
+                </Link>
+              ) : (
+                <Link to="/">{tr("Cancel")}</Link>
+              )}
             </Button>
           </div>
           {!profile && (

@@ -2141,3 +2141,70 @@
   .map-head { align-items: flex-start; flex-direction: column; }
   .map-frame { width: calc(100% - 2rem); height: calc(100dvh - 17rem); }
 }
+
+/* Near-me list under the map */
+.nearby {
+  width: 100%;
+  display: grid;
+  gap: 0.75rem;
+}
+.nearby-head h2 {
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+.nearby-head p {
+  color: var(--muted-foreground);
+  font-size: 0.85rem;
+}
+.nearby-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 0.6rem;
+}
+.nearby-list li {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding-right: 0.25rem;
+  border: 1px solid var(--border);
+  border-radius: 1rem;
+  background: var(--card);
+}
+.nearby-item {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.6rem 0.4rem 0.6rem 0.6rem;
+  color: inherit;
+  text-decoration: none;
+}
+.nearby-item img {
+  width: 44px;
+  height: 44px;
+  flex: none;
+  border-radius: 50%;
+  object-fit: cover;
+}
+.nearby-text {
+  display: grid;
+  min-width: 0;
+}
+.nearby-text strong {
+  font-size: 0.95rem;
+}
+.nearby-text span {
+  overflow: hidden;
+  color: var(--muted-foreground);
+  font-size: 0.8rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.nearby-distance {
+  margin-left: auto;
+  flex: none;
+  color: var(--primary);
+  font-size: 0.8rem;
+  font-weight: 700;
+}

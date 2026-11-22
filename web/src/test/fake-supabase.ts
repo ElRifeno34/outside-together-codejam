@@ -6,7 +6,8 @@ type Row = Record<string, unknown>;
 type Result = { data: unknown; error: { message: string; code?: string } | null };
 
 type TableName = "activity_board" | "activity_types" | "places" | "profiles" | "points";
-type RpcName = "create_activity" | "join_activity" | "leave_activity" | "confirm_attendance";
+type RpcName =
+  "create_activity" | "update_activity" | "join_activity" | "leave_activity" | "confirm_attendance";
 
 export type FakeState = {
   tables: { [K in TableName]?: Row[] };

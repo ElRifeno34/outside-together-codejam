@@ -1,4 +1,27 @@
 export const french: Record<string, string> = {
+  "Here's what matches your search": "Voici ce qui correspond à votre recherche",
+  "Nothing matches that yet. Try an activity, a place or a day.":
+    "Rien ne correspond pour l’instant. Essayez une activité, un lieu ou un jour.",
+  "Nothing planned there yet. Try another place or day.":
+    "Rien de prévu à cet endroit pour l’instant. Essayez un autre lieu ou un autre jour.",
+  "Only the person who created this activity can edit it":
+    "Seule la personne qui a créé cette activité peut la modifier",
+  "Capacity can't be lower than the number of people already in":
+    "La capacité ne peut pas être inférieure au nombre de personnes déjà inscrites",
+  "Saved! Your activity is updated.": "Enregistré ! Votre activité est à jour.",
+  "Could not save": "Impossible d’enregistrer",
+  "Edit your activity": "Modifier votre activité",
+  "Change the details before it starts. People who joined will see the update.":
+    "Modifiez les détails avant le début. Les personnes inscrites verront la mise à jour.",
+  "1 hour · Already in: ": "1 heure · Déjà inscrits : ",
+  "Saving…": "Enregistrement…",
+  "Save changes": "Enregistrer",
+  "Edit activity": "Modifier l’activité",
+  "Near you": "Près de vous",
+  "Near the centre of Montréal": "Près du centre de Montréal",
+  "Tap “Near me” to sort by your location.":
+    "Touchez « Près de moi » pour trier selon votre position.",
+  "Show on map": "Voir sur la carte",
   Map: "Carte",
   "Activity map": "Carte des activités",
   "Loading activities…": "Chargement des activités…",

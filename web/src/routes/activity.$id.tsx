@@ -12,6 +12,7 @@ import {
   Check,
   CalendarPlus,
   Download,
+  Pencil,
 } from "lucide-react";
 import { googleCalendarUrl, downloadIcs } from "@/lib/calendar";
 import { locatePrecise } from "@/lib/geo";
@@ -79,6 +80,13 @@ function ActivityDetail() {
   // Participants check themselves in from starts_at (confirm_attendance); 2 check-ins unlock points.
   const confirmOpen = started;
   const checkedIn = membership?.status === "confirmed";
+  // Only the creator can edit, and only before it starts (update_activity, migration 009).
+  const canEdit =
+    !!profile &&
+    a.creator_id === profile.id &&
+    !started &&
+    a.status !== "cancelled" &&
+    a.status !== "done";
   const action = async (kind: "join" | "leave" | "confirm") => {
     setBusy(true);
     try {
@@ -196,6 +204,14 @@ function ActivityDetail() {
               >
                 {a.available_spots === 0 ? tr("Activity is full") : tr("Join activity")}
                 <ArrowUpRight />
+              </Button>
+            )}
+            {canEdit && (
+              <Button variant="outline" asChild>
+                <Link to="/create" search={{ edit: id }}>
+                  <Pencil />
+                  {tr("Edit activity")}
+                </Link>
               </Button>
             )}
           </div>
