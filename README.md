@@ -15,7 +15,7 @@ Find people in Montréal for a spontaneous one-hour activity. Anyone can browse 
 | --- | --- |
 | Front end | Lovable (TanStack Start, React, Tailwind) |
 | Database and rules | Supabase PostgreSQL, row-level security, RPC functions |
-| Authentication | Supabase Auth (email/password, Google) |
+| Authentication | Supabase Auth, Google sign-in only |
 | AI | Supabase Edge Function `ai-search` + LLM API |
 | Code | GitHub |
 
@@ -49,7 +49,7 @@ The backend is the Supabase project described in [docs/BACKEND.md](docs/BACKEND.
 
 Setup:
 
-1. In the Supabase SQL editor, run `supabase/migrations/001_schema.sql` through `007_security_hardening.sql`, in order. These seven migrations are the authoritative Role B schema.
+1. In the Supabase SQL editor, run `supabase/migrations/001_schema.sql` through `010_google_profile_names.sql`, in order (see [docs/BACKEND.md](docs/BACKEND.md#setup-once)).
 2. Run [`supabase/tests/role_b_smoke.sql`](supabase/tests/role_b_smoke.sql), the authoritative Role B database test. It should print `ROLE B SMOKE TEST PASSED` and leaves no data behind.
 3. Optionally run [`supabase/seed.sql`](supabase/seed.sql) to load development data (see below).
 
@@ -67,7 +67,7 @@ No `create-activity` Edge Function exists yet. The front end creates activities 
 
 ## Frontend integrations
 
-- Email/password sign-in and Google sign-in through Supabase Auth
+- Google sign-in through Supabase Auth (the only way to sign in or create an account)
 - English/French interface
 - Add-to-calendar: Google Calendar link and `.ics` download
 - Optional browser geolocation for nearest-first sorting

@@ -1,4 +1,10 @@
 export const french: Record<string, string> = {
+  "Sign in or create your account with Google to join your next one-hour adventure.":
+    "Connectez-vous ou créez votre compte avec Google pour rejoindre votre prochaine aventure d’une heure.",
+  "Opening Google…": "Ouverture de Google…",
+  "Google sign-in is unavailable. Try again.": "La connexion Google est indisponible. Réessayez.",
+  "We only use your Google name and email. New here? Your account is created on your first sign-in.":
+    "Nous utilisons seulement votre nom et votre courriel Google. Nouveau ? Votre compte est créé à votre première connexion.",
   "Here's what matches your search": "Voici ce qui correspond à votre recherche",
   "Nothing matches that yet. Try an activity, a place or a day.":
     "Rien ne correspond pour l’instant. Essayez une activité, un lieu ou un jour.",

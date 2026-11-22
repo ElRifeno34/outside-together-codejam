@@ -2,7 +2,7 @@
 
 Mobile-first web app for finding people in Montréal for a spontaneous one-hour activity. It was generated with Lovable (TanStack Start, React 19, Tailwind 4, shadcn/ui) and exported into this folder.
 
-The app runs on the Role B Supabase backend (migrations 001–007, see [docs/BACKEND.md](../docs/BACKEND.md)). It needs `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` in `web/.env.local`; without them it shows a "Supabase is not configured" setup screen instead of the app. There is no offline demo mode.
+The app runs on the Role B Supabase backend (migrations 001–010, see [docs/BACKEND.md](../docs/BACKEND.md)). It needs `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` in `web/.env.local`; without them it shows a "Supabase is not configured" setup screen instead of the app. There is no offline demo mode.
 
 ## Run it
 
@@ -28,7 +28,7 @@ Tests never reach the hosted project: `vitest.config.ts` blanks the Supabase var
 | Create | `/create` | Manual form: real activity types and public places, one-hour slot, explicit Publish |
 | Profile | `/profile` | Total points, My activities, points history |
 
-The UI is available in English and French (`src/i18n/`). Sign-in is email + password or Google, both through Supabase Auth.
+The UI is available in English and French (`src/i18n/`). Sign-in is Google only, through Supabase Auth.
 
 ## Points and niche level
 
@@ -46,7 +46,7 @@ Each activity type has a niche level from 1 to 5. Points are `10 + 5 × niche_va
 | `confirmAttendance` | `rpc('confirm_attendance')`: returns points, or how many more people need to check in |
 | `createActivity` | `rpc('create_activity')` (the `create-activity` Edge Function can replace it later) |
 | `aiSearch` | `functions.invoke('ai-search')`; when it doesn't answer in the expected shape, keyword search over the live board |
-| `signIn`, `signUp`, `signInWithGoogle`, `getMyProfile`, `getMyPoints` | Supabase Auth, `from('profiles')`, `from('points')` |
+| `signInWithGoogle`, `getMyProfile`, `getMyPoints` | Supabase Auth, `from('profiles')`, `from('points')` |
 
 Backend error codes (`ACTIVITY_FULL`, `ACTIVITY_STARTED`, …) are turned into the messages the screens already translate.
 

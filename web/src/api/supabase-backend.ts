@@ -258,27 +258,6 @@ export function createSupabaseBackend(supabase: SupabaseClient) {
 
     userId,
 
-    async signIn(email: string, password: string): Promise<Profile> {
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
-      if (error) throw new Error(error.message);
-      const profile = await this.getMyProfile();
-      if (!profile) throw new Error("Account not found. Try signing up.");
-      return profile;
-    },
-
-    async signUp(email: string, displayName: string, password: string): Promise<Profile> {
-      const { data, error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: { data: { display_name: displayName.trim() } },
-      });
-      if (error) throw new Error(error.message);
-      if (!data.session) throw new Error("Check your inbox to confirm your email, then sign in.");
-      const profile = await this.getMyProfile();
-      if (!profile) throw new Error("Your profile is not ready yet. Try signing in.");
-      return profile;
-    },
-
     /** Redirects to Google; Supabase brings the browser back here with a session. */
     async signInWithGoogle(redirectTo: string): Promise<void> {
       const { error } = await supabase.auth.signInWithOAuth({

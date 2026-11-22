@@ -4,9 +4,9 @@ How the screens (A) and the AI functions (C) talk to the database. Supabase proj
 
 ## Setup (once)
 
-1. In the Supabase SQL editor, run [`supabase/migrations/`](../supabase/migrations/) `001_schema.sql` through `007_security_hardening.sql`, in order. These seven migrations are the authoritative Role B schema.
+1. In the Supabase SQL editor, run [`supabase/migrations/`](../supabase/migrations/) `001_schema.sql` through `010_google_profile_names.sql`, in order. 001–007 are the Role B schema; 008 adds location check-in, 009 activity editing, 010 Google profile names.
 2. Run [`supabase/tests/role_b_smoke.sql`](../supabase/tests/role_b_smoke.sql), the authoritative Role B database test. It should print `ROLE B SMOKE TEST PASSED` and leaves no data behind.
-3. Dashboard → Authentication → Sign In / Providers → Email: **turn off "Confirm email"** (so test accounts work instantly).
+3. Dashboard → Authentication → Sign In / Providers: enable **Google** (see [Google sign-in setup](#google-sign-in-setup)) and **turn Email off**. Sign-in is Google only.
 4. **Lovable:** connect it to this existing Supabase project and tell it *"use the existing tables, do not create or alter tables"*.
 
 ## Rule of thumb
@@ -14,30 +14,23 @@ How the screens (A) and the AI functions (C) talk to the database. Supabase proj
 - **Read** from tables/views with `supabase.from(...)`.
 - **Write** only with `supabase.rpc(...)`. Direct inserts/updates are blocked (except renaming yourself).
 
-## Auth
+## Auth (Google only)
 
 ```js
-await supabase.auth.signUp({ email, password, options: { data: { display_name: 'Léa' } } })
-await supabase.auth.signInWithPassword({ email, password })
+await supabase.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: `${location.origin}/` } })
 await supabase.auth.signOut()
 ```
 
-A `profiles` row is created automatically on sign-up (display name = `display_name`, or the email prefix).
+There is no email/password sign-in. The app redirects to the bare origin (which matches the Redirect URLs allow list) and remembers the page it came from in `sessionStorage`, then returns there once the session is restored.
 
-### Google sign-in
-
-```js
-await supabase.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: window.location.href } })
-```
-
-The same trigger (migration 002) creates a `profiles` row for Google users. It reads only `display_name` from the user metadata. Google supplies `full_name` / `name` instead, so Google users currently get their **email prefix** as `display_name`. They can rename themselves afterwards (see below). No extra migration is needed for Google OAuth.
+A `profiles` row is created automatically on first sign-in (trigger from 002, updated in 010): display name = Google's `full_name` / `name`, else the email prefix. People can rename themselves afterwards (see below).
 
 ## Google sign-in setup
 
-1. In Google Cloud, create an OAuth client of type **Web application**.
-2. Add the Supabase Auth callback URL (`https://<project-ref>.supabase.co/auth/v1/callback`) as an authorized redirect URI.
-3. Supabase Dashboard → Authentication → Sign In / Providers → **Google**: enable it and paste the client ID and client secret.
-4. Authentication → URL Configuration: add the deployed site URL and `http://localhost:8080` as redirect URLs.
+1. Google Cloud → APIs & Services → **OAuth consent screen**: External, app name, support email; scopes `email`, `profile`, `openid`. In Testing mode only listed test users can sign in, so add testers or publish the app.
+2. Credentials → **Create OAuth client ID** → Web application. Authorized JavaScript origins: every address the app runs on (e.g. `http://localhost:8080`, `http://localhost:8081`, the deployed site). Authorized redirect URI: `https://<project-ref>.supabase.co/auth/v1/callback`.
+3. Supabase Dashboard → Authentication → Sign In / Providers → **Google**: enable it and paste the client ID and client secret. Turn **Email** off so nobody can create a password account through the API.
+4. Authentication → URL Configuration: Site URL = the main address; Redirect URLs = each address with `/**` (e.g. `http://localhost:8080/**`).
 
 The Google client secret lives only in the Supabase configuration, never in frontend code or committed environment files.
 

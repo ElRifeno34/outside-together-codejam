@@ -248,22 +248,7 @@ export async function aiSearch(text: string): Promise<SearchResult> {
   };
 }
 
-// ---- Accounts ---------------------------------------------------------------------------
-
-/** Email + password sign-in through Supabase Auth. */
-export async function signIn(email: string, password: string): Promise<Profile> {
-  return backend().signIn(email.trim(), password);
-}
-
-export async function signUp(
-  email: string,
-  displayName: string,
-  password: string,
-): Promise<Profile> {
-  if (!email.includes("@") || !displayName.trim())
-    throw new Error("Enter your email and display name");
-  return backend().signUp(email.trim(), displayName, password);
-}
+// ---- Accounts (Google only) ----------------------------------------------------------------
 
 const RETURN_KEY = "ot:return-to";
 

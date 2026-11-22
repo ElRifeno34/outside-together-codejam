@@ -64,8 +64,6 @@ beforeEach(() => {
   s.rpcCalls = [];
   s.userId = null;
   s.aiSearch = null;
-  s.signInError = null;
-  s.signUpHasSession = true;
   s.oauthCalls = [];
 });
 
@@ -111,36 +109,17 @@ describe("reading the real board", () => {
 });
 
 describe("accounts", () => {
-  it("signs up with email and password and returns the real profile", async () => {
-    db().tables.profiles!.push({
-      id: "user:a@test.dev",
-      display_name: "Tester A",
-      total_points: 0,
-    });
-    const profile = await api.signUp(" a@test.dev ", "Tester A", "secret1");
-    expect(profile).toEqual({ id: "user:a@test.dev", display_name: "Tester A", total_points: 0 });
-    expect(await api.getMyProfile()).toEqual(profile);
-  });
-
-  it("validates sign-up input and explains email confirmation", async () => {
-    await expect(api.signUp("not-an-email", "A", "secret1")).rejects.toThrow(
-      "Enter your email and display name",
-    );
-    db().signUpHasSession = false;
-    await expect(api.signUp("a@test.dev", "A", "secret1")).rejects.toThrow("Check your inbox");
-  });
-
-  it("signs in, reports auth errors, and signs out", async () => {
-    db().tables.profiles!.push({
-      id: "user:b@test.dev",
-      display_name: "Tester B",
-      total_points: 15,
-    });
-    expect((await api.signIn("b@test.dev", "secret1")).total_points).toBe(15);
+  it("reads the signed-in profile and signs out", async () => {
+    db().userId = "user:b";
+    db().tables.profiles!.push({ id: "user:b", display_name: "Tester B", total_points: 15 });
+    expect((await api.getMyProfile())?.total_points).toBe(15);
     await api.signOut();
     expect(await api.getMyProfile()).toBeNull();
-    db().signInError = "Invalid login credentials";
-    await expect(api.signIn("b@test.dev", "wrong")).rejects.toThrow("Invalid login credentials");
+  });
+
+  it("has no email/password sign-in: Google is the only way in", () => {
+    expect("signIn" in api).toBe(false);
+    expect("signUp" in api).toBe(false);
   });
 
   it("starts Google sign-in through Supabase with the return address", async () => {

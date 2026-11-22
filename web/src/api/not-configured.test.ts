@@ -9,7 +9,7 @@ it("refuses every call with a not-configured error instead of showing fake data"
     () => api.getActivity("x"),
     () => api.getActivityTypes(),
     () => api.joinActivity("x"),
-    () => api.signIn("a@test.dev", "secret1"),
+    () => api.signInWithGoogle("http://localhost:8080/"),
   ]) {
     const error = await call().catch((e: unknown) => e);
     expect(isNotConfiguredError(error)).toBe(true);

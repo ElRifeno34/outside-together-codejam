@@ -17,8 +17,6 @@ export type FakeState = {
   userId: string | null;
   /** Answer of the ai-search Edge Function; null means it failed or isn't deployed. */
   aiSearch: unknown;
-  signInError: string | null;
-  signUpHasSession: boolean;
   oauthCalls: { provider: string; redirectTo: string | undefined }[];
 };
 
@@ -29,8 +27,6 @@ export function createFakeSupabase() {
     rpcCalls: [],
     userId: null,
     aiSearch: null,
-    signInError: null,
-    signUpHasSession: true,
     oauthCalls: [],
   };
 
@@ -82,16 +78,6 @@ export function createFakeSupabase() {
       getSession: async () => ({
         data: { session: state.userId ? { user: { id: state.userId } } : null },
       }),
-      signInWithPassword: async ({ email }: { email: string }) => {
-        if (state.signInError) return { data: {}, error: { message: state.signInError } };
-        state.userId = `user:${email}`;
-        return { data: {}, error: null };
-      },
-      signUp: async ({ email }: { email: string }) => {
-        if (!state.signUpHasSession) return { data: { session: null }, error: null };
-        state.userId = `user:${email}`;
-        return { data: { session: {} }, error: null };
-      },
       signInWithOAuth: async ({
         provider,
         options,
