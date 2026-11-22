@@ -20,11 +20,15 @@ import {
   AudioLines,
   Compass,
   Sun,
+  Flame,
+  Zap,
 } from "lucide-react";
+import type * as React from "react";
 import { activityTitle, visualKey, type ActivityBoardRow } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { useApp } from "./app-provider";
-import { activityPhase } from "@/lib/participation";
+import { activityPhase, useNow } from "@/lib/participation";
+import { coinPop, confettiBurst } from "@/lib/celebrate";
 import { joinActivity } from "@/api";
 import { toast } from "sonner";
 import walk from "@/assets/walk.jpg";
@@ -37,7 +41,6 @@ import coffee from "@/assets/coffee.jpg";
 import picnic from "@/assets/picnic.jpg";
 import bird from "@/assets/bird.jpg";
 import sunset from "@/assets/sunset.jpg";
-import { celebrate } from "@/lib/celebrate";
 export const activityImages: Record<string, string> = {
   walk,
   basketball,
@@ -94,23 +97,84 @@ export function formatStart(date: string, language: "en" | "fr" = "en") {
     .replace("AM", "am")
     .replace("PM", "pm");
 }
+/** Lively UI test: niche value 1–5 shown as a game rarity tier. */
+export const rarityTiers = [
+  { en: "Common", fr: "Commun" },
+  { en: "Uncommon", fr: "Peu commun" },
+  { en: "Rare", fr: "Rare" },
+  { en: "Epic", fr: "Épique" },
+  { en: "Legendary", fr: "Légendaire" },
+] as const;
+export function rarityName(niche: number, language: "en" | "fr") {
+  const tier = rarityTiers[Math.min(Math.max(niche, 1), 5) - 1]!;
+  return tier[language];
+}
+/** "in 42 min", "in 3 h 10", or null when it is more than a day away / already started. */
+export function countdown(startsAt: string, now: number, language: "en" | "fr") {
+  const minutes = Math.round((new Date(startsAt).getTime() - now) / 60_000);
+  if (minutes <= 0 || minutes >= 24 * 60) return null;
+  const h = Math.floor(minutes / 60);
+  const m = minutes % 60;
+  const span = h === 0 ? `${m} min` : `${h} h ${String(m).padStart(2, "0")}`;
+  return language === "fr" ? `dans ${span}` : `in ${span}`;
+}
+function clockParts(date: string, language: "en" | "fr") {
+  const d = new Date(date);
+  const time = new Intl.DateTimeFormat(language === "fr" ? "fr-CA" : "en-US", {
+    timeZone: "America/Toronto",
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: language !== "fr",
+  })
+    .format(d)
+    .replace(/\s?(AM|PM)/, "");
+  const ampm =
+    language === "fr"
+      ? ""
+      : new Intl.DateTimeFormat("en-US", { timeZone: "America/Toronto", hour: "numeric" })
+          .format(d)
+          .slice(-2)
+          .toLowerCase();
+  const day = new Intl.DateTimeFormat(language === "fr" ? "fr-CA" : "en-US", {
+    timeZone: "America/Toronto",
+    weekday: "short",
+  }).format(d);
+  return { time, ampm, day };
+}
 export function ActivityCard({
   activity,
   joined = false,
   onChanged,
+  index = 0,
 }: {
   activity: ActivityBoardRow;
   joined?: boolean;
   onChanged?: () => void;
+  index?: number;
 }) {
-  const phase = activityPhase(activity);
+  const now = useNow();
+  const phase = activityPhase(activity, now);
   const { tr, language } = useLanguage();
   const { profile, openAuth, refreshProfile } = useApp();
   const Icon = activityIcons[visualKey(activity) as keyof typeof activityIcons] ?? Footprints;
-  const join = async () => {
+  const points = 10 + 5 * activity.niche_value;
+  const soon = phase === "upcoming" ? countdown(activity.starts_at, now, language) : null;
+  const clock = clockParts(activity.starts_at, language);
+  const sticker =
+    phase !== "upcoming"
+      ? null
+      : activity.available_spots === 0
+        ? { kind: "full", text: language === "fr" ? "Complet" : "Full" }
+        : activity.available_spots <= 2
+          ? { kind: "hot", text: language === "fr" ? "Presque complet" : "Almost full" }
+          : soon && new Date(activity.starts_at).getTime() - now < 2 * 3600_000
+            ? { kind: "soon", text: language === "fr" ? "Bientôt" : "Starting soon" }
+            : null;
+  const join = async (button?: Element | null) => {
     try {
       await joinActivity(activity.id);
-      celebrate("join");
+      confettiBurst(button ?? null);
+      coinPop(button ?? null, `+${points}`);
       toast.success(
         language === "fr"
           ? `Vous participez à ${tr(activityTitle(activity))} !`
@@ -123,7 +187,11 @@ export function ActivityCard({
     }
   };
   return (
-    <article className="activity-card">
+    <article
+      className="activity-card"
+      data-rarity={Math.min(Math.max(activity.niche_value, 1), 5)}
+      style={{ "--i": Math.min(index, 12) } as React.CSSProperties}
+    >
       <Link to="/activity/$id" params={{ id: activity.id }} className="card-photo-link">
         <img
           src={activityPhoto(activity)}
@@ -149,8 +217,18 @@ export function ActivityCard({
                   ? tr("Completed")
                   : tr("Open to join")}
         </span>
+        {sticker && (
+          <span className="card-sticker" data-kind={sticker.kind}>
+            {sticker.kind === "hot" && <Flame size={13} />}
+            {sticker.kind === "soon" && <Zap size={13} />}
+            {sticker.text}
+          </span>
+        )}
         <span className="photo-arrow">
           <ArrowUpRight size={19} />
+        </span>
+        <span className="card-icon-medal" aria-hidden="true">
+          <Icon size={26} />
         </span>
       </Link>
       <div className="card-body">
@@ -161,10 +239,29 @@ export function ActivityCard({
               {tr(activityTitle(activity))}
             </h3>
           </Link>
-          <span className="niche-badge" title={`${tr("Niche value")} ${activity.niche_value}`}>
+          <span
+            className="niche-badge"
+            title={`${tr("Niche value")} ${activity.niche_value}/5`}
+          >
             <Sparkles size={12} />
-            {activity.niche_value}
-            {tr("/5")}
+            {rarityName(activity.niche_value, language)}
+          </span>
+        </div>
+        <div className="card-clock">
+          <span className="card-clock-time">
+            {clock.time}
+            {clock.ampm && <small>{clock.ampm}</small>}
+          </span>
+          <span className="card-clock-meta">
+            <span>{clock.day}</span>
+            {soon ? (
+              <span className="card-countdown">
+                <Clock3 size={12} />
+                {soon}
+              </span>
+            ) : (
+              <span>{tr("1 h")}</span>
+            )}
           </span>
         </div>
         <div className="card-place">
@@ -173,13 +270,6 @@ export function ActivityCard({
             <p>{tr(activity.place_name ?? "")}</p>
             <span>{activity.address}</span>
           </div>
-        </div>
-        <div className="card-time">
-          <span>
-            <Clock3 size={14} />
-            {formatStart(activity.starts_at, language)}
-          </span>
-          <span className="time-duration">{tr("1 h")}</span>
         </div>
         <div className="card-divider" />
         <div className="card-people">
@@ -206,13 +296,17 @@ export function ActivityCard({
             className="points-label card-reward"
             title={tr("Unlocked when 2 participants check in")}
           >
-            <Sparkles size={14} />
+            <span className="coin" aria-hidden="true" />
             {tr("+")}
-            {10 + 5 * activity.niche_value} {tr("pts")}
+            {points} {tr("pts")}
           </span>
           <Button
             variant="join"
-            onClick={() => (profile ? void join() : openAuth(join))}
+            onClick={(e) => {
+              const button = e.currentTarget;
+              if (profile) void join(button);
+              else openAuth(() => join(button));
+            }}
             disabled={joined || activity.available_spots === 0}
           >
             {joined ? (

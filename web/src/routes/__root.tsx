@@ -12,6 +12,7 @@ import {
 import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
+import livelyCss from "../lively.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { AppProvider } from "@/components/app-provider";
 import { AppHeader } from "@/components/app-header";
@@ -132,6 +133,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         rel: "stylesheet",
         href: appCss,
       },
+      // Lively UI test: the game-lobby layer on top of the base styles.
+      { rel: "stylesheet", href: livelyCss },
       { rel: "icon", href: "/favicon.ico", type: "image/x-icon" },
     ],
   }),
