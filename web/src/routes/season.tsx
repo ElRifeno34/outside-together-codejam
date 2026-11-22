@@ -2,17 +2,14 @@ import { useLanguage } from "@/i18n";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import { Check, Coins, Gift, Lock, Shield, Snowflake } from "lucide-react";
+import { Check, Coins, Gift, Lock, Snowflake } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { useApp } from "@/components/app-provider";
-import { SeasonLogo, SeasonPicture } from "@/components/season-art";
 import { DisplayName, ProfileAvatar } from "@/components/profile-bits";
 import { BANNERS } from "@/lib/progression";
 import type { SeasonReward } from "@/lib/types";
 import * as api from "@/api";
-import { Stagger, StaggerItem } from "@/components/motion";
-import { celebrate } from "@/lib/celebrate";
 
 export const Route = createFileRoute("/season")({
   head: () => ({
@@ -40,7 +37,6 @@ function SeasonPage() {
     setBusy(r.tier);
     try {
       await api.claimSeasonReward(r.tier);
-      celebrate("season");
       toast.success(
         r.item_id
           ? `${tr("Unlocked:")} ${tr(r.item_name ?? "")}${r.credits ? ` + ${r.credits} ${tr("credits")}` : ""}`
@@ -99,26 +95,20 @@ function SeasonPage() {
 
   return (
     <main className="page-width season-page">
-      <div className="season-hero" data-theme="habs">
-        <div className="season-hero-text">
-          <SeasonLogo alt={tr("Team logo")} />
+      <div className="season-hero">
+        <div>
           <div className="eyebrow">
-            <Shield size={15} /> {tr("Season pass")} · {tr("Hockey night in Montréal")}
+            <Snowflake size={15} /> {tr("Season pass")}
           </div>
           <h1>{tr(s.name)}</h1>
           <p>
-            {tr(
-              "Every point you earn this season moves you up, like goals on the board. 20 tiers, free for everyone. Go Habs Go!",
-            )}{" "}
+            {tr("Every point you earn this season moves you up. 20 tiers, free for everyone.")}{" "}
             {tr("Ends")} {endDate} · {daysLeft} {tr(daysLeft === 1 ? "day left" : "days left")}
           </p>
         </div>
-        <div className="season-hero-side">
-          <SeasonPicture alt={tr("Players on the ice")} />
-          <div className="season-level" aria-label={tr("Your tier")}>
-            <strong>{s.tier}</strong>
-            <span>/ 20</span>
-          </div>
+        <div className="season-level" aria-label={tr("Your tier")}>
+          <strong>{s.tier}</strong>
+          <span>/ 20</span>
         </div>
       </div>
 
@@ -147,18 +137,12 @@ function SeasonPage() {
         )}
       </div>
 
-      <Stagger as="ol" className="season-track">
+      <ol className="season-track">
         {s.rewards.map((r) => {
           const unlocked = r.tier <= s.tier;
           const done = claimed.has(r.tier);
           return (
-            <StaggerItem
-              as="li"
-              key={r.tier}
-              data-unlocked={unlocked}
-              data-claimed={done}
-              data-item={!!r.item_id}
-            >
+            <li key={r.tier} data-unlocked={unlocked} data-claimed={done} data-item={!!r.item_id}>
               <span className="season-tier">{r.tier}</span>
               <div className="season-reward">
                 <RewardPreview reward={r} name={profile?.display_name ?? "You"} />
@@ -184,10 +168,10 @@ function SeasonPage() {
                   <Lock size={14} /> {r.tier * s.points_per_tier} {tr("pts")}
                 </span>
               )}
-            </StaggerItem>
+            </li>
           );
         })}
-      </Stagger>
+      </ol>
       <p className="season-foot">
         {tr("Season items can't be bought. Use them from the")} <Link to="/shop">{tr("shop")}</Link>{" "}
         {tr("once claimed.")}

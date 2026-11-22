@@ -212,6 +212,24 @@ function Board() {
             {searching ? <RefreshCw className="animate-spin" /> : <ArrowRight />}
           </Button>
         </form>
+        <div className="search-suggestions">
+          <span>{tr("A little inspiration:")}</span>
+          {["Basketball Friday afternoon", "A photo walk tomorrow", "Chess in the park"].map(
+            (s) => (
+              <Button
+                key={s}
+                variant="pill"
+                onClick={() => {
+                  setText(tr(s));
+                  void search(tr(s));
+                }}
+              >
+                {tr(s)}
+                <ArrowUpRight size={11} />
+              </Button>
+            ),
+          )}
+        </div>
       </header>
       {result && (
         <div
@@ -281,189 +299,210 @@ function Board() {
         <span className="explore-count">
           {activities.length} {tr("activities")}
         </span>
-        <Sheet open={filtersOpen} onOpenChange={setFiltersOpen}>
-          <SheetTrigger asChild>
-            <Button variant="ghost" className="filters-trigger">
-              <SlidersHorizontal />
-              {tr("Filters")}
-              {activeFilters > 0 && <span className="explore-filter-count">{activeFilters}</span>}
-            </Button>
-          </SheetTrigger>
-          <SheetContent
-            side={isMobile ? "bottom" : "right"}
-            className={
-              isMobile ? "explore-filter-sheet explore-filter-sheet-bottom" : "explore-filter-sheet"
-            }
+        <div className="explore-actions">
+          <Button
+            variant="outline"
+            className="chunky-btn"
+            aria-pressed={nicheLevel === 1}
+            onClick={() => setNicheLevel(nicheLevel === 1 ? null : 1)}
           >
-            <SheetHeader className="explore-filter-header">
-              <SheetTitle>{tr("Filters")}</SheetTitle>
-              <SheetDescription className="sr-only">{tr("Activity filters")}</SheetDescription>
-            </SheetHeader>
-            <div className="explore-filter-body">
-              <fieldset>
-                <legend>{tr("Activity")}</legend>
-                <div className="explore-filter-choices">
-                  <Button
-                    variant="outline"
-                    aria-pressed={!filters.typeId}
-                    onClick={() => setFilter("typeId", "")}
-                  >
-                    <LayoutGrid />
-                    {tr("All activities")}
-                  </Button>
-                  {types.map((type) => {
-                    const Icon =
-                      activityIcons[
-                        visualKind(type.name, type.keywords) as keyof typeof activityIcons
-                      ] ?? Sprout;
-                    return (
-                      <Button
-                        key={type.id}
-                        variant="outline"
-                        aria-pressed={filters.typeId === type.id}
-                        onClick={() =>
-                          setFilter("typeId", filters.typeId === type.id ? "" : type.id)
-                        }
-                      >
-                        <Icon />
-                        {tr(type.name)}
-                      </Button>
-                    );
-                  })}
-                </div>
-              </fieldset>
-              <fieldset>
-                <legend>{tr("Day")}</legend>
-                <select
-                  className="filter-select"
-                  aria-label={tr("Filter by day")}
-                  value={filters.date ?? ""}
-                  onChange={(e) => {
-                    setDay(null);
-                    setFilter("date", e.target.value);
-                  }}
-                >
-                  <option value="">{tr("Any day")}</option>
-                  {Array.from({ length: 8 }, (_, i) => {
-                    const date = futureDay(i);
-                    return (
-                      <option key={date} value={date}>
-                        {i === 0
-                          ? tr("Today")
-                          : i === 1
-                            ? tr("Tomorrow")
-                            : new Intl.DateTimeFormat(language === "fr" ? "fr-CA" : "en-US", {
-                                weekday: "short",
-                                month: "short",
-                                day: "numeric",
-                                timeZone: "UTC",
-                              }).format(new Date(date + "T12:00Z"))}
-                      </option>
-                    );
-                  })}
-                </select>
-              </fieldset>
-              <fieldset>
-                <legend>{tr("Time")}</legend>
-                <div className="explore-filter-choices">
-                  <label className="field">
-                    {tr("From")}
-                    <input
-                      aria-label={tr("Time from")}
-                      type="time"
-                      value={filters.timeFrom ?? ""}
-                      onChange={(e) => setFilter("timeFrom", e.target.value)}
-                    />
-                  </label>
-                  <label className="field">
-                    {tr("Until")}
-                    <input
-                      aria-label={tr("Time until")}
-                      type="time"
-                      value={filters.timeTo ?? ""}
-                      onChange={(e) => setFilter("timeTo", e.target.value)}
-                    />
-                  </label>
-                </div>
-              </fieldset>
-              <fieldset>
-                <legend>{tr("Niche level")}</legend>
-                <div className="explore-filter-levels">
-                  <Button
-                    variant="outline"
-                    aria-pressed={nicheLevel === null}
-                    onClick={() => setNicheLevel(null)}
-                  >
-                    {tr("All levels")}
-                  </Button>
-                  {[1, 2, 3, 4, 5].map((level) => (
-                    <Button
-                      key={level}
-                      variant="outline"
-                      aria-pressed={nicheLevel === level}
-                      aria-label={[
-                        tr("Niche level"),
-                        level,
-                        "·",
-                        "+" + (10 + 5 * level),
-                        tr("pts"),
-                      ].join(" ")}
-                      onClick={() => setNicheLevel(nicheLevel === level ? null : level)}
-                    >
-                      {level}
-                    </Button>
-                  ))}
-                </div>
-                <details className="niche-legend">
-                  <summary>{tr("What do levels mean?")}</summary>
-                  <div>
-                    {[
-                      "Everyday · Walk, Basketball",
-                      "A little different · Study outside",
-                      "Special interest · Chess",
-                      "Creative interest · Photo walk",
-                      "Most niche · Urban sketching",
-                    ].map((label, i) => (
-                      <p key={tr(label ?? "")}>
-                        <strong>{i + 1}</strong>
-                        <span>{tr(label ?? "")}</span>
-                        <span>
-                          {tr("+")}
-                          {15 + 5 * i} {tr("pts")}
-                        </span>
-                      </p>
-                    ))}
-                    <small>{tr("Points unlock when 2 participants check in.")}</small>
-                  </div>
-                </details>
-              </fieldset>
-              <fieldset>
-                <legend>{tr("Sort")}</legend>
-                <div className="explore-filter-choices">
-                  {sorts.map(([value, label]) => (
-                    <label key={value} className="explore-sort-choice">
-                      <input
-                        type="radio"
-                        name="explore-sort"
-                        checked={nicheSort === value}
-                        onChange={() => chooseSort(value)}
-                      />
-                      {tr(label)}
-                    </label>
-                  ))}
-                </div>
-              </fieldset>
-            </div>
-            <SheetFooter className="explore-filter-footer">
-              <Button variant="ghost" onClick={clearFilters}>
-                {tr("Clear filters")}
+            {tr("Everyday")}
+          </Button>
+          <Button
+            variant="outline"
+            className="chunky-btn chunky-btn-dark"
+            aria-pressed={nicheLevel === 5}
+            onClick={() => setNicheLevel(nicheLevel === 5 ? null : 5)}
+          >
+            <Sparkles />
+            {tr("Very niche")}
+          </Button>
+          <Sheet open={filtersOpen} onOpenChange={setFiltersOpen}>
+            <SheetTrigger asChild>
+              <Button variant="outline" className="chunky-btn filters-trigger">
+                <SlidersHorizontal />
+                {tr("Filters")}
+                {activeFilters > 0 && <span className="explore-filter-count">{activeFilters}</span>}
               </Button>
-              <SheetClose asChild>
-                <Button>{tr("Show activities")}</Button>
-              </SheetClose>
-            </SheetFooter>
-          </SheetContent>
-        </Sheet>
+            </SheetTrigger>
+            <SheetContent
+              side={isMobile ? "bottom" : "right"}
+              className={
+                isMobile
+                  ? "explore-filter-sheet explore-filter-sheet-bottom"
+                  : "explore-filter-sheet"
+              }
+            >
+              <SheetHeader className="explore-filter-header">
+                <SheetTitle>{tr("Filters")}</SheetTitle>
+                <SheetDescription className="sr-only">{tr("Activity filters")}</SheetDescription>
+              </SheetHeader>
+              <div className="explore-filter-body">
+                <fieldset>
+                  <legend>{tr("Activity")}</legend>
+                  <div className="explore-filter-choices">
+                    <Button
+                      variant="outline"
+                      aria-pressed={!filters.typeId}
+                      onClick={() => setFilter("typeId", "")}
+                    >
+                      <LayoutGrid />
+                      {tr("All activities")}
+                    </Button>
+                    {types.map((type) => {
+                      const Icon =
+                        activityIcons[
+                          visualKind(type.name, type.keywords) as keyof typeof activityIcons
+                        ] ?? Sprout;
+                      return (
+                        <Button
+                          key={type.id}
+                          variant="outline"
+                          aria-pressed={filters.typeId === type.id}
+                          onClick={() =>
+                            setFilter("typeId", filters.typeId === type.id ? "" : type.id)
+                          }
+                        >
+                          <Icon />
+                          {tr(type.name)}
+                        </Button>
+                      );
+                    })}
+                  </div>
+                </fieldset>
+                <fieldset>
+                  <legend>{tr("Day")}</legend>
+                  <select
+                    className="filter-select"
+                    aria-label={tr("Filter by day")}
+                    value={filters.date ?? ""}
+                    onChange={(e) => {
+                      setDay(null);
+                      setFilter("date", e.target.value);
+                    }}
+                  >
+                    <option value="">{tr("Any day")}</option>
+                    {Array.from({ length: 8 }, (_, i) => {
+                      const date = futureDay(i);
+                      return (
+                        <option key={date} value={date}>
+                          {i === 0
+                            ? tr("Today")
+                            : i === 1
+                              ? tr("Tomorrow")
+                              : new Intl.DateTimeFormat(language === "fr" ? "fr-CA" : "en-US", {
+                                  weekday: "short",
+                                  month: "short",
+                                  day: "numeric",
+                                  timeZone: "UTC",
+                                }).format(new Date(date + "T12:00Z"))}
+                        </option>
+                      );
+                    })}
+                  </select>
+                </fieldset>
+                <fieldset>
+                  <legend>{tr("Time")}</legend>
+                  <div className="explore-filter-choices">
+                    <label className="field">
+                      {tr("From")}
+                      <input
+                        aria-label={tr("Time from")}
+                        type="time"
+                        value={filters.timeFrom ?? ""}
+                        onChange={(e) => setFilter("timeFrom", e.target.value)}
+                      />
+                    </label>
+                    <label className="field">
+                      {tr("Until")}
+                      <input
+                        aria-label={tr("Time until")}
+                        type="time"
+                        value={filters.timeTo ?? ""}
+                        onChange={(e) => setFilter("timeTo", e.target.value)}
+                      />
+                    </label>
+                  </div>
+                </fieldset>
+                <fieldset>
+                  <legend>{tr("Niche level")}</legend>
+                  <div className="explore-filter-levels">
+                    <Button
+                      variant="outline"
+                      aria-pressed={nicheLevel === null}
+                      onClick={() => setNicheLevel(null)}
+                    >
+                      {tr("All levels")}
+                    </Button>
+                    {[1, 2, 3, 4, 5].map((level) => (
+                      <Button
+                        key={level}
+                        variant="outline"
+                        aria-pressed={nicheLevel === level}
+                        aria-label={[
+                          tr("Niche level"),
+                          level,
+                          "·",
+                          "+" + (10 + 5 * level),
+                          tr("pts"),
+                        ].join(" ")}
+                        onClick={() => setNicheLevel(nicheLevel === level ? null : level)}
+                      >
+                        {level}
+                      </Button>
+                    ))}
+                  </div>
+                  <details className="niche-legend">
+                    <summary>{tr("What do levels mean?")}</summary>
+                    <div>
+                      {[
+                        "Everyday · Walk, Basketball",
+                        "A little different · Study outside",
+                        "Special interest · Chess",
+                        "Creative interest · Photo walk",
+                        "Most niche · Urban sketching",
+                      ].map((label, i) => (
+                        <p key={tr(label ?? "")}>
+                          <strong>{i + 1}</strong>
+                          <span>{tr(label ?? "")}</span>
+                          <span>
+                            {tr("+")}
+                            {15 + 5 * i} {tr("pts")}
+                          </span>
+                        </p>
+                      ))}
+                      <small>{tr("Points unlock when 2 participants check in.")}</small>
+                    </div>
+                  </details>
+                </fieldset>
+                <fieldset>
+                  <legend>{tr("Sort")}</legend>
+                  <div className="explore-filter-choices">
+                    {sorts.map(([value, label]) => (
+                      <label key={value} className="explore-sort-choice">
+                        <input
+                          type="radio"
+                          name="explore-sort"
+                          checked={nicheSort === value}
+                          onChange={() => chooseSort(value)}
+                        />
+                        {tr(label)}
+                      </label>
+                    ))}
+                  </div>
+                </fieldset>
+              </div>
+              <SheetFooter className="explore-filter-footer">
+                <Button variant="ghost" onClick={clearFilters}>
+                  {tr("Clear filters")}
+                </Button>
+                <SheetClose asChild>
+                  <Button>{tr("Show activities")}</Button>
+                </SheetClose>
+              </SheetFooter>
+            </SheetContent>
+          </Sheet>
+        </div>
       </div>
       {board.error ? (
         <div className="empty-state">
@@ -501,6 +540,25 @@ function Board() {
           </Button>
         </div>
       )}
+      <div className="board-end">
+        <Sprout />
+        {tr("A whole city of possibilities. One hour at a time.")}
+      </div>
+      <section className="points-band">
+        <Sparkles />
+        <div>
+          <h3>{tr("Try something a little different. Earn a little more.")}</h3>
+          <p>
+            {tr(
+              "The more niche the activity, the more points you earn together. Good company always comes first.",
+            )}
+          </p>
+        </div>
+        <Link to="/profile">
+          {tr("My points")}
+          <ArrowUpRight size={14} />
+        </Link>
+      </section>
     </main>
   );
 }

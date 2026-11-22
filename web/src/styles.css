@@ -3602,9 +3602,6 @@ main h1,
 }
 .season-hero[data-theme="habs"] .eyebrow { color: #ffd6da; }
 .season-hero[data-theme="habs"] .season-level strong { color: #ffffff; text-shadow: 0 3px 0 #af1e2d; }
-.season-bar span { background: linear-gradient(90deg, #af1e2d, #ffffff 50%, #192168); }
-.season-track li[data-item="true"] { border-color: #af1e2d; }
-.season-track li[data-unlocked="true"] .season-tier { background: #af1e2d; color: #fff; }
 .pf-name[data-effect="ne-habs"] {
   background-image: linear-gradient(90deg, #af1e2d 0 33%, #9aa5b1 33% 40%, #192168 40% 73%, #af1e2d 73%);
   background-size: 300% 100%;

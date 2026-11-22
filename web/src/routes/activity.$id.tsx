@@ -153,7 +153,6 @@ function ActivityDetail() {
         toast.success(tr(message));
       } else {
         await (kind === "join" ? api.joinActivity(id) : api.leaveActivity(id));
-        if (kind === "join") celebrate("join");
         toast.success(tr(kind === "join" ? "You're on the list!" : "You left this activity"));
       }
       await refreshProfile();
