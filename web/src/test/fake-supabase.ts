@@ -23,7 +23,13 @@ type RpcName =
   | "validate_quest"
   | "my_friend_requests"
   | "respond_friend_request"
-  | "cancel_friend_request";
+  | "cancel_friend_request"
+  | "my_progress"
+  | "buy_item"
+  | "equip_item"
+  | "refresh_my_trophies"
+  | "set_showcase"
+  | "get_public_profile";
 
 export type FakeState = {
   tables: { [K in TableName]?: Row[] };

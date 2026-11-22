@@ -15,7 +15,9 @@ import { Route as MapRouteImport } from './routes/map'
 import { Route as PlacesRouteImport } from './routes/places'
 import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as RankingsRouteImport } from './routes/rankings'
+import { Route as ShopRouteImport } from './routes/shop'
 import { Route as ActivityIdRouteImport } from './routes/activity.$id'
+import { Route as UIdRouteImport } from './routes/u.$id'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -47,9 +49,19 @@ const RankingsRoute = RankingsRouteImport.update({
   path: '/rankings',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ShopRoute = ShopRouteImport.update({
+  id: '/shop',
+  path: '/shop',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ActivityIdRoute = ActivityIdRouteImport.update({
   id: '/activity/$id',
   path: '/activity/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const UIdRoute = UIdRouteImport.update({
+  id: '/u/$id',
+  path: '/u/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
 
@@ -60,7 +72,9 @@ export interface FileRoutesByFullPath {
   '/places': typeof PlacesRoute
   '/profile': typeof ProfileRoute
   '/rankings': typeof RankingsRoute
+  '/shop': typeof ShopRoute
   '/activity/$id': typeof ActivityIdRoute
+  '/u/$id': typeof UIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -69,7 +83,9 @@ export interface FileRoutesByTo {
   '/places': typeof PlacesRoute
   '/profile': typeof ProfileRoute
   '/rankings': typeof RankingsRoute
+  '/shop': typeof ShopRoute
   '/activity/$id': typeof ActivityIdRoute
+  '/u/$id': typeof UIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -79,7 +95,9 @@ export interface FileRoutesById {
   '/places': typeof PlacesRoute
   '/profile': typeof ProfileRoute
   '/rankings': typeof RankingsRoute
+  '/shop': typeof ShopRoute
   '/activity/$id': typeof ActivityIdRoute
+  '/u/$id': typeof UIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -90,7 +108,9 @@ export interface FileRouteTypes {
     | '/places'
     | '/profile'
     | '/rankings'
+    | '/shop'
     | '/activity/$id'
+    | '/u/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -99,7 +119,9 @@ export interface FileRouteTypes {
     | '/places'
     | '/profile'
     | '/rankings'
+    | '/shop'
     | '/activity/$id'
+    | '/u/$id'
   id:
     | '__root__'
     | '/'
@@ -108,7 +130,9 @@ export interface FileRouteTypes {
     | '/places'
     | '/profile'
     | '/rankings'
+    | '/shop'
     | '/activity/$id'
+    | '/u/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -118,7 +142,9 @@ export interface RootRouteChildren {
   PlacesRoute: typeof PlacesRoute
   ProfileRoute: typeof ProfileRoute
   RankingsRoute: typeof RankingsRoute
+  ShopRoute: typeof ShopRoute
   ActivityIdRoute: typeof ActivityIdRoute
+  UIdRoute: typeof UIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -165,11 +191,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RankingsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/shop': {
+      id: '/shop'
+      path: '/shop'
+      fullPath: '/shop'
+      preLoaderRoute: typeof ShopRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/activity/$id': {
       id: '/activity/$id'
       path: '/activity/$id'
       fullPath: '/activity/$id'
       preLoaderRoute: typeof ActivityIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/u/$id': {
+      id: '/u/$id'
+      path: '/u/$id'
+      fullPath: '/u/$id'
+      preLoaderRoute: typeof UIdRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
@@ -182,7 +222,9 @@ const rootRouteChildren: RootRouteChildren = {
   PlacesRoute: PlacesRoute,
   ProfileRoute: ProfileRoute,
   RankingsRoute: RankingsRoute,
+  ShopRoute: ShopRoute,
   ActivityIdRoute: ActivityIdRoute,
+  UIdRoute: UIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

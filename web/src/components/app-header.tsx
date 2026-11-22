@@ -1,7 +1,9 @@
 import { useLanguage } from "@/i18n";
 import { Link, useRouterState } from "@tanstack/react-router";
-import { ArrowUpRight, MapPin, Plus, Sprout, UserRound, LogOut } from "lucide-react";
+import { ArrowUpRight, Coins, LogOut, MapPin, Plus, Sprout, UserRound } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useQuery } from "@tanstack/react-query";
+import * as api from "@/api";
 import { useApp } from "./app-provider";
 import { ThemeToggle } from "./theme-toggle";
 export function AppHeader() {
@@ -33,6 +35,9 @@ export function AppHeader() {
           </Link>
           <Link to="/rankings" data-active={pathname === "/rankings"}>
             {tr("Rankings")}
+          </Link>
+          <Link to="/shop" data-active={pathname === "/shop"}>
+            {tr("Shop")}
           </Link>
           <Link to="/profile" data-active={pathname === "/profile"}>
             {tr("My activities")}
@@ -67,6 +72,7 @@ export function AppHeader() {
           </Button>
           {profile ? (
             <>
+              <HeaderCredits />
               <Link to="/profile" className="account-switch">
                 {profile.display_name}
               </Link>
@@ -90,5 +96,23 @@ export function AppHeader() {
         </div>
       </div>
     </header>
+  );
+}
+
+/** Credit balance next to the name; links to the shop. Hidden before migration 019. */
+function HeaderCredits() {
+  const { tr } = useLanguage();
+  const { profile } = useApp();
+  const progress = useQuery({
+    queryKey: ["my-progress", profile?.id],
+    queryFn: api.getMyProgress,
+    enabled: !!profile,
+    retry: false,
+  });
+  if (!progress.data) return null;
+  return (
+    <Link to="/shop" className="header-credits" title={tr("Your credits · open the shop")}>
+      <Coins size={15} /> {progress.data.credits}
+    </Link>
   );
 }

@@ -1,5 +1,5 @@
 import { useLanguage } from "@/i18n";
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
 import {
@@ -19,6 +19,7 @@ import { toast } from "sonner";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { useApp } from "@/components/app-provider";
+import { DisplayName, GradeBadge, ProfileAvatar } from "@/components/profile-bits";
 import type { Area, FriendRequest, LeaderboardRow, RankingScope } from "@/lib/types";
 import * as api from "@/api";
 
@@ -480,16 +481,22 @@ function RankingList({
           <span className="ranking-rank" data-podium={row.rank <= 3 ? row.rank : undefined}>
             {row.rank}
           </span>
-          <span className="ranking-avatar" aria-hidden="true">
-            {row.display_name.charAt(0).toUpperCase()}
-          </span>
-          <span className="ranking-name">
-            <strong>
-              {row.display_name}
-              {row.is_me && <em> · {tr("you")}</em>}
-            </strong>
-            {row.area && <small>{row.area}</small>}
-          </span>
+          <Link to="/u/$id" params={{ id: row.user_id }} className="ranking-person">
+            <ProfileAvatar
+              name={row.display_name}
+              avatarItem={row.avatar_item}
+              frameItem={row.frame_item}
+              size={38}
+            />
+            <span className="ranking-name">
+              <strong>
+                <DisplayName name={row.display_name} effectItem={row.name_effect_item} />
+                {row.is_me && <em> · {tr("you")}</em>}
+              </strong>
+              {row.area && <small>{row.area}</small>}
+            </span>
+          </Link>
+          <GradeBadge points={row.total_points} compact />
           <span className="ranking-points">
             {row.total_points} <small>{tr("pts")}</small>
           </span>

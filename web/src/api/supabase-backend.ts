@@ -12,6 +12,10 @@ import type {
   PointsEntry,
   Profile,
   ActivityQuest,
+  MyProgress,
+  PublicProfile,
+  ShopItem,
+  TrophyDef,
   AddFriendResult,
   FriendRequest,
   Area,
@@ -120,6 +124,13 @@ const errorText: Record<string, string> = {
   INVALID_CAPACITY: "Minimum people must be between 2 and capacity",
   NOT_CREATOR: "Only the person who created this activity can edit it",
   DELETE_TOO_LATE: "This activity has already started, so it can't be deleted",
+  ITEM_NOT_FOUND: "This item is no longer in the shop",
+  ALREADY_OWNED: "You already own this",
+  NOT_ENOUGH_CREDITS: "Not enough credits yet. Get outside to earn more!",
+  NOT_OWNED: "Buy this item before using it",
+  SHOWCASE_FULL: "You can show up to 3 trophies",
+  TROPHY_NOT_EARNED: "Earn this trophy before showing it off",
+  PROFILE_NOT_FOUND: "This profile doesn't exist",
   QUESTS_LOCKED: "Side quests can't change once the activity has started",
   TOO_MANY_QUESTS: "Up to 5 side quests per activity",
   INVALID_QUEST: "A side quest needs 3 to 80 characters",
@@ -294,6 +305,63 @@ export function createSupabaseBackend(supabase: SupabaseClient) {
         ...detailArgs(input),
       });
       if (error) fail(error);
+    },
+
+    // ---- Credits, shop, trophies, public profiles (migration 019) ----
+
+    async getShopItems(): Promise<ShopItem[]> {
+      const { data, error } = await supabase
+        .from("shop_items")
+        .select("id, kind, name, price, sort")
+        .order("kind")
+        .order("sort");
+      if (error) fail(error);
+      return data as ShopItem[];
+    },
+
+    async getMyProgress(): Promise<MyProgress> {
+      const { data, error } = await supabase.rpc("my_progress");
+      if (error) fail(error);
+      return data as MyProgress;
+    },
+
+    async buyItem(itemId: string): Promise<{ credits: number }> {
+      const { data, error } = await supabase.rpc("buy_item", { p_item_id: itemId });
+      if (error) fail(error);
+      return data as { credits: number };
+    },
+
+    async equipItem(kind: ShopItem["kind"], itemId: string | null): Promise<void> {
+      const { error } = await supabase.rpc("equip_item", { p_kind: kind, p_item_id: itemId });
+      if (error) fail(error);
+    },
+
+    async getTrophies(): Promise<TrophyDef[]> {
+      const { data, error } = await supabase
+        .from("trophies")
+        .select("id, tier, name, description, credits, sort")
+        .order("sort");
+      if (error) fail(error);
+      return data as TrophyDef[];
+    },
+
+    /** Checks trophies against real data; returns the ids just earned. */
+    async refreshTrophies(): Promise<string[]> {
+      if (!(await userId())) return [];
+      const { data, error } = await supabase.rpc("refresh_my_trophies");
+      if (error) fail(error);
+      return (data ?? []) as string[];
+    },
+
+    async setShowcase(trophyIds: string[]): Promise<void> {
+      const { error } = await supabase.rpc("set_showcase", { p_trophies: trophyIds });
+      if (error) fail(error);
+    },
+
+    async getPublicProfile(id: string): Promise<PublicProfile> {
+      const { data, error } = await supabase.rpc("get_public_profile", { p_user_id: id });
+      if (error) fail(error);
+      return data as PublicProfile;
     },
 
     // ---- Side quests (migration 017) ----

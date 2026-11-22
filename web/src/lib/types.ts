@@ -150,6 +150,48 @@ export interface LeaderboardRow {
   area: string | null;
   total_points: number;
   is_me: boolean;
+  /** Equipped cosmetics (migration 019); absent before it. */
+  avatar_item?: string | null;
+  frame_item?: string | null;
+  name_effect_item?: string | null;
+}
+
+export interface ShopItem {
+  id: string;
+  kind: "avatar" | "frame" | "banner" | "name_effect";
+  name: string;
+  price: number;
+  sort: number;
+}
+
+export interface TrophyDef {
+  id: string;
+  tier: "bronze" | "silver" | "gold" | "platinum";
+  name: string;
+  description: string;
+  credits: number;
+  sort: number;
+}
+
+export interface MyProgress {
+  credits: number;
+  items: string[];
+}
+
+export interface PublicProfile {
+  id: string;
+  display_name: string;
+  area: string | null;
+  total_points: number;
+  avatar_item: string | null;
+  frame_item: string | null;
+  banner_item: string | null;
+  name_effect_item: string | null;
+  showcase: string[];
+  trophies: string[];
+  checkins: number;
+  places: number;
+  is_me: boolean;
 }
 
 export interface Participant {

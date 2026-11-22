@@ -13,6 +13,10 @@ import type {
   PointsEntry,
   Profile,
   ActivityQuest,
+  MyProgress,
+  PublicProfile,
+  ShopItem,
+  TrophyDef,
   FriendRequest,
   Area,
   LeaderboardRow,
@@ -460,4 +464,42 @@ export async function getQuestBoard(activityId: string): Promise<QuestBoardRow[]
 /** The creator ticks (or unticks) an attendee's side quest: 5 × niche points. */
 export async function validateQuest(questId: string, userId: string, done: boolean) {
   return backend().validateQuest(questId, userId, done);
+}
+
+// ---- Credits, shop, trophies, public profiles (migration 019) -------------------------------
+
+export async function getShopItems(): Promise<ShopItem[]> {
+  return backend().getShopItems();
+}
+
+/** My credit balance and the items I own. */
+export async function getMyProgress(): Promise<MyProgress> {
+  return backend().getMyProgress();
+}
+
+export async function buyItem(itemId: string): Promise<{ credits: number }> {
+  return backend().buyItem(itemId);
+}
+
+/** Equip an owned item of a kind, or pass null to go back to the default. */
+export async function equipItem(kind: ShopItem["kind"], itemId: string | null): Promise<void> {
+  return backend().equipItem(kind, itemId);
+}
+
+export async function getTrophies(): Promise<TrophyDef[]> {
+  return backend().getTrophies();
+}
+
+/** Awards any trophies earned since last time (with their bonus credits). */
+export async function refreshTrophies(): Promise<string[]> {
+  return backend().refreshTrophies();
+}
+
+/** Up to 3 earned trophies to show off on the profile. */
+export async function setShowcase(trophyIds: string[]): Promise<void> {
+  return backend().setShowcase(trophyIds);
+}
+
+export async function getPublicProfile(id: string): Promise<PublicProfile> {
+  return backend().getPublicProfile(id);
 }

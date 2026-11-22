@@ -3,6 +3,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowUpRight, ArrowLeft, Sparkles, UserRound } from "lucide-react";
 import { useApp } from "@/components/app-provider";
+import { ProfileView } from "@/components/profile-view";
 import { Button } from "@/components/ui/button";
 import { activityImages, activityPhoto, formatStart } from "@/components/activity-card";
 import { participationLabel, useNow } from "@/lib/participation";
@@ -62,6 +63,7 @@ function ProfilePage() {
         </div>
       ) : (
         <>
+          <ProfileView userId={profile.id} />
           <section className="profile-summary">
             <div className="profile-person">
               <span className="profile-avatar" aria-hidden="true">

@@ -69,10 +69,34 @@ export function AppProvider({ children }: { children: ReactNode }) {
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps -- subscribe once; tr only formats the toast
   }, [client, router]);
+  // New trophies (migration 019): checked after anything that can earn points, toasted once.
+  const checkTrophies = async () => {
+    try {
+      const fresh = await api.refreshTrophies();
+      if (!fresh.length) return;
+      const defs = await api.getTrophies();
+      for (const id of fresh) {
+        const t = defs.find((d) => d.id === id);
+        if (t)
+          toast.success(
+            `🏆 ${tr("Trophy unlocked:")} ${tr(t.name)} (+${t.credits} ${tr("credits")})`,
+          );
+      }
+      await client.invalidateQueries({ queryKey: ["public-profile"] });
+      await client.invalidateQueries({ queryKey: ["my-progress"] });
+    } catch {
+      // Before migration 019 there are no trophies: nothing to celebrate.
+    }
+  };
   const refreshProfile = async () => {
     setProfile(await api.getMyProfile());
     await client.invalidateQueries();
+    void checkTrophies();
   };
+  useEffect(() => {
+    if (profile?.id) void checkTrophies();
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- once per signed-in person
+  }, [profile?.id]);
   return (
     <AppContext.Provider
       value={{
