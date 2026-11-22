@@ -3,6 +3,7 @@ import { Link, useRouterState } from "@tanstack/react-router";
 import { ArrowUpRight, MapPin, Plus, Sprout, UserRound, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useApp } from "./app-provider";
+import { ThemeToggle } from "./theme-toggle";
 export function AppHeader() {
   const { tr, language, setLanguage } = useLanguage();
   const { profile, openAuth, logout } = useApp();
@@ -42,6 +43,7 @@ export function AppHeader() {
           </Link>
         </nav>
         <div className="header-actions">
+          <ThemeToggle />
           <div className="language-switch" role="group" aria-label="Language / Langue">
             {(["en", "fr"] as const).map((lang) => (
               <Button

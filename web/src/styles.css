@@ -122,6 +122,7 @@
   --sidebar-ring: var(--ring);
 }
 .dark {
+  color-scheme: dark;
   --reward-sky: oklch(0.76 0.1 230);
   --background: oklch(0.2 0.016 155);
   --foreground: oklch(0.95 0.008 100);
@@ -129,9 +130,18 @@
   --primary: oklch(0.74 0.09 150);
   --primary-foreground: oklch(0.2 0.03 150);
   --secondary: oklch(0.3 0.03 150);
+  --muted: oklch(0.29 0.018 155);
   --muted-foreground: oklch(0.72 0.016 155);
+  --destructive: oklch(0.68 0.17 28);
+  --destructive-foreground: oklch(0.2 0.02 30);
   --border: oklch(0.4 0.018 155);
   --hero-surface: var(--secondary);
+  --points: oklch(0.78 0.13 62);
+  --points-soft: oklch(0.31 0.045 62);
+  --avatar-1: oklch(0.48 0.07 70);
+  --avatar-2: oklch(0.46 0.06 150);
+  --avatar-3: oklch(0.48 0.05 230);
+  --shadow-card: 0 6px 20px -10px oklch(0 0 0 / 0.6);
 }
 
 @layer base {
@@ -2816,4 +2826,33 @@
   color: #fff;
   font-size: 0.72rem;
   font-weight: 700;
+}
+
+/* ---------------------------------------------------------------------------
+   Dark mode extras
+   --------------------------------------------------------------------------- */
+.theme-toggle svg {
+  width: 1.1rem;
+  height: 1.1rem;
+}
+/* OpenStreetMap tiles are light only: invert them into a dim night map. */
+.dark .map-canvas .leaflet-tile,
+.dark .picker-map .leaflet-tile {
+  filter: invert(1) hue-rotate(180deg) brightness(0.85) contrast(0.9) saturate(0.6);
+}
+.dark .leaflet-container {
+  background: var(--muted);
+}
+.dark .leaflet-control-zoom a,
+.dark .leaflet-control-attribution {
+  background: var(--card);
+  color: var(--foreground);
+}
+.dark .leaflet-control-attribution a {
+  color: var(--primary);
+}
+/* Map popups stay light (their text is dark), like the tiles they sit on. */
+.dark .leaflet-popup-content-wrapper,
+.dark .leaflet-popup-tip {
+  color: oklch(0.25 0.025 158);
 }

@@ -1,4 +1,7 @@
 export const french: Record<string, string> = {
+  "Switch to light mode": "Passer en mode clair",
+  "Switch to dark mode": "Passer en mode sombre",
+  "following your system": "selon votre système",
   "You're already friends": "Vous êtes déjà amis",
   "You already sent them a request. Waiting for their answer":
     "Vous lui avez déjà envoyé une demande. En attente de sa réponse",

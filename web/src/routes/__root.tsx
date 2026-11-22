@@ -16,6 +16,7 @@ import { AppProvider } from "@/components/app-provider";
 import { AppHeader } from "@/components/app-header";
 import { Toaster } from "sonner";
 import { LanguageProvider, useLanguage } from "@/i18n";
+import { THEME_BOOT_SCRIPT } from "@/lib/theme";
 import { backendMode, isNotConfiguredError, SupabaseNotConfiguredError } from "@/lib/supabase";
 
 function NotFoundComponent() {
@@ -143,8 +144,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 
 function RootShell({ children }: { children: ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <head>
+        {/* Sets .dark before the first paint (no white flash); see src/lib/theme.ts. */}
+        <script dangerouslySetInnerHTML={{ __html: THEME_BOOT_SCRIPT }} />
         <HeadContent />
       </head>
       <body>
