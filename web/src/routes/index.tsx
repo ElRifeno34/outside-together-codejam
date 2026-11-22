@@ -1,6 +1,6 @@
 import { useLanguage } from "@/i18n";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { queryOptions, useQuery, useSuspenseQuery } from "@tanstack/react-query";
+import { keepPreviousData, queryOptions, useQuery } from "@tanstack/react-query";
 import { useRef, useState } from "react";
 import {
   ArrowUpRight,
@@ -14,20 +14,35 @@ import {
   Sprout,
   Sun,
   X,
-  CalendarDays,
   Users,
   LayoutGrid,
-  Shuffle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+  Sheet,
+  SheetClose,
+  SheetContent,
+  SheetDescription,
+  SheetFooter,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { ActivityCard, activityIcons, formatStart } from "@/components/activity-card";
 import { useApp } from "@/components/app-provider";
 import * as api from "@/api";
-import { futureDay, torontoDate } from "@/data/fixtures";
+import { futureDay } from "@/data/fixtures";
 import { toast } from "sonner";
 import { selectBoardRows, locateOnce, type NicheSort, type Origin } from "@/api/board-options";
 const boardOptions = queryOptions({ queryKey: ["board"], queryFn: () => api.getBoard() });
 const typesOptions = queryOptions({ queryKey: ["types"], queryFn: api.getActivityTypes });
+const sorts = [
+  ["soonest", "Soonest first"],
+  ["nearest", "Nearest first"],
+  ["most-niche", "Most niche first"],
+  ["least-niche", "Least niche first"],
+] as const satisfies readonly (readonly [NicheSort, string])[];
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
@@ -60,7 +75,8 @@ function Board() {
   const { activities: initial, types } = Route.useLoaderData();
   const { profile } = useApp();
   const [filters, setFilters] = useState<api.BoardFilters>({});
-  const [range, setRange] = useState(false);
+  const [filtersOpen, setFiltersOpen] = useState(false);
+  const isMobile = useIsMobile();
   const [nicheLevel, setNicheLevel] = useState<number | null>(null);
   const [nicheSort, setNicheSort] = useState<NicheSort>("soonest");
   const [origin, setOrigin] = useState<Origin | null>(null);
@@ -70,7 +86,8 @@ function Board() {
   const board = useQuery({
     queryKey: ["board", filters],
     queryFn: () => api.getBoard(filters),
-    initialData: initial,
+    initialData: Object.keys(filters).length === 0 ? initial : undefined,
+    placeholderData: keepPreviousData,
   });
   const my = useQuery({
     queryKey: ["my-activities", profile?.id],
@@ -78,6 +95,7 @@ function Board() {
     enabled: !!profile,
   });
   const searchVersion = useRef(0);
+  const sortVersion = useRef(0);
   const search = async (value = text) => {
     if (!value.trim()) return;
     const version = ++searchVersion.current;
@@ -86,13 +104,20 @@ function Board() {
       const next = await api.aiSearch(value);
       if (version === searchVersion.current) setResult(next);
     } catch (e) {
-      toast.error(tr(e instanceof Error ? e.message : "Please try again"));
+      if (version === searchVersion.current) {
+        toast.error(tr(e instanceof Error ? e.message : "Please try again"));
+      }
     } finally {
       if (version === searchVersion.current) setSearching(false);
     }
   };
-  const setFilter = (key: keyof api.BoardFilters, value: string) => {
+  const dismissSearchResults = () => {
+    searchVersion.current++;
+    setSearching(false);
     setResult(null);
+  };
+  const setFilter = (key: keyof api.BoardFilters, value: string) => {
+    dismissSearchResults();
     setFilters((old) => {
       const next = { ...old };
       if (value) next[key] = value;
@@ -100,6 +125,36 @@ function Board() {
       return next;
     });
   };
+  const chooseSort = async (sort: NicheSort) => {
+    const version = ++sortVersion.current;
+    if (sort !== "nearest") {
+      setNicheSort(sort);
+      return;
+    }
+    try {
+      // Location is requested only on this explicit choice and kept in memory.
+      const position = await locateOnce();
+      if (version !== sortVersion.current) return;
+      setOrigin(position);
+      setNicheSort(sort);
+    } catch (error) {
+      if (version !== sortVersion.current) return;
+      setNicheSort("soonest");
+      toast.error(tr(error instanceof Error ? error.message : "Location is unavailable"));
+    }
+  };
+  const clearFilters = () => {
+    setFilters({});
+    dismissSearchResults();
+    setNicheLevel(null);
+    void chooseSort("soonest");
+  };
+  const activeFilters =
+    Number(Boolean(filters.typeId)) +
+    Number(Boolean(filters.date)) +
+    Number(Boolean(filters.timeFrom || filters.timeTo)) +
+    Number(nicheLevel !== null) +
+    Number(nicheSort !== "soonest");
   const activities = selectBoardRows(
     result && result.status !== "no_match" ? result.matches : (board.data ?? []),
     nicheLevel,
@@ -284,184 +339,187 @@ function Board() {
           <span>{tr("Refresh")}</span>
         </Button>
       </div>
-      <div className="filter-bar" aria-label={tr("Activity filters")}>
-        <Button
-          variant="pill"
-          data-active={!filters.typeId}
-          onClick={() => setFilter("typeId", "")}
-        >
-          <LayoutGrid />
-          {tr("All activities")}
-        </Button>
-        {types.slice(0, 6).map((t) => {
-          const Icon = activityIcons[t.id as keyof typeof activityIcons] ?? Sprout;
-          return (
-            <Button
-              key={t.id}
-              variant="pill"
-              data-active={filters.typeId === t.id}
-              onClick={() => setFilter("typeId", t.id)}
-            >
-              <Icon />
-              {tr(t.name ?? "")}
+      <div className="explore-filter-bar">
+        <Sheet open={filtersOpen} onOpenChange={setFiltersOpen}>
+          <SheetTrigger asChild>
+            <Button variant="outline">
+              <SlidersHorizontal />
+              {tr("Filters")}
+              {activeFilters > 0 && <span className="explore-filter-count">{activeFilters}</span>}
             </Button>
-          );
-        })}
-        <select
-          className="filter-select more-activities"
-          aria-label={tr("More activities")}
-          value={types.slice(6).some((t) => t.id === filters.typeId) ? filters.typeId : ""}
-          onChange={(e) => setFilter("typeId", e.target.value)}
-        >
-          <option value="">{tr("More activities")}</option>
-          {types.slice(6).map((t) => (
-            <option key={t.id} value={t.id}>
-              {tr(t.name)}
-            </option>
-          ))}
-        </select>
-        <div className="time-filters">
-          <CalendarDays size={15} />
-          <select
-            className="filter-select"
-            aria-label={tr("Filter by day")}
-            value={filters.date ?? ""}
-            onChange={(e) => setFilter("date", e.target.value)}
+          </SheetTrigger>
+          <SheetContent
+            side={isMobile ? "bottom" : "right"}
+            className={
+              isMobile ? "explore-filter-sheet explore-filter-sheet-bottom" : "explore-filter-sheet"
+            }
           >
-            <option value="">{tr("Any day")}</option>
-            {Array.from({ length: 8 }, (_, i) => {
-              const date = futureDay(i);
-              return (
-                <option key={date} value={date}>
-                  {i === 0
-                    ? tr("Today")
-                    : i === 1
-                      ? tr("Tomorrow")
-                      : new Intl.DateTimeFormat(language === "fr" ? "fr-CA" : "en-US", {
-                          weekday: "short",
-                          month: "short",
-                          day: "numeric",
-                          timeZone: "UTC",
-                        }).format(new Date(`${date}T12:00Z`))}
-                </option>
-              );
-            })}
-          </select>
-          <Button variant="outline" data-active={range} onClick={() => setRange(!range)}>
-            <SlidersHorizontal />
-            {tr("Time")}
-          </Button>
-        </div>
+            <SheetHeader className="explore-filter-header">
+              <SheetTitle>{tr("Filters")}</SheetTitle>
+              <SheetDescription className="sr-only">{tr("Activity filters")}</SheetDescription>
+            </SheetHeader>
+            <div className="explore-filter-body">
+              <fieldset>
+                <legend>{tr("Activity")}</legend>
+                <div className="explore-filter-choices">
+                  <Button
+                    variant="outline"
+                    aria-pressed={!filters.typeId}
+                    onClick={() => setFilter("typeId", "")}
+                  >
+                    <LayoutGrid />
+                    {tr("All activities")}
+                  </Button>
+                  {types.map((type) => {
+                    const Icon = activityIcons[type.id as keyof typeof activityIcons] ?? Sprout;
+                    return (
+                      <Button
+                        key={type.id}
+                        variant="outline"
+                        aria-pressed={filters.typeId === type.id}
+                        onClick={() =>
+                          setFilter("typeId", filters.typeId === type.id ? "" : type.id)
+                        }
+                      >
+                        <Icon />
+                        {tr(type.name)}
+                      </Button>
+                    );
+                  })}
+                </div>
+              </fieldset>
+              <fieldset>
+                <legend>{tr("Day")}</legend>
+                <select
+                  className="filter-select"
+                  aria-label={tr("Filter by day")}
+                  value={filters.date ?? ""}
+                  onChange={(e) => setFilter("date", e.target.value)}
+                >
+                  <option value="">{tr("Any day")}</option>
+                  {Array.from({ length: 8 }, (_, i) => {
+                    const date = futureDay(i);
+                    return (
+                      <option key={date} value={date}>
+                        {i === 0
+                          ? tr("Today")
+                          : i === 1
+                            ? tr("Tomorrow")
+                            : new Intl.DateTimeFormat(language === "fr" ? "fr-CA" : "en-US", {
+                                weekday: "short",
+                                month: "short",
+                                day: "numeric",
+                                timeZone: "UTC",
+                              }).format(new Date(date + "T12:00Z"))}
+                      </option>
+                    );
+                  })}
+                </select>
+              </fieldset>
+              <fieldset>
+                <legend>{tr("Time")}</legend>
+                <div className="explore-filter-choices">
+                  <label className="field">
+                    {tr("From")}
+                    <input
+                      aria-label={tr("Time from")}
+                      type="time"
+                      value={filters.timeFrom ?? ""}
+                      onChange={(e) => setFilter("timeFrom", e.target.value)}
+                    />
+                  </label>
+                  <label className="field">
+                    {tr("Until")}
+                    <input
+                      aria-label={tr("Time until")}
+                      type="time"
+                      value={filters.timeTo ?? ""}
+                      onChange={(e) => setFilter("timeTo", e.target.value)}
+                    />
+                  </label>
+                </div>
+              </fieldset>
+              <fieldset>
+                <legend>{tr("Niche level")}</legend>
+                <div className="explore-filter-levels">
+                  <Button
+                    variant="outline"
+                    aria-pressed={nicheLevel === null}
+                    onClick={() => setNicheLevel(null)}
+                  >
+                    {tr("All levels")}
+                  </Button>
+                  {[1, 2, 3, 4, 5].map((level) => (
+                    <Button
+                      key={level}
+                      variant="outline"
+                      aria-pressed={nicheLevel === level}
+                      aria-label={[
+                        tr("Niche level"),
+                        level,
+                        "·",
+                        "+" + (10 + 5 * level),
+                        tr("pts"),
+                      ].join(" ")}
+                      onClick={() => setNicheLevel(nicheLevel === level ? null : level)}
+                    >
+                      {level}
+                    </Button>
+                  ))}
+                </div>
+                <details className="niche-legend">
+                  <summary>{tr("What do levels mean?")}</summary>
+                  <div>
+                    {[
+                      "Everyday · Walk, Basketball",
+                      "A little different · Study outside",
+                      "Special interest · Chess",
+                      "Creative interest · Photo walk",
+                      "Most niche · Urban sketching",
+                    ].map((label, i) => (
+                      <p key={tr(label ?? "")}>
+                        <strong>{i + 1}</strong>
+                        <span>{tr(label ?? "")}</span>
+                        <span>
+                          {tr("+")}
+                          {15 + 5 * i} {tr("pts")}
+                        </span>
+                      </p>
+                    ))}
+                    <small>
+                      {tr("Points earned after two creator/admin-approved attendances.")}
+                    </small>
+                  </div>
+                </details>
+              </fieldset>
+              <fieldset>
+                <legend>{tr("Sort")}</legend>
+                <div className="explore-filter-choices">
+                  {sorts.map(([value, label]) => (
+                    <label key={value} className="explore-sort-choice">
+                      <input
+                        type="radio"
+                        name="explore-sort"
+                        checked={nicheSort === value}
+                        onChange={() => chooseSort(value)}
+                      />
+                      {tr(label)}
+                    </label>
+                  ))}
+                </div>
+              </fieldset>
+            </div>
+            <SheetFooter className="explore-filter-footer">
+              <Button variant="ghost" onClick={clearFilters}>
+                {tr("Clear filters")}
+              </Button>
+              <SheetClose asChild>
+                <Button>{tr("Show activities")}</Button>
+              </SheetClose>
+            </SheetFooter>
+          </SheetContent>
+        </Sheet>
       </div>
-      <div className="niche-controls">
-        <label>
-          <Sparkles size={14} />
-          {tr("Niche level")}
-          <select
-            className="filter-select"
-            aria-label={tr("Filter by niche level")}
-            value={nicheLevel ?? ""}
-            onChange={(e) => setNicheLevel(e.target.value ? Number(e.target.value) : null)}
-          >
-            <option value="">{tr("All levels")}</option>
-            {[1, 2, 3, 4, 5].map((n) => (
-              <option key={n} value={n}>
-                {tr("Level")}
-                {n} {tr("· +")}
-                {10 + 5 * n} {tr("pts")}
-              </option>
-            ))}
-          </select>
-        </label>
-        <label>
-          {tr("Sort")}
-          <select
-            className="filter-select"
-            aria-label={tr("Sort activities")}
-            value={nicheSort}
-            onChange={(e) => {
-              const value = e.target.value;
-              if (value === "soonest" || value === "most-niche" || value === "least-niche")
-                setNicheSort(value);
-              if (value === "nearest") {
-                // Location is requested only on this explicit choice and kept in memory.
-                locateOnce()
-                  .then((position) => {
-                    setOrigin(position);
-                    setNicheSort("nearest");
-                  })
-                  .catch((err: unknown) => {
-                    setNicheSort("soonest");
-                    toast.error(tr(err instanceof Error ? err.message : "Location is unavailable"));
-                  });
-              }
-            }}
-          >
-            <option value="soonest">{tr("Soonest first")}</option>
-            <option value="nearest">{tr("Nearest first")}</option>
-            <option value="most-niche">{tr("Most niche first")}</option>
-            <option value="least-niche">{tr("Least niche first")}</option>
-          </select>
-        </label>
-        <details className="niche-legend">
-          <summary>{tr("What do levels mean?")}</summary>
-          <div>
-            {[
-              "Everyday · Walk, Basketball",
-              "A little different · Study outside",
-              "Special interest · Chess",
-              "Creative interest · Photo walk",
-              "Most niche · Urban sketching",
-            ].map((label, i) => (
-              <p key={tr(label ?? "")}>
-                <strong>{i + 1}</strong>
-                <span>{tr(label ?? "")}</span>
-                <span>
-                  {tr("+")}
-                  {15 + 5 * i} {tr("pts")}
-                </span>
-              </p>
-            ))}
-            <small>{tr("Points earned after two creator/admin-approved attendances.")}</small>
-          </div>
-        </details>
-      </div>
-      {range && (
-        <div className="range-panel">
-          <label className="field">
-            {tr("From")}
-            <input
-              aria-label={tr("Time from")}
-              type="time"
-              value={filters.timeFrom ?? ""}
-              onChange={(e) => setFilter("timeFrom", e.target.value)}
-            />
-          </label>
-          <label className="field">
-            {tr("Until")}
-            <input
-              aria-label={tr("Time until")}
-              type="time"
-              value={filters.timeTo ?? ""}
-              onChange={(e) => setFilter("timeTo", e.target.value)}
-            />
-          </label>
-          <Button
-            variant="ghost"
-            onClick={() => {
-              setFilters((f) => {
-                const n = { ...f };
-                delete n.timeFrom;
-                delete n.timeTo;
-                return n;
-              });
-              setResult(null);
-            }}
-          >
-            {tr("Clear")}
-          </Button>
-        </div>
-      )}
       <div className="board-subline">
         <span>
           <MapPin />
@@ -496,15 +554,7 @@ function Board() {
           <Search size={30} />
           <h2>{tr("No plans here just yet.")}</h2>
           <p>{tr("Try another day, or get something started yourself.")}</p>
-          <Button
-            variant="outline"
-            onClick={() => {
-              setFilters({});
-              setResult(null);
-              setNicheLevel(null);
-              setNicheSort("soonest");
-            }}
-          >
+          <Button variant="outline" onClick={clearFilters}>
             {tr("Clear filters")}
           </Button>
           <Button asChild className="ml-2">
