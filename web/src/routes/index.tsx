@@ -1,36 +1,35 @@
 import { useLanguage } from "@/i18n";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { queryOptions, useQuery, useSuspenseQuery } from "@tanstack/react-query";
+import { keepPreviousData, queryOptions, useQuery } from "@tanstack/react-query";
 import { useRef, useState } from "react";
-import {
-  ArrowUpRight,
-  ArrowRight,
-  Search,
-  Sparkles,
-  RefreshCw,
-  SlidersHorizontal,
-  MapPin,
-  Clock3,
-  Sprout,
-  Sun,
-  X,
-  CalendarDays,
-  Users,
-  LayoutGrid,
-  Shuffle,
-} from "lucide-react";
+import { ArrowRight, LayoutGrid, Search, SlidersHorizontal, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetFooter,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
 import { formatStart } from "@/components/activity-card";
 import { Timetable } from "@/components/departure-row";
-import { activityIcons } from "@/components/pictogram";
+import { levelClass, Pictogram } from "@/components/pictogram";
 import { useApp } from "@/components/app-provider";
+import { useIsMobile } from "@/hooks/use-mobile";
 import * as api from "@/api";
 import { visualKind } from "@/lib/activity-visuals";
 import { futureDay, torontoDate } from "@/lib/time";
+import { dayHeading, weekendDays } from "@/lib/timetable";
 import { toast } from "sonner";
 import { selectBoardRows, locateOnce, type NicheSort, type Origin } from "@/api/board-options";
+
 const boardOptions = queryOptions({ queryKey: ["board"], queryFn: () => api.getBoard() });
 const typesOptions = queryOptions({ queryKey: ["types"], queryFn: api.getActivityTypes });
+
+/** Counts change while people join: refresh quietly every minute and on returning to the tab. */
+const REFRESH_MS = 60_000;
+
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
@@ -42,8 +41,7 @@ export const Route = createFileRoute("/")({
       { property: "og:title", content: "Explore Montréal · Outside Together" },
       {
         property: "og:description",
-        content:
-          "A little time outside. A few new faces. Browse spontaneous activities in Montréal.",
+        content: "One hour outside, a few new faces. See what's leaving soon in Montréal.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -58,28 +56,49 @@ export const Route = createFileRoute("/")({
   },
   component: Board,
 });
+
+/** Which days the board shows: the strip's quick choices, or one specific day from Filters. */
+type DayMode = "all" | "today" | "tomorrow" | "weekend" | "date";
+
+const sorts: { id: NicheSort; label: string }[] = [
+  { id: "soonest", label: "Soonest first" },
+  { id: "nearest", label: "Nearest first" },
+  { id: "most-niche", label: "Most niche first" },
+  { id: "least-niche", label: "Least niche first" },
+];
+
 function Board() {
   const { tr, language } = useLanguage();
   const { activities: initial, types } = Route.useLoaderData();
   const { profile } = useApp();
+  const isMobile = useIsMobile();
   const [filters, setFilters] = useState<api.BoardFilters>({});
-  const [range, setRange] = useState(false);
+  const [dayMode, setDayMode] = useState<DayMode>("all");
   const [nicheLevel, setNicheLevel] = useState<number | null>(null);
   const [nicheSort, setNicheSort] = useState<NicheSort>("soonest");
   const [origin, setOrigin] = useState<Origin | null>(null);
   const [text, setText] = useState("");
+  const [query, setQuery] = useState("");
   const [result, setResult] = useState<api.SearchResult | null>(null);
   const [searching, setSearching] = useState(false);
+  const [filtersOpen, setFiltersOpen] = useState(false);
   const board = useQuery({
     queryKey: ["board", filters],
     queryFn: () => api.getBoard(filters),
-    initialData: initial,
+    initialData: Object.keys(filters).length ? undefined : initial,
+    // While a new filter loads, keep showing the previous list instead of an empty state.
+    placeholderData: keepPreviousData,
+    refetchInterval: REFRESH_MS,
+    refetchOnWindowFocus: true,
   });
   const my = useQuery({
     queryKey: ["my-activities", profile?.id],
     queryFn: api.getMyActivities,
     enabled: !!profile,
+    refetchInterval: REFRESH_MS,
   });
+
+  // Search: unchanged behaviour (AI when it answers in shape, keyword fallback otherwise).
   const searchVersion = useRef(0);
   const search = async (value = text) => {
     if (!value.trim()) return;
@@ -87,12 +106,22 @@ function Board() {
     setSearching(true);
     try {
       const next = await api.aiSearch(value);
-      if (version === searchVersion.current) setResult(next);
+      if (version === searchVersion.current) {
+        setResult(next);
+        setQuery(value.trim());
+      }
     } catch (e) {
       toast.error(tr(e instanceof Error ? e.message : "Please try again"));
     } finally {
       if (version === searchVersion.current) setSearching(false);
     }
+  };
+  const clearSearch = () => {
+    searchVersion.current++;
+    setResult(null);
+    setText("");
+    setQuery("");
+    setSearching(false);
   };
   const setFilter = (key: keyof api.BoardFilters, value: string) => {
     setResult(null);
@@ -103,430 +132,357 @@ function Board() {
       return next;
     });
   };
-  const activities = selectBoardRows(
-    result && result.status !== "no_match" ? result.matches : (board.data ?? []),
-    nicheLevel,
-    nicheSort,
-    origin,
-  );
-  const refresh = async () => {
-    await board.refetch();
-    if (result && result.status !== "no_match") await search();
-    toast.success(tr("Activity counts are up to date"));
+  const chooseDay = (mode: DayMode, date = "") => {
+    setDayMode(mode);
+    setFilter(
+      "date",
+      mode === "today"
+        ? torontoDate()
+        : mode === "tomorrow"
+          ? futureDay(1)
+          : mode === "date"
+            ? date
+            : "",
+    );
   };
+  const chooseSort = (value: NicheSort) => {
+    if (value !== "nearest") {
+      setNicheSort(value);
+      return;
+    }
+    // Location is requested only on this explicit choice and kept in memory.
+    locateOnce()
+      .then((position) => {
+        setOrigin(position);
+        setNicheSort("nearest");
+      })
+      .catch((err: unknown) => {
+        setNicheSort("soonest");
+        toast.error(tr(err instanceof Error ? err.message : "Location is unavailable"));
+      });
+  };
+  const clearAll = () => {
+    clearSearch();
+    setFilters({});
+    setDayMode("all");
+    setNicheLevel(null);
+    setNicheSort("soonest");
+  };
+
+  const weekend = weekendDays();
+  const source =
+    result && result.status !== "no_match"
+      ? result.matches
+      : (board.data ?? []).filter(
+          (r) => dayMode !== "weekend" || weekend.includes(torontoDate(r.starts_at)),
+        );
+  const activities = selectBoardRows(source, nicheLevel, nicheSort, origin);
+  const joinedIds = new Set(
+    (my.data ?? []).filter((p) => p.status !== "left").map((p) => p.activity_id),
+  );
+  const activeFilters =
+    (filters.typeId ? 1 : 0) +
+    (dayMode === "date" ? 1 : 0) +
+    (filters.timeFrom || filters.timeTo ? 1 : 0) +
+    (nicheLevel !== null ? 1 : 0) +
+    (nicheSort !== "soonest" ? 1 : 0);
+  const dayChoices: { id: DayMode; label: string }[] = [
+    { id: "today", label: "Today" },
+    { id: "tomorrow", label: "Tomorrow" },
+    { id: "weekend", label: "Weekend" },
+  ];
+
   return (
-    <main className="page-width">
-      <section className="intro">
-        <div>
-          <div className="eyebrow">
-            <span className="status-dot" />
-            {tr("A little time. A little company.")}
-          </div>
-          <h1>
-            {tr("One hour.")} <em>{tr("Outside Together.")}</em>
-          </h1>
-          <p>{tr("Find your people, try something new, and make Montréal a little smaller.")}</p>
-        </div>
-        <div className="intro-note">
-          <span className="note-icon">
-            <Sun size={24} />
-          </span>
-          <p>
-            <strong>{tr("Good things happen outside.")}</strong>
-            {tr("No big plans needed.")}
-          </p>
-        </div>
-      </section>
-      <section className="search-band" aria-label={tr("Activity assistant")}>
-        <h2 className="search-heading">
-          <Sparkles size={18} />
-          {tr("What do you feel like doing?")}
-        </h2>
-        <form
-          className="search-input-row"
-          onSubmit={(e) => {
-            e.preventDefault();
-            void search();
-          }}
-        >
-          <Search size={18} />
-          <input
-            aria-label={tr("Describe your activity")}
-            placeholder={tr("I have an hour this afternoon. Anyone up for a walk?")}
-            value={text}
-            onChange={(e) => setText(e.target.value)}
-          />
-          <Button type="submit" disabled={searching}>
-            {searching ? tr("Finding…") : tr("Find my people")}
-            <ArrowRight />
-          </Button>
-        </form>
-        <div className="search-suggestions">
-          <span>{tr("A little inspiration:")}</span>
-          {["Basketball Friday afternoon", "A photo walk tomorrow", "Chess in the park"].map(
-            (s) => (
-              <Button
-                key={tr(s ?? "")}
-                variant="pill"
-                onClick={() => {
-                  setText(tr(s));
-                  void search(tr(s));
-                }}
-              >
-                {tr(s ?? "")}
-                <ArrowUpRight size={11} />
-              </Button>
-            ),
-          )}
-        </div>
-      </section>
-      {result && (
-        <div
-          className={`result-banner ${result.status === "fallback" ? "fallback" : ""}`}
-          role="status"
-        >
-          <span>
-            {result.status === "fallback"
-              ? tr("Assistant unavailable, showing keyword results")
-              : tr(result.message)}
-          </span>
-          <Button
-            variant="ghost"
-            size="icon"
+    <main className="page-width explore">
+      <header className="explore-head">
+        <h1>{tr("Leaving soon")}</h1>
+        <p suppressHydrationWarning>Montréal · {dayHeading(torontoDate(), language)}</p>
+      </header>
+
+      <form
+        className="explore-search"
+        role="search"
+        onSubmit={(e) => {
+          e.preventDefault();
+          void search();
+        }}
+      >
+        <Search aria-hidden="true" />
+        <input
+          aria-label={tr("Search activities")}
+          placeholder={tr("Basketball tomorrow afternoon…")}
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+        />
+        {text && (
+          <button
+            type="button"
+            className="explore-search-clear"
+            onClick={clearSearch}
             aria-label={tr("Clear search")}
-            onClick={() => {
-              setResult(null);
-              setText("");
-            }}
           >
             <X />
-          </Button>
-        </div>
-      )}
-      {result?.status === "no_match" && (
-        <div className="search-draft">
-          <div>
-            <div className="eyebrow">{tr("Your next little adventure")}</div>
-            <h3>
-              {tr(types.find((t) => t.id === result.draft.type_id)?.name ?? "Activity")} {" · "}{" "}
-              {formatStart(result.draft.starts_at, language)}
-            </h3>
-            <p>{tr("Start a group at a public Montréal spot. There’s room for 6.")}</p>
-            <span className="points-label">
-              <Sparkles size={14} />
-              {tr("A new plan, not a reservation.")}
-            </span>
-          </div>
-          <Button asChild>
-            <Link
-              to="/create"
-              search={{
-                type: result.draft.type_id,
-                place: result.draft.place_id,
-                start: result.draft.starts_at,
-              }}
-            >
-              {tr("Review draft")}
-              <ArrowUpRight />
-            </Link>
-          </Button>
-        </div>
-      )}
-      <section className="discovery-band">
-        <div>
-          <h2>{tr("Something ordinary. Something unexpected.")}</h2>
-          <p>
-            {tr("Picnics, coffee, moss spotting, sound safaris. There’s an hour for everyone.")}
-          </p>
-        </div>
-        <div className="discovery-actions">
-          <Button
-            variant="outline"
-            onClick={() => {
-              setNicheLevel(1);
-              setFilters({});
-              setResult(null);
-            }}
-          >
-            {tr("Everyday")}
-          </Button>
-          <Button
-            variant="outline"
-            onClick={() => {
-              setNicheLevel(5);
-              setFilters({});
-              setResult(null);
-            }}
-          >
-            <Sparkles />
-            {tr("Very niche")}
-          </Button>
-        </div>
-      </section>
-      <div className="board-heading">
-        <h2>
-          {result && result.status !== "no_match" ? tr("Your matches") : tr("Find your next hour")}
-          <span>
-            {activities.length} {tr("activities")}
-          </span>
-        </h2>
+          </button>
+        )}
         <Button
-          variant="ghost"
-          className="refresh-button"
-          disabled={board.isFetching || searching}
-          onClick={() => void refresh()}
-          aria-label={tr("Refresh activities")}
+          type="submit"
+          size="icon"
+          disabled={searching || !text.trim()}
+          aria-label={tr("Search")}
         >
-          <RefreshCw className={board.isFetching ? "animate-spin" : ""} />
-          <span>{tr("Refresh")}</span>
+          <ArrowRight />
         </Button>
-      </div>
-      <div className="filter-bar" aria-label={tr("Activity filters")}>
-        <Button
-          variant="pill"
-          data-active={!filters.typeId}
-          onClick={() => setFilter("typeId", "")}
-        >
-          <LayoutGrid />
-          {tr("All activities")}
-        </Button>
-        {types.slice(0, 6).map((t) => {
-          // Real types have uuid ids: pick the pictogram from the name/keywords instead.
-          const Icon =
-            activityIcons[visualKind(t.name, t.keywords) as keyof typeof activityIcons] ?? Sprout;
-          return (
-            <Button
-              key={t.id}
-              variant="pill"
-              data-active={filters.typeId === t.id}
-              onClick={() => setFilter("typeId", t.id)}
+      </form>
+
+      <div className="explore-controls">
+        <div className="day-strip" role="group" aria-label={tr("Day")}>
+          {dayChoices.map((d) => (
+            <button
+              key={d.id}
+              type="button"
+              aria-pressed={dayMode === d.id}
+              onClick={() => chooseDay(dayMode === d.id ? "all" : d.id)}
             >
-              <Icon />
-              {tr(t.name ?? "")}
-            </Button>
-          );
-        })}
-        <select
-          className="filter-select more-activities"
-          aria-label={tr("More activities")}
-          value={types.slice(6).some((t) => t.id === filters.typeId) ? filters.typeId : ""}
-          onChange={(e) => setFilter("typeId", e.target.value)}
-        >
-          <option value="">{tr("More activities")}</option>
-          {types.slice(6).map((t) => (
-            <option key={t.id} value={t.id}>
-              {tr(t.name)}
-            </option>
+              {tr(d.label)}
+            </button>
           ))}
-        </select>
-        <div className="time-filters">
-          <CalendarDays size={15} />
-          <select
-            className="filter-select"
-            aria-label={tr("Filter by day")}
-            value={filters.date ?? ""}
-            onChange={(e) => setFilter("date", e.target.value)}
-          >
-            <option value="">{tr("Any day")}</option>
-            {Array.from({ length: 8 }, (_, i) => {
-              const date = futureDay(i);
-              return (
-                <option key={date} value={date}>
-                  {i === 0
-                    ? tr("Today")
-                    : i === 1
-                      ? tr("Tomorrow")
-                      : new Intl.DateTimeFormat(language === "fr" ? "fr-CA" : "en-US", {
-                          weekday: "short",
-                          month: "short",
-                          day: "numeric",
-                          timeZone: "UTC",
-                        }).format(new Date(`${date}T12:00Z`))}
-                </option>
-              );
-            })}
-          </select>
-          <Button variant="outline" data-active={range} onClick={() => setRange(!range)}>
-            <SlidersHorizontal />
-            {tr("Time")}
-          </Button>
         </div>
+        <Button
+          variant="outline"
+          size="sm"
+          className="filters-button"
+          aria-label={activeFilters ? `${tr("Filters")} (${activeFilters})` : tr("Filters")}
+          onClick={() => setFiltersOpen(true)}
+        >
+          <SlidersHorizontal />
+          <span className="filters-button-label">{tr("Filters")}</span>
+          {activeFilters > 0 && <span className="filter-count">{activeFilters}</span>}
+        </Button>
       </div>
-      <div className="niche-controls">
-        <label>
-          <Sparkles size={14} />
-          {tr("Niche level")}
-          <select
-            className="filter-select"
-            aria-label={tr("Filter by niche level")}
-            value={nicheLevel ?? ""}
-            onChange={(e) => setNicheLevel(e.target.value ? Number(e.target.value) : null)}
-          >
-            <option value="">{tr("All levels")}</option>
-            {[1, 2, 3, 4, 5].map((n) => (
-              <option key={n} value={n}>
-                {tr("Level")}
-                {n} {tr("· +")}
-                {10 + 5 * n} {tr("pts")}
-              </option>
-            ))}
-          </select>
-        </label>
-        <label>
-          {tr("Sort")}
-          <select
-            className="filter-select"
-            aria-label={tr("Sort activities")}
-            value={nicheSort}
-            onChange={(e) => {
-              const value = e.target.value;
-              if (value === "soonest" || value === "most-niche" || value === "least-niche")
-                setNicheSort(value);
-              if (value === "nearest") {
-                // Location is requested only on this explicit choice and kept in memory.
-                locateOnce()
-                  .then((position) => {
-                    setOrigin(position);
-                    setNicheSort("nearest");
-                  })
-                  .catch((err: unknown) => {
-                    setNicheSort("soonest");
-                    toast.error(tr(err instanceof Error ? err.message : "Location is unavailable"));
-                  });
-              }
-            }}
-          >
-            <option value="soonest">{tr("Soonest first")}</option>
-            <option value="nearest">{tr("Nearest first")}</option>
-            <option value="most-niche">{tr("Most niche first")}</option>
-            <option value="least-niche">{tr("Least niche first")}</option>
-          </select>
-        </label>
-        <details className="niche-legend">
-          <summary>{tr("What do levels mean?")}</summary>
-          <div>
-            {[
-              "Everyday · Walk, Basketball",
-              "A little different · Study outside",
-              "Special interest · Chess",
-              "Creative interest · Photo walk",
-              "Most niche · Urban sketching",
-            ].map((label, i) => (
-              <p key={tr(label ?? "")}>
-                <strong>{i + 1}</strong>
-                <span>{tr(label ?? "")}</span>
-                <span>
-                  {tr("+")}
-                  {15 + 5 * i} {tr("pts")}
-                </span>
-              </p>
-            ))}
-            <small>{tr("Points unlock when 2 participants check in.")}</small>
-          </div>
-        </details>
-      </div>
-      {range && (
-        <div className="range-panel">
-          <label className="field">
-            {tr("From")}
-            <input
-              aria-label={tr("Time from")}
-              type="time"
-              value={filters.timeFrom ?? ""}
-              onChange={(e) => setFilter("timeFrom", e.target.value)}
-            />
-          </label>
-          <label className="field">
-            {tr("Until")}
-            <input
-              aria-label={tr("Time until")}
-              type="time"
-              value={filters.timeTo ?? ""}
-              onChange={(e) => setFilter("timeTo", e.target.value)}
-            />
-          </label>
-          <Button
-            variant="ghost"
-            onClick={() => {
-              setFilters((f) => {
-                const n = { ...f };
-                delete n.timeFrom;
-                delete n.timeTo;
-                return n;
-              });
-              setResult(null);
-            }}
-          >
+
+      {searching && (
+        <p className="explore-status" role="status">
+          {tr("Finding…")}
+        </p>
+      )}
+      {result && !searching && (
+        <div className="explore-status" role="status">
+          <span>
+            {tr("Results for")} “{query}”
+          </span>
+          <Button variant="link" size="sm" onClick={clearSearch}>
             {tr("Clear")}
           </Button>
         </div>
       )}
-      <div className="board-subline">
-        <span>
-          <MapPin />
-          {tr("Public places. Real connections.")}
-        </span>
-        <span>
-          <Clock3 />
-          {tr("Every activity is just 1 hour")}
-        </span>
-      </div>
+      {result?.status === "no_match" && (
+        <Link
+          className={`start-suggestion ${levelClass(types.find((t) => t.id === result.draft.type_id)?.niche_value ?? 1)}`}
+          to="/create"
+          search={{
+            type: result.draft.type_id,
+            place: result.draft.place_id,
+            start: result.draft.starts_at,
+          }}
+        >
+          <Pictogram
+            kind={visualKind(
+              types.find((t) => t.id === result.draft.type_id)?.name ?? "",
+              types.find((t) => t.id === result.draft.type_id)?.keywords ?? [],
+            )}
+            level={types.find((t) => t.id === result.draft.type_id)?.niche_value ?? 1}
+            size={36}
+          />
+          <span>
+            <small>{tr("Nothing for that yet. Start one?")}</small>
+            <strong>
+              {tr(types.find((t) => t.id === result.draft.type_id)?.name ?? "Activity")} ·{" "}
+              {formatStart(result.draft.starts_at, language)}
+            </strong>
+          </span>
+          <ArrowRight aria-hidden="true" />
+        </Link>
+      )}
+
       {board.error ? (
-        <div className="empty-state">
+        <div className="explore-empty">
           <h2>{tr("We couldn’t load the activities.")}</h2>
           <Button onClick={() => void board.refetch()}>{tr("Try again")}</Button>
         </div>
       ) : activities.length ? (
-        <Timetable
-          rows={activities}
-          joinedIds={
-            new Set((my.data ?? []).filter((p) => p.status !== "left").map((p) => p.activity_id))
-          }
-          grouped={nicheSort === "soonest"}
-        />
-      ) : (
-        <div className="empty-state">
-          <Search size={30} />
-          <h2>{tr("No plans here just yet.")}</h2>
-          <p>{tr("Try another day, or get something started yourself.")}</p>
-          <Button
-            variant="outline"
-            onClick={() => {
-              setFilters({});
-              setResult(null);
-              setNicheLevel(null);
-              setNicheSort("soonest");
-            }}
-          >
-            {tr("Clear filters")}
-          </Button>
-          <Button asChild className="ml-2">
-            <Link to="/create">
-              {tr("Create activity")}
-              <ArrowUpRight />
-            </Link>
-          </Button>
-        </div>
-      )}
-      <div className="board-end">
-        <Sprout />
-        {tr("A whole city of possibilities. One hour at a time.")}
-      </div>
-      <section className="points-band">
-        <Sparkles />
-        <div>
-          <h3>{tr("Try something a little different. Earn a little more.")}</h3>
-          <p>
-            {tr(
-              "The more niche the activity, the more points you earn together. Good company always comes first.",
+        <Timetable rows={activities} joinedIds={joinedIds} grouped={nicheSort === "soonest"} />
+      ) : result?.status !== "no_match" ? (
+        <div className="explore-empty">
+          <h2>{tr("Nothing leaving then.")}</h2>
+          <p>{tr("Try another day, or start one yourself.")}</p>
+          <div>
+            <Button asChild>
+              <Link to="/create">{tr("Start one")}</Link>
+            </Button>
+            {(activeFilters > 0 || dayMode !== "all" || result) && (
+              <Button variant="link" onClick={clearAll}>
+                {tr("Clear filters")}
+              </Button>
             )}
-          </p>
+          </div>
         </div>
-        <Link to="/profile">
-          {tr("My points")}
-          <ArrowUpRight size={14} />
-        </Link>
-      </section>
+      ) : null}
+
+      <Sheet open={filtersOpen} onOpenChange={setFiltersOpen}>
+        <SheetContent
+          side={isMobile ? "bottom" : "right"}
+          className={`filters-sheet ${isMobile ? "filters-sheet-bottom" : ""}`}
+        >
+          <SheetHeader>
+            <SheetTitle>{tr("Filters")}</SheetTitle>
+            <SheetDescription className="sr-only">
+              {tr("Narrow the timetable by activity, day, time, niche level and order.")}
+            </SheetDescription>
+          </SheetHeader>
+          <div className="filters-body">
+            <fieldset>
+              <legend>{tr("Activity")}</legend>
+              <div className="type-grid">
+                <button
+                  type="button"
+                  aria-pressed={!filters.typeId}
+                  onClick={() => setFilter("typeId", "")}
+                >
+                  <span className="pictogram" style={{ "--plate": "28px" } as React.CSSProperties}>
+                    <LayoutGrid />
+                  </span>
+                  {tr("All activities")}
+                </button>
+                {types.map((t) => (
+                  <button
+                    key={t.id}
+                    type="button"
+                    aria-pressed={filters.typeId === t.id}
+                    onClick={() => setFilter("typeId", filters.typeId === t.id ? "" : t.id)}
+                  >
+                    <Pictogram
+                      kind={visualKind(t.name, t.keywords)}
+                      level={t.niche_value}
+                      size={28}
+                    />
+                    {tr(t.name)}
+                  </button>
+                ))}
+              </div>
+            </fieldset>
+
+            <fieldset>
+              <legend>{tr("Day")}</legend>
+              <select
+                className="filter-field"
+                aria-label={tr("Filter by day")}
+                value={
+                  dayMode === "date" || dayMode === "today" || dayMode === "tomorrow"
+                    ? (filters.date ?? "")
+                    : ""
+                }
+                onChange={(e) =>
+                  e.target.value ? chooseDay("date", e.target.value) : chooseDay("all")
+                }
+              >
+                <option value="">{tr("Any day")}</option>
+                {Array.from({ length: 8 }, (_, i) => {
+                  const date = futureDay(i);
+                  return (
+                    <option key={date} value={date}>
+                      {i === 0
+                        ? tr("Today")
+                        : i === 1
+                          ? tr("Tomorrow")
+                          : dayHeading(date, language)}
+                    </option>
+                  );
+                })}
+              </select>
+            </fieldset>
+
+            <fieldset>
+              <legend>{tr("Time")}</legend>
+              <div className="time-range">
+                <label>
+                  {tr("From")}
+                  <input
+                    className="filter-field"
+                    type="time"
+                    aria-label={tr("Time from")}
+                    value={filters.timeFrom ?? ""}
+                    onChange={(e) => setFilter("timeFrom", e.target.value)}
+                  />
+                </label>
+                <label>
+                  {tr("Until")}
+                  <input
+                    className="filter-field"
+                    type="time"
+                    aria-label={tr("Time until")}
+                    value={filters.timeTo ?? ""}
+                    onChange={(e) => setFilter("timeTo", e.target.value)}
+                  />
+                </label>
+              </div>
+            </fieldset>
+
+            <fieldset>
+              <legend>{tr("Niche level")}</legend>
+              <div className="level-choices">
+                <button
+                  type="button"
+                  aria-pressed={nicheLevel === null}
+                  onClick={() => setNicheLevel(null)}
+                >
+                  {tr("All levels")}
+                </button>
+                {[1, 2, 3, 4, 5].map((n) => (
+                  <button
+                    key={n}
+                    type="button"
+                    className={levelClass(n)}
+                    aria-pressed={nicheLevel === n}
+                    aria-label={`${tr("Niche level")} ${n} · +${10 + 5 * n} ${tr("pts")}`}
+                    onClick={() => setNicheLevel(nicheLevel === n ? null : n)}
+                  >
+                    <span className="level-swatch" aria-hidden="true" />
+                    {n}
+                  </button>
+                ))}
+              </div>
+              <p className="filters-note">
+                {tr("1 is everyday, 5 is very niche. More niche, more points: +15 to +35.")}
+              </p>
+            </fieldset>
+
+            <fieldset>
+              <legend>{tr("Order")}</legend>
+              <div className="sort-choices" role="radiogroup" aria-label={tr("Sort activities")}>
+                {sorts.map((s) => (
+                  <button
+                    key={s.id}
+                    type="button"
+                    role="radio"
+                    aria-checked={nicheSort === s.id}
+                    onClick={() => chooseSort(s.id)}
+                  >
+                    {tr(s.label)}
+                  </button>
+                ))}
+              </div>
+            </fieldset>
+          </div>
+          <SheetFooter className="filters-footer">
+            <Button variant="link" onClick={clearAll}>
+              {tr("Clear all")}
+            </Button>
+            <Button onClick={() => setFiltersOpen(false)}>
+              {tr("Show")} {activities.length}
+            </Button>
+          </SheetFooter>
+        </SheetContent>
+      </Sheet>
     </main>
   );
 }
