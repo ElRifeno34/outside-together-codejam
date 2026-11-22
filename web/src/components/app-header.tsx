@@ -28,15 +28,6 @@ export function AppHeader() {
           <Link to="/profile" data-active={pathname === "/profile"}>
             {tr("My activities")}
           </Link>
-          <Link to="/places" data-active={pathname === "/places"}>
-            {tr("Places")}
-          </Link>
-          <Link to="/leaderboard" data-active={pathname === "/leaderboard"}>
-            {tr("Rankings")}
-          </Link>
-          <Link to="/rewards" data-active={pathname === "/rewards"}>
-            {tr("Rewards")}
-          </Link>
           <Link to="/create" className="mobile-create" data-active={pathname === "/create"}>
             <Plus size={13} />
             <span className="create-label">{tr("Create activity")}</span>
