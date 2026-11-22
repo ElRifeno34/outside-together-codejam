@@ -12,7 +12,6 @@ import {
   MapPin,
   Clock3,
   Sprout,
-  Sun,
   X,
   Users,
   LayoutGrid,
@@ -29,7 +28,34 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { ActivityCard, activityIcons, formatStart } from "@/components/activity-card";
+import {
+  ActivityCard,
+  activityIcons,
+  countdown,
+  formatStart,
+} from "@/components/activity-card";
+import { activityTitle } from "@/lib/types";
+import { activityPhase } from "@/lib/participation";
+import {
+  Camera,
+  Coffee,
+  Crown,
+  Dribbble,
+  Flame,
+  Footprints,
+  Leaf,
+  Pencil,
+  type LucideIcon,
+} from "lucide-react";
+const floaters: [LucideIcon, string][] = [
+  [Dribbble, "f1"],
+  [Camera, "f2"],
+  [Crown, "f3"],
+  [Coffee, "f4"],
+  [Leaf, "f5"],
+  [Pencil, "f6"],
+  [Footprints, "f7"],
+];
 import { useApp } from "@/components/app-provider";
 import * as api from "@/api";
 import { visualKind } from "@/lib/activity-visuals";
@@ -162,6 +188,18 @@ function Board() {
     nicheSort,
     origin,
   );
+  // Lively UI test: lobby numbers and the "almost full / starting soon" ticker.
+  const upcoming = (board.data ?? []).filter((a) => activityPhase(a) === "upcoming");
+  const liveCount = upcoming.length;
+  const playerCount = upcoming.reduce((sum, a) => sum + a.joined_count, 0);
+  const tickerItems = upcoming.slice(0, 8).map((a) => {
+    const when = countdown(a.starts_at, Date.now(), language) ?? formatStart(a.starts_at, language);
+    const spots =
+      language === "fr"
+        ? `${a.available_spots} place${a.available_spots === 1 ? "" : "s"}`
+        : `${a.available_spots} spot${a.available_spots === 1 ? "" : "s"} left`;
+    return `${tr(activityTitle(a))} @ ${tr(a.place_name ?? "")} · ${when} · ${spots}`;
+  });
   const refresh = async () => {
     await board.refetch();
     if (result && result.status !== "no_match") await search();
@@ -169,6 +207,14 @@ function Board() {
   };
   return (
     <main className="page-width">
+      <div className="lobby-hero">
+        <div className="lobby-floaters" aria-hidden="true">
+          {floaters.map(([Icon, cls], i) => (
+            <span key={i} className={`floater ${cls}`}>
+              <Icon />
+            </span>
+          ))}
+        </div>
       <section className="intro">
         <div>
           <div className="eyebrow">
@@ -176,18 +222,38 @@ function Board() {
             {tr("A little time. A little company.")}
           </div>
           <h1>
-            {tr("One hour.")} <em>{tr("Outside Together.")}</em>
+            {tr("One hour.")
+              .split(" ")
+              .map((word, i) => (
+                <span key={"a" + i} className="pop-word" style={{ animationDelay: `${i * 90}ms` }}>
+                  {word}
+                </span>
+              ))}
+            <em>
+              {tr("Outside Together.")
+                .split(" ")
+                .map((word, i) => (
+                  <span
+                    key={"b" + i}
+                    className="pop-word"
+                    style={{ animationDelay: `${180 + i * 90}ms` }}
+                  >
+                    {word}
+                  </span>
+                ))}
+            </em>
           </h1>
           <p>{tr("Find your people, try something new, and make Montréal a little smaller.")}</p>
         </div>
-        <div className="intro-note">
-          <span className="note-icon">
-            <Sun size={24} />
-          </span>
-          <p>
-            <strong>{tr("Good things happen outside.")}</strong>
-            {tr("No big plans needed.")}
-          </p>
+        <div className="lobby-stats">
+          <div>
+            <strong>{liveCount}</strong>
+            <span>{language === "fr" ? "quêtes cette semaine" : "quests this week"}</span>
+          </div>
+          <div>
+            <strong>{playerCount}</strong>
+            <span>{language === "fr" ? "joueurs inscrits" : "players in"}</span>
+          </div>
         </div>
       </section>
       <section className="search-band" aria-label={tr("Activity assistant")}>
@@ -233,6 +299,19 @@ function Board() {
           )}
         </div>
       </section>
+      </div>
+      {tickerItems.length > 0 && (
+        <div className="quest-ticker" aria-hidden="true">
+          <div className="quest-ticker-track">
+            {[...tickerItems, ...tickerItems].map((item, i) => (
+              <span key={i} className="quest-ticker-item">
+                <Flame />
+                {item}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
       {result && (
         <div
           className={`result-banner ${result.status === "fallback" ? "fallback" : ""}`}
@@ -533,9 +612,10 @@ function Board() {
         </div>
       ) : activities.length ? (
         <div className="activity-grid">
-          {activities.map((a) => (
+          {activities.map((a, i) => (
             <ActivityCard
               key={a.id}
+              index={i}
               activity={a}
               joined={!!my.data?.some((p) => p.activity_id === a.id && p.status !== "left")}
               onChanged={() => {
