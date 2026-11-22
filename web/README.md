@@ -1,8 +1,10 @@
 # Outside Together — web front end
 
-Mobile-first web app for finding people in Montréal for a spontaneous one-hour activity. It was generated with Lovable (TanStack Start, React 19, Tailwind 4, shadcn/ui) and exported into this folder.
+Mobile-first web app for finding people in Montréal for a spontaneous one-hour activity.
 
-The app runs on the Role B Supabase backend (migrations 001–012, see [docs/BACKEND.md](../docs/BACKEND.md)). It needs `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` in `web/.env.local`; without them it shows a "Supabase is not configured" setup screen instead of the app. There is no offline demo mode.
+**Live:** https://outside-together.dehors-ensemble.workers.dev (open it, then **Sign in** → **Continue with Google**). It was generated with Lovable (TanStack Start, React 19, Tailwind 4, shadcn/ui) and exported into this folder.
+
+The app runs on the Role B Supabase backend (migrations 001–022, see [docs/BACKEND.md](../docs/BACKEND.md)). It needs `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` in `web/.env.local`; without them it shows a "Supabase is not configured" setup screen instead of the app. There is no offline demo mode.
 
 ## Run it
 
@@ -15,6 +17,7 @@ npm run dev      # http://localhost:8080 (or the port Vite prints)
 npm test         # Vitest: API layer against an in-memory Supabase client, board options, routing
 npm run lint
 npm run build    # Cloudflare Worker build in .output/
+npx wrangler deploy --name outside-together   # publish (after `npx wrangler login` once)
 ```
 
 Tests never reach the hosted project: `vitest.config.ts` blanks the Supabase variables and the API tests inject `src/test/fake-supabase.ts`.
@@ -23,10 +26,17 @@ Tests never reach the hosted project: `vitest.config.ts` blanks the Supabase var
 
 | Screen | Route | Notes |
 | --- | --- | --- |
-| Explore board | `/` | Public board, search box (AI-assisted when available, keyword search otherwise), type/day/time filters, niche level filter and sort, "Nearest first" sort (browser location, on request) |
-| Activity | `/activity/$id` | Join / leave before the start, "We're here" check-in from the start time, Add to Google Calendar / `.ics` |
-| Create | `/create` | Manual form: real activity types and public places, one-hour slot, explicit Publish |
-| Profile | `/profile` | Total points, My activities, points history |
+| Explore | `/` | Lively "game lobby" home, search (AI when available, keyword search otherwise), filters, niche levels, nearest first |
+| Map | `/map` | OpenStreetMap with photo pins per place, "Near me", nearby list |
+| Places | `/places` | 22 places to visit (niche 1–6), "I'm here" GPS visits worth `10 + 5 × niche` once |
+| Rankings | `/rankings` | My area, World, Friends; friend codes, invite links, friend requests |
+| Season pass | `/season` | Season 1 · Go Habs Go: 20 free tiers, claimable rewards, logo / photo slots in `public/season/` |
+| Shop | `/shop` | Profile pictures, frames, banners, name effects bought with credits |
+| Messages | `/messages` | 1:1 chat with friends (Supabase Realtime), unread counts |
+| My activities | `/profile` | Profile card (rank, grade, credits, trophies, social links), my activities with Late / Finished labels, points |
+| Public profile | `/u/$id` | Someone's grade, rank, trophies and cosmetics |
+| Activity | `/activity/$id` | Join / leave, "We're here" (within 200 m), side quests, organizer's validation grid, group chat, edit / delete for the creator, calendar |
+| Create / edit | `/create`, `/create?edit=<id>` | Type, preset place or map pin, title, photo upload, side quests |
 
 The UI is available in English and French (`src/i18n/`). Sign-in is Google only, through Supabase Auth.
 

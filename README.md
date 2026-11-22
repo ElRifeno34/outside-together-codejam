@@ -1,85 +1,133 @@
 # Outside Together
 
-Find people in Montréal for a spontaneous one-hour activity. Anyone can browse the board. Sign in to join a session with available places or to publish a new one. Once the activity starts, participants confirm attendance and earn more points for less common activities.
+Find people in Montréal for a spontaneous one-hour activity, discover places, and earn points, credits and trophies for getting outside.
 
-## Demo flow
+**Live site:** https://outside-together.dehors-ensemble.workers.dev
 
-1. Open the public board. Ask for something like “I have one hour Friday afternoon and want to play basketball.”
-2. The app turns the request into filters and PostgreSQL supplies the matching activities with available places. (Today this runs through the keyword fallback; see [AI search](#ai-search).) Sign in and choose **Join** to reserve a spot. The board shows the updated participant count.
-3. If there is no match, review a draft and choose **Publish** to create it at a public place.
-4. Once the activity has started, participants can confirm attendance. When at least two participants have confirmed, points unlock and each confirmed participant earns `10 + 5 × niche_value`. Later confirmations earn the same award, once per person per activity.
+## How to access
+
+1. Open **https://outside-together.dehors-ensemble.workers.dev** on a computer or a phone (no install needed).
+2. Browse the board, the map and the places without an account.
+3. Click **Sign in** → **Continue with Google** to join or create activities, check in, visit places, add friends, chat and customize your profile. Your account is created on your first sign-in.
+
+On a phone, allow location when asked: check-ins and place visits use it to confirm you're there.
+
+## How it works
+
+1. **Find something to do.** Search in plain words ("basketball Friday afternoon", "chess at La Fontaine") or filter by type, day, time and niche level. The map shows every upcoming activity, with the closest ones listed under it.
+2. **Join, then show up.** Once the activity starts, tap **We're here**: the phone's location must be within 200 m of the spot. When 2 people have checked in, everyone checked in earns `10 + 5 × niche level` points.
+3. **Or start one.** Pick a type, a public place or any spot on the map, a time, an optional title and photo, and up to 5 side quests. The creator can edit or delete it until it starts, and validates side quests for attendees afterwards.
+4. **Explore places.** 22 Montréal places, from Belvédère Kondiaronk (niche 1) to the Trottier Building at McGill (niche 6). Being within 200 m earns `10 + 5 × niche level` points, once per place.
+5. **Level up.** Every 5 points give 1 credit to spend in the shop. Points also raise your grade (Bronze I to Platinum), unlock trophies, and move you up the season pass.
+
+## Features
+
+| Area | What's there |
+| --- | --- |
+| Explore | Search, filters, niche levels, nearest first, live counts, lively "game lobby" home |
+| Map | OpenStreetMap map with photo pins per place, "Near me", nearby list |
+| Activities | Join / leave, GPS check-in (200 m), time-aware labels (Late, Finished), add to calendar, group chat |
+| Create / edit | Custom title, photo upload, preset place or map pin (address search), side quests, edit and delete before the start |
+| Side quests | Suggested or custom mini-challenges, 5 × niche points each, validated by the organizer |
+| Places | 22 places to visit, niche 1–6, GPS-validated visits |
+| Rankings | My area (Montréal boroughs and suburbs), World, Friends |
+| Friends | Friend codes and invite links, requests to accept or decline, 1:1 chat |
+| Progression | Credits, grades (Bronze I–III, Silver I–III, Gold I–III, Platinum), 18 trophies with a showcase |
+| Shop | Profile pictures, avatar frames, banners, name effects |
+| Season pass | Season 1 · Go Habs Go: 20 free tiers with credits and season-only cosmetics |
+| Profiles | Public profiles with rank, grade, trophies, cosmetics and social links |
+| App | Google sign-in only, English / French, light / dark mode, sidebar (computer) and tab bar (phone), animations and confetti |
 
 ## Stack
 
 | Layer | Technology |
 | --- | --- |
-| Front end | Lovable (TanStack Start, React, Tailwind) |
+| Front end | TanStack Start, React 19, Tailwind 4, shadcn/ui (first generated with Lovable) |
+| Motion and effects | Motion (motion.dev), canvas-confetti, Lilita One (Google Fonts) |
+| Maps | Leaflet + OpenStreetMap tiles, Nominatim address search |
 | Database and rules | Supabase PostgreSQL, row-level security, RPC functions |
 | Authentication | Supabase Auth, Google sign-in only |
-| AI | Supabase Edge Function `ai-search` + LLM API |
-| Code | GitHub |
+| Chat | Supabase Realtime |
+| Photos | Supabase Storage (`activity-photos` bucket) |
+| Hosting | Cloudflare Workers |
+| AI (optional) | Supabase Edge Function `ai-search` |
 
-The database is the source of truth for activities, places, times, capacity, participants and points. The AI only interprets requests into filters; it never invents activities.
+The database is the source of truth. Points, credits, check-ins, visits, trophies and season rewards are all decided by PostgreSQL functions, never trusted from the browser.
 
 ## Repository layout
 
 | Folder | Contents |
 | --- | --- |
-| [`web/`](web/README.md) | Lovable front end on the Supabase backend (shows a setup screen when its keys are missing) |
-| [`supabase/`](supabase) | Role B migrations and RPCs, smoke test, seed, `ai-search` Edge Function |
-| [`docs/`](docs) | Backend contract, implementation handoff, QA checklist, Lovable brief and UML diagrams |
+| [`web/`](web/README.md) | The web app |
+| [`supabase/`](supabase) | Migrations 001–022, seed, smoke test, `ai-search` Edge Function |
+| [`docs/`](docs) | Backend contract, implementation handoff, QA checklist, Lovable brief, UML diagrams |
 
-## Run the front end locally
+## Run locally
+
+From `web/`, with Node.js 20+:
 
 ```sh
-cd web
 npm install
-npm run dev
+cp .env.example .env.local   # then set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY
+npm run dev                  # http://localhost:8080
+npm test
 ```
 
-The app opens at http://localhost:8080.
+Without the two keys the app shows a "Supabase is not configured" screen; there is no offline demo mode. Never commit `.env.local`. See [web/README.md](web/README.md) for details.
 
-Copy `web/.env.example` to `web/.env.local` and set `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY`. The app reads `activity_board` and writes through the RPCs. Without these keys it shows a "Supabase is not configured" screen; there is no offline demo mode.
+## Backend setup (Supabase)
 
-Never commit `.env.local` or private credentials. See [web/README.md](web/README.md).
+Run every file in [`supabase/migrations/`](supabase/migrations) in the SQL editor, in order:
 
-## Backend (Role B)
+| Migrations | Adds |
+| --- | --- |
+| 001–007 | Profiles, places, activity types, activities, participants, points, the `activity_board` view, join / leave / confirm / create RPCs, security hardening |
+| 008 | Check-in requires the phone within 200 m |
+| 009 | Edit an activity before it starts |
+| 010–012 | Google names on profiles, Google-only sign-ups, one account per email |
+| 013–014 | Places to visit, areas, friends, leaderboards; niche 6 and the Trottier Building |
+| 015–016 | Custom title, photo (storage bucket) and map location; delete an activity |
+| 017–018 | Side quests; friend requests |
+| 019 | Credits, shop, trophies, public profiles |
+| 020 | Season pass, ranks on profiles, social links, chat (adds `messages` to Realtime) |
+| 021–022 | Habs season theme and player-style cosmetics |
 
-The backend is the Supabase project described in [docs/BACKEND.md](docs/BACKEND.md), which is the authoritative frontend/backend contract.
+Then optionally run [`supabase/seed.sql`](supabase/seed.sql) (16 activity types, 10 public places, 14 activities, all with fixed ids; safe to re-run, with a commented rollback). [`supabase/tests/role_b_smoke.sql`](supabase/tests/role_b_smoke.sql) checks the core rules (001–007). The full contract is in [docs/BACKEND.md](docs/BACKEND.md).
 
-Setup:
+### Sign-in settings
 
-1. In the Supabase SQL editor, run `supabase/migrations/001_schema.sql` through `012_once_per_email.sql`, in order (see [docs/BACKEND.md](docs/BACKEND.md#setup-once)).
-2. Run [`supabase/tests/role_b_smoke.sql`](supabase/tests/role_b_smoke.sql), the authoritative Role B database test. It should print `ROLE B SMOKE TEST PASSED` and leaves no data behind.
-3. Optionally run [`supabase/seed.sql`](supabase/seed.sql) to load development data (see below).
+- Supabase → Authentication → Sign In / Providers: **Google** on. Turning **Email** off also stops existing email accounts from signing in (needs an org Owner or Admin; migration 011 already refuses new non-Google accounts).
+- Supabase → Authentication → URL Configuration:
+  - **Site URL:** `https://outside-together.dehors-ensemble.workers.dev`
+  - **Redirect URLs:** that address with `/**`, plus `http://localhost:8080/**` (and any other port you develop on).
+- The Google OAuth client only needs Supabase's callback (`https://<project-ref>.supabase.co/auth/v1/callback`) as its authorized redirect URI.
 
-Migrations 001–007 define `profiles`, `places`, `activity_types`, `activities`, `participants`, `points`, the public `activity_board` view and the RPCs `create_activity`, `join_activity`, `leave_activity` and `confirm_attendance`.
+## Deploy (Cloudflare Workers)
 
-`supabase/seed.sql` adds 16 activity types, 10 public Montréal places and 14 upcoming activities, all with fixed ids. It has been applied to the hosted project, is safe to re-run, and ends with a commented rollback that removes only its own rows.
+The build targets Cloudflare Workers. From `web/`, after pulling the latest `main`:
 
-## AI search
+```sh
+npm run build                                   # reads .env.local, writes .output/
+npx wrangler login                              # once per computer
+npx wrangler deploy --name outside-together
+```
 
-A first version of the `ai-search` Edge Function is checked in under `supabase/functions/ai-search/`. It sends the sentence and today's date (America/Toronto) to the LLM and currently returns **only the parsed filters**. It does not yet query the database or return the `match` / `no_match` / `fallback` response described in [PlanOff §3.2](PlanOff.md#32-ai-contract-c-implements-a-consumes). The front end therefore treats it as unavailable and uses its **keyword fallback** over the live board.
+The site is served at https://outside-together.dehors-ensemble.workers.dev (`dehors-ensemble` is the Cloudflare account's workers.dev subdomain). To test the production build locally first, run `npx wrangler dev` from `web/` after `npm run build`.
 
-## Activity creation
+## Season assets and licensing
 
-No `create-activity` Edge Function exists yet. The front end creates activities by calling the SQL `create_activity` RPC directly. A future `create-activity` Edge Function would validate an AI draft and call that same RPC with the user's JWT.
+Season 1 uses the Montréal Canadiens' name and colours. The Canadiens name, the CH logo and "Habs" are NHL trademarks, and players' names, photos and likenesses need a licence (club, NHL / NHLPA, or the photo agency). Get permission before a public launch.
 
-## Frontend integrations
-
-- Google sign-in through Supabase Auth (the only way to sign in or create an account)
-- English/French interface
-- Add-to-calendar: Google Calendar link and `.ics` download
-- Optional browser geolocation for nearest-first sorting
-
-The Google Calendar API and maps are later features.
+- Licensed files dropped into [`web/public/season/`](web/public/season/README.md) (`logo.png`, `players.jpg`) appear on the season page automatically.
+- Player-style cosmetics use jersey numbers, not names; rename them in one SQL line once licensed.
 
 ## Security
 
-- Browser: Supabase URL and anon key only.
-- Google OAuth client secret: Supabase Auth configuration.
-- LLM API key: Supabase Edge Function secrets.
-- Database writes go through authenticated RPC functions, not direct browser table writes (except renaming your own profile).
+- Browser: the Supabase URL and anon key only (row-level security protects the data).
+- Google OAuth client secret: in Supabase Auth only.
+- LLM API key: in Supabase Edge Function secrets only.
+- All writes go through authenticated RPC functions, except renaming yourself, picking your area and uploading to your own photo folder.
+- Locations sent for check-ins and visits are stored with the check-in as proof; the "Nearest first" sort rounds the position to about 100 m and keeps it in memory.
 
 ## Project documents
 
