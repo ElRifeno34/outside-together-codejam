@@ -20,7 +20,8 @@ import {
   Shuffle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { ActivityCard, activityIcons, formatStart } from "@/components/activity-card";
+import { ActivityCard, formatStart } from "@/components/activity-card";
+import { activityIcons } from "@/components/pictogram";
 import { useApp } from "@/components/app-provider";
 import * as api from "@/api";
 import { visualKind } from "@/lib/activity-visuals";

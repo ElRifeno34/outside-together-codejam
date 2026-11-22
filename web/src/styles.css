@@ -21,7 +21,7 @@
  * The @theme inline block maps CSS custom properties to Tailwind utility
  * classes (e.g. --color-primary -> bg-primary, text-primary).
  *
- * The :root and .dark blocks define the actual color values using oklch.
+ * The :root block defines the actual color values using oklch (light theme only for now).
  * All colors MUST use oklch format.
  *
  * To add a new semantic color:
@@ -30,8 +30,18 @@
  */
 
 @theme inline {
-  --font-sans: "DM Sans", sans-serif;
-  --font-display: "Manrope", sans-serif;
+  --font-sans: "Atkinson Hyperlegible", system-ui, sans-serif;
+  --font-display: "Barlow Condensed", "Arial Narrow", sans-serif;
+  --color-paper: var(--paper);
+  --color-paper-2: var(--paper-2);
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-rule: var(--rule);
+  --color-level-1: var(--level-1);
+  --color-level-2: var(--level-2);
+  --color-level-3: var(--level-3);
+  --color-level-4: var(--level-4);
+  --color-level-5: var(--level-5);
   --color-points: var(--points);
   --color-points-soft: var(--points-soft);
   --color-hero-surface: var(--hero-surface);
@@ -79,59 +89,78 @@
 }
 
 :root {
-  --radius: 0.5rem;
-  --background: oklch(0.985 0.006 90);
-  --foreground: oklch(0.255 0.025 158);
-  --card: oklch(1 0 0);
-  --card-foreground: var(--foreground);
-  --popover: var(--card);
-  --popover-foreground: var(--foreground);
-  --primary: oklch(0.365 0.077 162);
-  --primary-foreground: oklch(0.995 0.002 90);
-  --secondary: oklch(0.944 0.02 147);
-  --secondary-foreground: var(--primary);
-  --muted: oklch(0.955 0.008 90);
-  --muted-foreground: oklch(0.53 0.018 155);
-  --accent: var(--secondary);
-  --accent-foreground: var(--primary);
-  --destructive: oklch(0.56 0.19 30);
-  --destructive-foreground: var(--card);
-  --border: oklch(0.901 0.012 105);
-  --input: var(--border);
-  --ring: var(--primary);
-  --points: oklch(0.6 0.15 48);
-  --points-soft: oklch(0.966 0.032 75);
-  --hero-surface: oklch(0.95 0.022 137);
-  --avatar-1: oklch(0.84 0.065 70);
-  --avatar-2: oklch(0.81 0.05 150);
-  --avatar-3: oklch(0.84 0.035 230);
-  --reward-sky: oklch(0.58 0.12 230);
-  --shadow-card: 0 5px 18px -10px color-mix(in oklab, var(--foreground) 18%, transparent);
-  --chart-1: var(--primary);
-  --chart-2: var(--points);
-  --chart-3: var(--secondary);
-  --chart-4: var(--avatar-1);
-  --chart-5: var(--avatar-3);
-  --sidebar: var(--card);
-  --sidebar-foreground: var(--foreground);
-  --sidebar-primary: var(--primary);
-  --sidebar-primary-foreground: var(--primary-foreground);
-  --sidebar-accent: var(--secondary);
-  --sidebar-accent-foreground: var(--primary);
-  --sidebar-border: var(--border);
-  --sidebar-ring: var(--ring);
-}
-.dark {
-  --reward-sky: oklch(0.76 0.1 230);
-  --background: oklch(0.2 0.016 155);
-  --foreground: oklch(0.95 0.008 100);
-  --card: oklch(0.25 0.02 155);
-  --primary: oklch(0.74 0.09 150);
-  --primary-foreground: oklch(0.2 0.03 150);
-  --secondary: oklch(0.3 0.03 150);
-  --muted-foreground: oklch(0.72 0.016 155);
-  --border: oklch(0.4 0.018 155);
-  --hero-surface: var(--secondary);
+  /* ---- Ligne foundations (light theme only for now) ---------------------------------
+     Raw tokens first; the shadcn variables below are mapped onto them so ui/ components
+     follow. A dark theme can later redefine only this raw block. */
+  --paper: oklch(0.975 0.008 85);
+  --paper-2: oklch(0.948 0.01 85);
+  --sheet: oklch(1 0 0);
+  --ink: oklch(0.22 0.02 260);
+  --ink-2: oklch(0.45 0.015 260);
+  --rule: oklch(0.88 0.01 85);
+  --alert: oklch(0.55 0.19 28);
+
+  /* Niche levels: each passes 4.5:1 with white text (see src/test/contrast.test.ts). */
+  --level-1: oklch(0.52 0.06 155); /* Trottoir */
+  --level-2: oklch(0.5 0.09 205); /* Fleuve */
+  --level-3: oklch(0.48 0.13 300); /* Ruelle */
+  --level-4: oklch(0.5 0.15 30); /* Brique */
+  --level-5: oklch(0.52 0.2 345); /* Aurore */
+
+  /* Spacing (4 px base) and radius strategy. */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-12: 48px;
+  --radius: 0.25rem; /* 4 px: controls and pictogram plates */
+  --radius-sheet: 16px;
+  --focus-ring: 0 0 0 2px var(--paper), 0 0 0 4px var(--ink);
+
+  /* shadcn / legacy names mapped onto the raw tokens. */
+  --background: var(--paper);
+  --foreground: var(--ink);
+  --card: var(--sheet);
+  --card-foreground: var(--ink);
+  --popover: var(--sheet);
+  --popover-foreground: var(--ink);
+  --primary: var(--ink);
+  --primary-foreground: var(--sheet);
+  --secondary: var(--paper-2);
+  --secondary-foreground: var(--ink);
+  --muted: var(--paper-2);
+  --muted-foreground: var(--ink-2);
+  --accent: var(--paper-2);
+  --accent-foreground: var(--ink);
+  --destructive: var(--alert);
+  --destructive-foreground: var(--sheet);
+  --border: var(--rule);
+  --input: var(--rule);
+  --ring: var(--ink);
+  --points: var(--ink);
+  --points-soft: var(--paper-2);
+  --hero-surface: var(--paper-2);
+  --avatar-1: var(--paper-2);
+  --avatar-2: var(--paper-2);
+  --avatar-3: var(--paper-2);
+  --reward-sky: var(--ink-2);
+  --shadow-card: none;
+  --shadow-sheet: 0 12px 32px -12px color-mix(in oklab, var(--ink) 35%, transparent);
+  --chart-1: var(--level-1);
+  --chart-2: var(--level-2);
+  --chart-3: var(--level-3);
+  --chart-4: var(--level-4);
+  --chart-5: var(--level-5);
+  --sidebar: var(--sheet);
+  --sidebar-foreground: var(--ink);
+  --sidebar-primary: var(--ink);
+  --sidebar-primary-foreground: var(--sheet);
+  --sidebar-accent: var(--paper-2);
+  --sidebar-accent-foreground: var(--ink);
+  --sidebar-border: var(--rule);
+  --sidebar-ring: var(--ink);
 }
 
 @layer base {
@@ -172,7 +201,69 @@
   h2,
   h3 {
     font-family: var(--font-display);
+    letter-spacing: 0.005em;
   }
+  /* One visible focus treatment everywhere: a 2 px ink ring with a paper gap. */
+  :where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+    outline: none;
+    box-shadow: var(--focus-ring);
+  }
+}
+
+/* ---- Ligne components ---------------------------------------------------------------- */
+.pictogram {
+  display: inline-grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: var(--plate, 32px);
+  height: var(--plate, 32px);
+  border-radius: var(--radius);
+  background: var(--level, var(--ink));
+  color: var(--sheet);
+}
+.pictogram > svg {
+  width: 62%;
+  height: 62%;
+  stroke-width: 2;
+}
+.niche-level {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--level, var(--ink));
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 15px;
+  line-height: 1;
+  white-space: nowrap;
+}
+.niche-level-ticks {
+  display: inline-flex;
+  gap: 2px;
+}
+.niche-level-ticks > span {
+  width: 4px;
+  height: 12px;
+  border-radius: 1px;
+  background: var(--level, var(--ink));
+}
+.niche-level-ticks > span[data-off] {
+  background: var(--rule);
+}
+.level-1 {
+  --level: var(--level-1);
+}
+.level-2 {
+  --level: var(--level-2);
+}
+.level-3 {
+  --level: var(--level-3);
+}
+.level-4 {
+  --level: var(--level-4);
+}
+.level-5 {
+  --level: var(--level-5);
 }
 .site-header {
   height: 88px;
@@ -1391,6 +1482,7 @@
   *::after {
     animation: none !important;
     transition: none !important;
+    scroll-behavior: auto !important;
   }
 }
 .mobile-create {

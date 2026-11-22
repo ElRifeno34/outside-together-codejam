@@ -1,26 +1,8 @@
 import { useLanguage } from "@/i18n";
 import { Link } from "@tanstack/react-router";
-import {
-  ArrowUpRight,
-  MapPin,
-  Clock3,
-  Footprints,
-  Dribbble,
-  BookOpen,
-  Crown,
-  Camera,
-  Pencil,
-  Sparkles,
-  Check,
-  Coffee,
-  Utensils,
-  Bird,
-  Leaf,
-  Origami,
-  AudioLines,
-  Compass,
-  Sun,
-} from "lucide-react";
+import { ArrowUpRight, MapPin, Clock3, Sparkles, Check } from "lucide-react";
+import { activityIcons, Pictogram } from "./pictogram";
+import { NicheLevel } from "./niche-level";
 import { visualKey, type ActivityBoardRow } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { useApp } from "./app-provider";
@@ -54,24 +36,7 @@ export const activityImages: Record<string, string> = {
   moss: walk,
   sound: photo,
 };
-export const activityIcons = {
-  walk: Footprints,
-  basketball: Dribbble,
-  study: BookOpen,
-  chess: Crown,
-  photo: Camera,
-  sketch: Pencil,
-  picnic: Utensils,
-  coffee: Coffee,
-  jog: Footprints,
-  sunset: Sun,
-  neighbourhood: Compass,
-  bird: Bird,
-  geocache: Compass,
-  origami: Origami,
-  moss: Leaf,
-  sound: AudioLines,
-};
+
 export function formatStart(date: string, language: "en" | "fr" = "en") {
   return new Intl.DateTimeFormat(language === "fr" ? "fr-CA" : "en-US", {
     timeZone: "America/Toronto",
@@ -96,7 +61,6 @@ export function ActivityCard({
 }) {
   const { tr, language } = useLanguage();
   const { profile, openAuth, refreshProfile } = useApp();
-  const Icon = activityIcons[visualKey(activity) as keyof typeof activityIcons] ?? Footprints;
   const join = async () => {
     try {
       await joinActivity(activity.id);
@@ -135,15 +99,11 @@ export function ActivityCard({
         <div className="card-heading">
           <Link to="/activity/$id" params={{ id: activity.id }}>
             <h3>
-              <Icon size={19} />
+              <Pictogram kind={visualKey(activity)} level={activity.niche_value} size={28} />
               {tr(activity.activity_name ?? "")}
             </h3>
           </Link>
-          <span className="niche-badge" title={`${tr("Niche value")} ${activity.niche_value}`}>
-            <Sparkles size={12} />
-            {activity.niche_value}
-            {tr("/5")}
-          </span>
+          <NicheLevel level={activity.niche_value} />
         </div>
         <div className="card-place">
           <MapPin size={14} />
