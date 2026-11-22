@@ -2,22 +2,23 @@ import { useLanguage } from "@/i18n";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { queryOptions, useQuery } from "@tanstack/react-query";
 import { useState } from "react";
-import {
-  ArrowLeft,
-  MapPin,
-  Clock3,
-  Users,
-  Sparkles,
-  ArrowUpRight,
-  Check,
-  CalendarPlus,
-  Download,
-} from "lucide-react";
+import { ArrowLeft, CalendarPlus, Check, MapPin } from "lucide-react";
 import { googleCalendarUrl, downloadIcs } from "@/lib/calendar";
 import { visualKey } from "@/lib/types";
+import { torontoDate, torontoTime } from "@/lib/time";
+import { dayHeading, startsIn, startsSoon } from "@/lib/timetable";
+import { actionState } from "@/lib/activity-action";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { useApp } from "@/components/app-provider";
-import { activityImages, formatStart } from "@/components/activity-card";
+import { activityImages } from "@/components/activity-card";
+import { levelClass, Pictogram } from "@/components/pictogram";
+import { NicheLevel } from "@/components/niche-level";
 import * as api from "@/api";
 /** Absolute link back to this activity for calendar events (only called from click handlers). */
 const pageUrl = (id: string) => `${window.location.origin}/activity/${id}`;
@@ -71,12 +72,24 @@ function ActivityDetail() {
     enabled: !!profile,
   });
   const membership = my.data?.find((p) => p.activity_id === id);
-  const joined = membership && membership.status !== "left";
-  const started = Date.now() >= new Date(a.starts_at).getTime();
-  const ended = Date.now() >= new Date(a.starts_at).getTime() + 60 * 60000;
-  // Participants check themselves in from starts_at (confirm_attendance); 2 check-ins unlock points.
-  const confirmOpen = started;
+  const joined = !!membership && membership.status !== "left";
+  const now = new Date();
+  const started = now.getTime() >= new Date(a.starts_at).getTime();
+  const ended = now.getTime() >= new Date(a.starts_at).getTime() + 60 * 60000;
   const checkedIn = membership?.status === "confirmed";
+  // Participants check themselves in from starts_at (confirm_attendance); 2 check-ins unlock points.
+  const state = actionState({
+    joined,
+    checkedIn,
+    started,
+    ended,
+    availableSpots: a.available_spots,
+    status: a.status,
+  });
+  const points = 10 + 5 * a.niche_value;
+  const level = levelClass(a.niche_value);
+  const needed = Math.max(0, a.min_people - a.joined_count);
+
   const action = async (kind: "join" | "leave" | "confirm") => {
     setBusy(true);
     try {
@@ -99,149 +112,183 @@ function ActivityDetail() {
       setBusy(false);
     }
   };
+  const join = () => (profile ? void action("join") : openAuth(() => action("join")));
+  const ownResult = result && resultOwner === profile?.id ? result : "";
+
   return (
-    <main className="page-width">
-      <div className="page-title">
-        <Link to="/" className="back-link">
-          <ArrowLeft size={15} />
-          {tr("Back to activities")}
-        </Link>
-      </div>
-      <div className="detail-grid">
-        <img
-          className="detail-photo"
-          src={activityImages[visualKey(a)]}
-          alt={tr(a.activity_name)}
-        />
-        <section className="detail-content">
-          <span className="detail-status">
-            {a.status === "done"
-              ? tr("Completed")
-              : a.status === "confirmed"
-                ? tr("It’s happening")
-                : a.status === "cancelled"
-                  ? tr("Cancelled")
-                  : tr("Open to join")}
-          </span>
-          <h1>{tr(a.activity_name ?? "")}</h1>
-          <div className="detail-row">
-            <MapPin />
+    <main className={`page-width detail ${level}`}>
+      <Link to="/" className="detail-back">
+        <ArrowLeft aria-hidden="true" />
+        {tr("Explore")}
+      </Link>
+
+      <div className="detail-layout">
+        <img className="detail-hero" src={activityImages[visualKey(a)]} alt="" />
+
+        <section className="detail-body">
+          <header className="detail-departure">
+            <div className="detail-when">
+              <time dateTime={a.starts_at}>{torontoTime(a.starts_at)}</time>
+              <span suppressHydrationWarning>
+                {dayHeading(torontoDate(a.starts_at), language)}
+                {!ended && startsSoon(a.starts_at) && ` · ${startsIn(a.starts_at, language)}`}
+              </span>
+            </div>
+            <div className="detail-title">
+              <Pictogram kind={visualKey(a)} level={a.niche_value} size={44} />
+              <div>
+                <h1>{tr(a.activity_name)}</h1>
+                <span className="detail-level">
+                  <NicheLevel level={a.niche_value} />
+                  <span>
+                    +{points} {tr("pts")}
+                  </span>
+                </span>
+              </div>
+            </div>
+          </header>
+
+          <div className="detail-place">
+            <MapPin aria-hidden="true" />
             <div>
-              {tr(a.place_name ?? "")}
-              <small>{a.address}</small>
+              <strong>{tr(a.place_name)}</strong>
+              <span>{a.address}</span>
             </div>
           </div>
-          <div className="detail-row">
-            <Clock3 />
-            <div>
-              {formatStart(a.starts_at, language)} {tr("· 1 hour")}
-              <small>{tr("Montréal time · America/Toronto")}</small>
-            </div>
+
+          <div className="detail-seats">
+            <span className="seat-row" aria-hidden="true">
+              {Array.from({ length: a.capacity }, (_, i) => (
+                <span key={i} data-taken={i < a.joined_count || undefined} />
+              ))}
+            </span>
+            <span>
+              <strong>
+                {a.joined_count} {tr("of")} {a.capacity} {tr("going")}
+              </strong>
+              {!started && (
+                <>
+                  {" · "}
+                  {needed > 0 ? `${needed} ${tr("more to make it happen")}` : tr("It’s happening")}
+                </>
+              )}
+            </span>
           </div>
-          <div className="detail-row">
-            <Users />
-            <div>
-              {a.joined_count} {" / "}
-              {a.capacity} {tr(" joined · ")}
-              {a.available_spots} {tr("spots left")}
-              <small>
-                {tr("Minimum ")}
-                {a.min_people} {tr("people to make it happen")}
-              </small>
-            </div>
-          </div>
-          <div className="detail-row">
-            <Sparkles />
-            <div className="text-points">
-              {tr("+")}
-              {10 + 5 * a.niche_value} {tr("points · niche value ")}
-              {a.niche_value}
-              {tr("/5")}
-              <small>{tr("Points = 10 + 5 × niche value, once 2 participants check in")}</small>
-            </div>
-          </div>
-          <div className="detail-cta">
-            {confirmOpen && joined ? (
-              <Button disabled={busy || checkedIn} onClick={() => void action("confirm")}>
-                {checkedIn ? (
-                  <>
-                    <Check />
-                    {tr("You're checked in")}
-                  </>
-                ) : (
-                  tr("We're here")
-                )}
-              </Button>
-            ) : ended ? (
-              <p className="detail-note">
-                {tr("This activity has ended. Attendance is for registered participants.")}
-              </p>
-            ) : started ? (
-              <Button disabled>{tr("Registration is closed")}</Button>
-            ) : joined ? (
-              <Button variant="outline" disabled={busy} onClick={() => void action("leave")}>
-                {tr("Leave activity")}
-              </Button>
-            ) : (
-              <Button
-                disabled={busy || a.available_spots === 0 || a.status === "cancelled"}
-                onClick={() => (profile ? void action("join") : openAuth(() => action("join")))}
-              >
-                {a.available_spots === 0 ? tr("Activity is full") : tr("Join activity")}
-                <ArrowUpRight />
+
+          <div className="detail-action" data-state={state}>
+            {state === "join" && (
+              <Button size="lg" className="detail-cta level-cta" disabled={busy} onClick={join}>
+                {tr("Join")}
               </Button>
             )}
+            {state === "full" && (
+              <Button size="lg" className="detail-cta" disabled>
+                {tr("Activity is full")}
+              </Button>
+            )}
+            {state === "cancelled" && <p className="detail-muted">{tr("Cancelled")}</p>}
+            {state === "registered" && (
+              <div className="detail-registered">
+                <p className="detail-status-line">
+                  <Check aria-hidden="true" />
+                  {tr("You're in")}
+                </p>
+                <Button variant="link" disabled={busy} onClick={() => void action("leave")}>
+                  {tr("Leave")}
+                </Button>
+              </div>
+            )}
+            {state === "closed" && <p className="detail-muted">{tr("Registration is closed")}</p>}
+            {state === "departed" && <p className="detail-muted">{tr("This one has departed.")}</p>}
+            {state === "check-in" && (
+              <>
+                <Button
+                  size="lg"
+                  className="detail-cta level-cta"
+                  disabled={busy}
+                  onClick={() => void action("confirm")}
+                >
+                  {tr("We're here")}
+                </Button>
+                <p className="detail-hint">
+                  {tr("Tap once you've met up. Points unlock when 2 of you check in.")}
+                </p>
+              </>
+            )}
+            {state === "waiting" && (
+              <div className="detail-checkin">
+                <span className="checkin-stops" aria-hidden="true">
+                  <span data-reached />
+                  <span />
+                </span>
+                <p className="detail-status-line">
+                  <Check aria-hidden="true" />
+                  {tr("You're checked in")}
+                </p>
+                <p className="detail-hint">
+                  {tr("Points unlock as soon as one more participant checks in.")}
+                </p>
+              </div>
+            )}
+            {state === "earned" && (
+              <div className="detail-checkin">
+                <span className="checkin-stops" aria-hidden="true">
+                  <span data-reached />
+                  <span data-reached />
+                </span>
+                <p className="detail-earned">+{points}</p>
+                <p className="detail-hint">{tr("Points earned. Good company.")}</p>
+              </div>
+            )}
+            {ownResult && state !== "earned" && (
+              <p className="detail-result" role="status">
+                {tr(ownResult)}
+              </p>
+            )}
           </div>
-          {checkedIn && a.status !== "done" && (
-            <p className="detail-note">
-              {tr("Points unlock as soon as one more participant checks in.")}
-            </p>
+
+          {joined && !ended && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" className="detail-calendar">
+                  <CalendarPlus />
+                  {tr("Add to calendar")}
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start" className="account-menu">
+                {/* Built on click so the link back uses the real origin (not known during SSR). */}
+                <DropdownMenuItem
+                  onSelect={() =>
+                    window.open(googleCalendarUrl(a, pageUrl(id)), "_blank", "noopener,noreferrer")
+                  }
+                >
+                  {tr("Google Calendar")}
+                </DropdownMenuItem>
+                <DropdownMenuItem onSelect={() => downloadIcs(a, pageUrl(id))}>
+                  {tr("Apple, Outlook (.ics)")}
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           )}
-          {joined && started && !checkedIn && (
-            <p className="detail-note">
-              {tr("Tap “We're here” once you've met up. Points unlock when 2 of you check in.")}
-            </p>
-          )}
-          {result && resultOwner === profile?.id && (
-            <div className="attendance-result" role="status">
-              {tr(result ?? "")}
-            </div>
-          )}
-          {joined && !started && (
-            <p className="detail-note">
-              {tr("You’re registered. You can leave any time before it starts.")}
-            </p>
-          )}
-          {!ended && (
-            <div className="flex flex-wrap gap-2">
-              {/* Built on click so the link back uses the real origin (not known during SSR). */}
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() =>
-                  window.open(googleCalendarUrl(a, pageUrl(id)), "_blank", "noopener,noreferrer")
-                }
-              >
-                <CalendarPlus />
-                {tr("Add to Google Calendar")}
-              </Button>
-              <Button variant="ghost" size="sm" onClick={() => downloadIcs(a, pageUrl(id))}>
-                <Download />
-                {tr("Download .ics")}
-              </Button>
-            </div>
-          )}
+
+          <details className="detail-how">
+            <summary>{tr("How it works")}</summary>
+            <ul>
+              <li>{tr("One hour at a public place in Montréal.")}</li>
+              <li>
+                {tr("It happens once")} {a.min_people} {tr("people have joined.")}
+              </li>
+              <li>{tr("You can leave any time before it starts.")}</li>
+              <li>
+                {tr(
+                  "Once it starts, tap “We're here”. When 2 of you check in, everyone checked in gets",
+                )}{" "}
+                +{points} {tr("pts")} (10 + 5 × {tr("niche level")} {a.niche_value}).
+              </li>
+            </ul>
+          </details>
         </section>
       </div>
-      <section className="points-band">
-        <Users />
-        <div>
-          <h3>{tr("One hour. No pressure.")}</h3>
-          <p>
-            {tr("Meet at the public place, spend an hour together, and see where it takes you.")}
-          </p>
-        </div>
-      </section>
     </main>
   );
 }
