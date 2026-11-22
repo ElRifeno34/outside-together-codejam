@@ -16,6 +16,7 @@ import { AppProvider } from "@/components/app-provider";
 import { AppHeader } from "@/components/app-header";
 import { Toaster } from "sonner";
 import { LanguageProvider, useLanguage } from "@/i18n";
+import { backendMode, isNotConfiguredError, SupabaseNotConfiguredError } from "@/lib/supabase";
 
 function NotFoundComponent() {
   return (
@@ -39,12 +40,32 @@ function NotFoundComponent() {
   );
 }
 
+/** Developer-facing setup screen: shown instead of the app when Supabase isn't configured. */
+function NotConfiguredScreen() {
+  return (
+    <div className="flex min-h-screen items-center justify-center bg-background px-4">
+      <div className="max-w-lg text-center">
+        <h1 className="text-xl font-semibold tracking-tight text-foreground">
+          Supabase is not configured
+        </h1>
+        <p className="mt-2 text-sm text-muted-foreground">
+          Outside Together needs its Supabase backend. Create <code>web/.env.local</code> with{" "}
+          <code>VITE_SUPABASE_URL</code> and <code>VITE_SUPABASE_ANON_KEY</code> (see{" "}
+          <code>web/.env.example</code>), then restart the dev server.
+        </p>
+      </div>
+    </div>
+  );
+}
+
 function ErrorComponent({ error, reset }: ErrorComponentProps) {
-  console.error(error);
+  const notConfigured = isNotConfiguredError(error);
+  if (!notConfigured) console.error(error);
   const router = useRouter();
   useEffect(() => {
-    reportLovableError(error, { boundary: "tanstack_root_error_component" });
-  }, [error]);
+    if (!notConfigured) reportLovableError(error, { boundary: "tanstack_root_error_component" });
+  }, [error, notConfigured]);
+  if (notConfigured) return <NotConfiguredScreen />;
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
@@ -110,6 +131,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { rel: "icon", href: "/favicon.ico", type: "image/x-icon" },
     ],
   }),
+  // Without the Supabase environment variables there is no backend: stop before any loader runs.
+  beforeLoad: () => {
+    if (backendMode !== "supabase") throw new SupabaseNotConfiguredError();
+  },
   shellComponent: RootShell,
   component: RootComponent,
   notFoundComponent: NotFoundComponent,
