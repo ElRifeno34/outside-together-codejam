@@ -259,12 +259,6 @@ function Board() {
             <Sparkles />
             {tr("Very niche")}
           </Button>
-          <Button variant="outline" asChild>
-            <Link to="/places">
-              <MapPin />
-              {tr("View places")}
-            </Link>
-          </Button>
         </div>
       </section>
       <div className="board-heading">

@@ -5,13 +5,8 @@ import { ArrowUpRight, ArrowLeft, Sparkles, UserRound } from "lucide-react";
 import { useApp } from "@/components/app-provider";
 import { Button } from "@/components/ui/button";
 import { activityImages, formatStart } from "@/components/activity-card";
-import { ProfileAvatar, ProfileBadge } from "@/components/profile-identity";
-import { creditsFor } from "@/data/rewards";
 import { visualKey } from "@/data/fixtures";
-import "@/components/rewards.css";
 import * as api from "@/api";
-import { backendMode } from "@/lib/supabase";
-const live = backendMode === "supabase";
 export const Route = createFileRoute("/profile")({
   head: () => ({
     meta: [
@@ -44,11 +39,6 @@ function ProfilePage() {
     queryFn: api.getMyPoints,
     enabled: !!profile,
   });
-  const wallet = useQuery({
-    queryKey: ["wallet", profile?.id],
-    queryFn: api.getMyWallet,
-    enabled: !!profile,
-  });
   return (
     <main className="page-width">
       <div className="page-title">
@@ -71,30 +61,21 @@ function ProfilePage() {
         <>
           <section className="profile-summary">
             <div className="profile-person">
-              <ProfileAvatar name={profile.display_name} frame={profile.avatar_frame} />
+              <span className="profile-avatar" aria-hidden="true">
+                {profile.display_name.charAt(0)}
+              </span>
               <div>
                 <h1>
                   {tr("Hey, ")}
                   {profile.display_name}
                   {tr(".")}
                 </h1>
-                <ProfileBadge badge={profile.profile_badge} />
                 <p>{tr("Here’s your little corner of Outside Together.")}</p>
               </div>
             </div>
-            <div className="profile-wallet-totals">
-              <div className="points-total">
-                <strong>{profile.total_points}</strong>
-                <span>{tr("total points")}</span>
-              </div>
-              <div className="points-total">
-                <strong>{wallet.data?.balance ?? "…"}</strong>
-                <span>{tr("available credits")}</span>
-                <Link className="profile-wallet-link" to="/rewards">
-                  {tr("Personalize & spend")}
-                  <ArrowUpRight size={13} />
-                </Link>
-              </div>
+            <div className="points-total">
+              <strong>{profile.total_points}</strong>
+              <span>{tr("total points")}</span>
             </div>
           </section>
           <div className="profile-columns">
@@ -161,15 +142,8 @@ function ProfilePage() {
                   <div className="points-entry" key={p.id}>
                     <span>
                       {tr(
-                        p.place_name ??
-                          my.data?.find((a) => a.activity_id === p.activity_id)?.activity
-                            .activity_name ??
-                          "Activity",
-                      )}
-                      {p.challenge_title && (
-                        <small className="block text-xs text-points mt-1">
-                          {tr("Challenge bonus")} · {tr(p.challenge_title)}
-                        </small>
+                        my.data?.find((a) => a.activity_id === p.activity_id)?.activity
+                          .activity_name ?? "Activity",
                       )}
                       <small className="block text-xs text-muted-foreground mt-1">
                         {new Intl.DateTimeFormat(language === "fr" ? "fr-CA" : "en-US", {
@@ -182,56 +156,13 @@ function ProfilePage() {
                     <span>
                       {tr("+")}
                       {p.amount} {tr("pts")}
-                      <small className="credit-earned">
-                        +
-                        {wallet.data?.entries.find(
-                          (e) =>
-                            e.id ===
-                            (p.place_id
-                              ? `visit-${profile.id}-${p.place_id}`
-                              : p.challenge_id
-                                ? `earn-${p.activity_id}-${profile.id}-${p.challenge_id}`
-                                : `earn-${p.activity_id}-${profile.id}`),
-                        )?.amount ??
-                          creditsFor(
-                            p.amount,
-                            my.data?.find((a) => a.activity_id === p.activity_id)?.activity
-                              .niche_value ?? 1,
-                          )}{" "}
-                        {tr("credits earned")}
-                      </small>
                     </span>
                   </div>
                 ))
               ) : (
                 <p className="text-sm text-muted-foreground">
-                  {tr("Your points and credits appear once 2 participants check in.")}
+                  {tr("Your points appear once 2 participants check in.")}
                 </p>
-              )}
-              {/* Links to fixture-only activities: they don't exist in the real database. */}
-              {!live && (
-                <div className="demo-finished">
-                  <h3 className="text-sm font-semibold mb-2">{tr("Past activities")}</h3>
-                  <p>
-                    {tr(
-                      "Léa and Sami can submit past attendance. Noa is the host; Sami is a demo admin.",
-                    )}
-                  </p>
-                  <div className="flex flex-col items-start gap-2">
-                    <Button variant="link" asChild>
-                      <Link to="/activity/$id" params={{ id: "finished-basketball" }}>
-                        {tr("Basketball · 15 pts")}
-                        <ArrowUpRight />
-                      </Link>
-                    </Button>
-                    <Button variant="link" asChild>
-                      <Link to="/activity/$id" params={{ id: "finished-photo" }}>
-                        {tr("Photo walk · 30 pts")}
-                        <ArrowUpRight />
-                      </Link>
-                    </Button>
-                  </div>
-                </div>
               )}
             </section>
           </div>

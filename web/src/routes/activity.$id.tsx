@@ -18,15 +18,12 @@ import { visualKey } from "@/data/fixtures";
 import { Button } from "@/components/ui/button";
 import { useApp } from "@/components/app-provider";
 import { activityImages, formatStart } from "@/components/activity-card";
-import { ActivityCommunity } from "@/components/activity-community";
-import { ActivityReview } from "@/components/activity-review";
 import * as api from "@/api";
 import { backendMode } from "@/lib/supabase";
 const live = backendMode === "supabase";
 /** Absolute link back to this activity for calendar events (only called from click handlers). */
 const pageUrl = (id: string) => `${window.location.origin}/activity/${id}`;
 import { toast } from "sonner";
-import { creditsFor } from "@/data/rewards";
 const activityOptions = (id: string) =>
   queryOptions({ queryKey: ["activity", id], queryFn: () => api.getActivity(id) });
 export const Route = createFileRoute("/activity/$id")({
@@ -176,9 +173,6 @@ function ActivityDetail() {
               {a.niche_value}
               {tr("/5")}
               <small>{tr("Points = 10 + 5 × niche value, once 2 participants check in")}</small>
-              <small>
-                +{creditsFor(10 + 5 * a.niche_value, a.niche_value)} {tr("credits earned")}
-              </small>
             </div>
           </div>
           <div className="detail-cta">
@@ -280,14 +274,6 @@ function ActivityDetail() {
           )}
         </section>
       </div>
-      <ActivityCommunity
-        key={`${id}-${profile?.id ?? "signed-out"}`}
-        activity={a}
-        joined={!!joined}
-        attendanceSubmitted={attendance?.status === "pending" || attendance?.status === "approved"}
-        onJoin={() => (profile ? void action("join") : openAuth(() => action("join")))}
-      />
-      <ActivityReview key={`review-${id}-${profile?.id ?? "signed-out"}`} activity={a} />
       <section className="points-band">
         <Users />
         <div>
