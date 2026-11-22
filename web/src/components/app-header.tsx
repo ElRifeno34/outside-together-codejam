@@ -3,10 +3,9 @@ import { Link, useRouterState } from "@tanstack/react-router";
 import { ArrowUpRight, MapPin, Plus, Sprout, UserRound, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useApp } from "./app-provider";
-import { backendMode } from "@/lib/supabase";
 export function AppHeader() {
   const { tr, language, setLanguage } = useLanguage();
-  const { profile, openAuth, logout, switchAccount } = useApp();
+  const { profile, openAuth, logout } = useApp();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   return (
     <header className="site-header">
@@ -27,15 +26,6 @@ export function AppHeader() {
           </Link>
           <Link to="/profile" data-active={pathname === "/profile"}>
             {tr("My activities")}
-          </Link>
-          <Link to="/places" data-active={pathname === "/places"}>
-            {tr("Places")}
-          </Link>
-          <Link to="/leaderboard" data-active={pathname === "/leaderboard"}>
-            {tr("Rankings")}
-          </Link>
-          <Link to="/rewards" data-active={pathname === "/rewards"}>
-            {tr("Rewards")}
           </Link>
           <Link to="/create" className="mobile-create" data-active={pathname === "/create"}>
             <Plus size={13} />
@@ -66,27 +56,9 @@ export function AppHeader() {
           </Button>
           {profile ? (
             <>
-              {backendMode === "supabase" ? (
-                <Link to="/profile" className="account-switch">
-                  {profile.display_name}
-                </Link>
-              ) : (
-                <select
-                  className="account-switch"
-                  aria-label={tr("Switch demo account")}
-                  value={["lea", "sami", "noa"].includes(profile.id) ? profile.id : "custom"}
-                  onChange={(e) => void switchAccount(`${e.target.value}@example.com`)}
-                >
-                  <option value="lea">{tr("Léa")}</option>
-                  <option value="sami">
-                    {tr("Sami")} · {tr("Admin")}
-                  </option>
-                  <option value="noa">{tr("Noa")}</option>
-                  {!["lea", "sami", "noa"].includes(profile.id) && (
-                    <option value="custom">{profile.display_name}</option>
-                  )}
-                </select>
-              )}
+              <Link to="/profile" className="account-switch">
+                {profile.display_name}
+              </Link>
               <Button
                 variant="ghost"
                 size="icon"

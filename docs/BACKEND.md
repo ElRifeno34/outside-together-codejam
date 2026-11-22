@@ -6,7 +6,7 @@ How the screens (A) and the AI functions (C) talk to the database. Supabase proj
 
 1. In the Supabase SQL editor, run [`supabase/migrations/`](../supabase/migrations/) `001_schema.sql` through `007_security_hardening.sql`, in order. These seven migrations are the authoritative Role B schema.
 2. Run [`supabase/tests/role_b_smoke.sql`](../supabase/tests/role_b_smoke.sql), the authoritative Role B database test. It should print `ROLE B SMOKE TEST PASSED` and leaves no data behind.
-3. Dashboard → Authentication → Sign In / Providers → Email: **turn off "Confirm email"** (so demo accounts work instantly).
+3. Dashboard → Authentication → Sign In / Providers → Email: **turn off "Confirm email"** (so test accounts work instantly).
 4. **Lovable:** connect it to this existing Supabase project and tell it *"use the existing tables, do not create or alter tables"*.
 
 ## Rule of thumb

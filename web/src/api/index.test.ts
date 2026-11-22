@@ -1,211 +1,313 @@
-import { beforeEach, afterEach, describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import { boardRow, createFakeSupabase } from "@/test/fake-supabase";
+
+// The app's API layer running against an in-memory Supabase client (no network).
+const fake = vi.hoisted(() => ({ current: null as ReturnType<typeof createFakeSupabase> | null }));
+vi.mock("@/lib/supabase", async (importOriginal) => {
+  const real = await importOriginal<typeof import("@/lib/supabase")>();
+  const { createFakeSupabase: make } = await import("@/test/fake-supabase");
+  fake.current = make();
+  return { ...real, supabase: fake.current.client, backendMode: "supabase" };
+});
 import * as api from "./index";
-import { futureDay, localToISO, torontoDate } from "@/data/fixtures";
-import { approvePending } from "./review-test-helpers";
-// Keep the fixture calendar deterministic while skipping only simulated network latency.
-const now = new Date("2026-11-20T15:00:00Z");
+
+const db = () => fake.current!.state;
+
+const types = [
+  { id: "type-walk", name: "Walk", niche_value: 1, keywords: ["walk", "balade"] },
+  { id: "type-basket", name: "Basketball", niche_value: 1, keywords: ["basketball", "basket"] },
+  { id: "type-chess", name: "Chess", niche_value: 3, keywords: ["chess", "échecs"] },
+];
+const places = [
+  {
+    id: "place-park",
+    name: "Parc La Fontaine",
+    address: "Montréal",
+    lat: 45.52,
+    lng: -73.56,
+    is_public: true,
+  },
+  {
+    id: "place-court",
+    name: "Parc Jeanne-Mance courts",
+    address: "Montréal",
+    lat: 45.51,
+    lng: -73.58,
+    is_public: true,
+  },
+];
+
 beforeEach(() => {
-  vi.useFakeTimers({ toFake: ["Date"] });
-  vi.setSystemTime(now);
-  vi.spyOn(globalThis, "setTimeout").mockImplementation(((callback: () => void) => {
-    callback();
-    return 0;
-  }) as typeof setTimeout);
-  api.resetDemo();
-});
-afterEach(() => {
-  vi.restoreAllMocks();
-  vi.useRealTimers();
-});
-async function create(min = 2, capacity = 6) {
-  await api.signIn("noa@example.com");
-  return api.createActivity({
-    type_id: "basketball",
-    place_id: "court",
-    starts_at: localToISO(futureDay(1), "15:00"),
-    capacity,
-    min_people: min,
-  });
-}
-describe("Board and activity rules", () => {
-  it("only lists future public open or confirmed activities", async () => {
-    const rows = await api.getBoard();
-    expect(rows).toHaveLength(22);
-    expect(
-      rows.every(
-        (r) =>
-          new Date(r.starts_at) > now &&
-          r.duration_min === 60 &&
-          r.place_id !== "private" &&
-          ["open", "confirmed"].includes(r.status),
-      ),
-    ).toBe(true);
-    expect(rows.some((r) => r.id === "finished-basketball")).toBe(false);
-  });
-  it("filters the Montréal date, activity, and time range", async () => {
-    const rows = await api.getBoard({
-      typeId: "basketball",
-      date: torontoDate(now),
-      timeFrom: "14:00",
-      timeTo: "16:00",
-    });
-    expect(rows.map((r) => r.id)).toEqual(["friday-basketball"]);
-  });
-  it("requires sign-in to join", async () => {
-    await expect(api.joinActivity("friday-basketball")).rejects.toThrow("Sign in required");
-  });
-  it("joining twice is idempotent", async () => {
-    await api.signIn("lea@example.com");
-    expect(await api.joinActivity("friday-basketball")).toBe(4);
-    expect(await api.joinActivity("friday-basketball")).toBe(4);
-  });
-  it("refuses a full activity", async () => {
-    const id = await create(2, 2);
-    await api.signIn("lea@example.com");
-    expect(await api.joinActivity(id)).toBe(2);
-    await api.signIn("sami@example.com");
-    await expect(api.joinActivity(id)).rejects.toThrow("Activity is full");
-  });
-  it("refuses registration after the start", async () => {
-    await api.signIn("lea@example.com");
-    await expect(api.joinActivity("finished-basketball")).rejects.toThrow("Registration is closed");
-  });
-  it("reaching the minimum confirms the activity", async () => {
-    const id = await create();
-    await api.signIn("lea@example.com");
-    await api.joinActivity(id);
-    expect((await api.getActivity(id)).status).toBe("confirmed");
-  });
-  it("leaving below minimum reopens the activity", async () => {
-    const id = await create();
-    await api.signIn("lea@example.com");
-    await api.joinActivity(id);
-    expect(await api.leaveActivity(id)).toBe(1);
-    expect((await api.getActivity(id)).status).toBe("open");
-  });
-  it("leaving is only permitted before start", async () => {
-    await api.signIn("lea@example.com");
-    await expect(api.leaveActivity("finished-basketball")).rejects.toThrow(
-      "Registration is closed",
-    );
-  });
-  it("attendance is not eligible before the end", async () => {
-    await api.signIn("lea@example.com");
-    await api.joinActivity("friday-basketball");
-    await expect(api.confirmAttendance("friday-basketball")).rejects.toThrow(
-      "Activity is not eligible for attendance",
-    );
-  });
-  it("first confirmation earns zero", async () => {
-    await api.signIn("lea@example.com");
-    expect(await api.confirmAttendance("finished-basketball")).toBe(0);
-    expect((await api.getMyProfile())?.total_points).toBe(0);
-  });
-  it("two submissions earn nothing until the creator approves both, awarding 15 once", async () => {
-    await api.signIn("lea@example.com");
-    await api.confirmAttendance("finished-basketball");
-    await api.signIn("sami@example.com");
-    expect(await api.confirmAttendance("finished-basketball")).toBe(0);
-    expect((await api.getMyProfile())?.total_points).toBe(0);
-    await approvePending("finished-basketball");
-    expect((await api.getMyProfile())?.total_points).toBe(15);
-    expect((await api.getActivity("finished-basketball")).status).toBe("done");
-    await api.signIn("lea@example.com");
-    expect((await api.getMyProfile())?.total_points).toBe(15);
-    expect(await api.confirmAttendance("finished-basketball")).toBe(0);
-    expect((await api.getMyPoints()).map((p) => p.amount)).toEqual([15]);
-  });
-  it("photo walk earns 30 points instead of basketball’s 15", async () => {
-    await api.signIn("lea@example.com");
-    await api.confirmAttendance("finished-photo");
-    await api.signIn("sami@example.com");
-    expect(await api.confirmAttendance("finished-photo")).toBe(0);
-    await approvePending("finished-photo");
-    await api.signIn("lea@example.com");
-    expect((await api.getMyProfile())?.total_points).toBe(30);
-  });
-  it("later confirmations are awarded once too", async () => {
-    const id = await create();
-    await api.signIn("lea@example.com");
-    await api.joinActivity(id);
-    await api.signIn("sami@example.com");
-    await api.joinActivity(id);
-    vi.setSystemTime(new Date("2026-11-22T23:00Z"));
-    await api.signIn("noa@example.com");
-    expect(await api.confirmAttendance(id)).toBe(0);
-    await api.signIn("lea@example.com");
-    expect(await api.confirmAttendance(id)).toBe(0);
-    await approvePending(id);
-    await api.signIn("sami@example.com");
-    expect(await api.confirmAttendance(id)).toBe(0);
-    await approvePending(id);
-    expect(await api.confirmAttendance(id)).toBe(0);
-    expect((await api.getMyProfile())?.total_points).toBe(15);
-  });
-  it("creation auto-registers the creator for a 60-minute public activity", async () => {
-    const id = await create();
-    expect((await api.getActivity(id)).joined_count).toBe(1);
-    expect((await api.getActivity(id)).duration_min).toBe(60);
-    expect((await api.getMyActivities()).find((p) => p.activity_id === id)?.status).toBe("joined");
-  });
-  it("refuses private places and never offers them in drafts", async () => {
-    await api.signIn("lea@example.com");
-    expect((await api.getPublicPlaces()).some((p) => p.id === "private")).toBe(false);
-    await expect(
-      api.createActivity({
-        type_id: "walk",
-        place_id: "private",
-        starts_at: localToISO(futureDay(1), "15:00"),
-        capacity: 6,
-        min_people: 2,
+  const s = db();
+  s.tables = {
+    activity_types: types.map((t) => ({ ...t })),
+    places: places.map((p) => ({ ...p })),
+    activity_board: [
+      boardRow(),
+      boardRow({
+        id: "act-chess",
+        type_id: "type-chess",
+        activity_name: "Chess",
+        niche_value: 3,
+        keywords: ["chess"],
+        points_value: 25,
+        starts_at: "2099-01-03T15:00:00.000Z",
+        participant_count: 2,
+        spots_left: 2,
+        capacity: 4,
       }),
-    ).rejects.toThrow("Choose a public place");
+    ],
+    profiles: [],
+    points: [],
+  };
+  s.rpc = {};
+  s.rpcCalls = [];
+  s.userId = null;
+  s.aiSearch = null;
+  s.signInError = null;
+  s.signUpHasSession = true;
+  s.oauthCalls = [];
+});
+
+describe("reading the real board", () => {
+  it("maps activity_board rows and marks open activities at the minimum as happening", async () => {
+    const rows = await api.getBoard();
+    expect(rows.map((r) => r.id)).toEqual(["act-1", "act-chess"]);
+    expect(rows[0]).toMatchObject({
+      activity_name: "Basketball",
+      kind: "basketball",
+      joined_count: 1,
+      available_spots: 5,
+      status: "open",
+      address: "Av. du Parc & Rue Duluth, Montréal",
+    });
+    expect(rows[1]).toMatchObject({ status: "confirmed", joined_count: 2, kind: "chess" });
   });
-  it("refuses past start times", async () => {
-    await api.signIn("lea@example.com");
+
+  it("filters by type, Montréal day and time", async () => {
+    expect((await api.getBoard({ typeId: "type-chess" })).map((r) => r.id)).toEqual(["act-chess"]);
+    expect(await api.getBoard({ date: "2099-01-02" })).toHaveLength(1);
+    expect(await api.getBoard({ timeFrom: "16:00" })).toHaveLength(0);
+  });
+
+  it("hides finished and past activities from the board", async () => {
+    db().tables.activity_board!.push(
+      boardRow({ id: "done", status: "done" }),
+      boardRow({ id: "past", starts_at: "2000-01-01T00:00:00.000Z" }),
+    );
+    expect((await api.getBoard()).map((r) => r.id)).not.toContain("done");
+    expect((await api.getBoard()).map((r) => r.id)).not.toContain("past");
+  });
+
+  it("opens an activity by id and reports a missing one", async () => {
+    expect((await api.getActivity("act-chess")).activity_name).toBe("Chess");
+    await expect(api.getActivity("nope")).rejects.toThrow("Activity not found");
+  });
+
+  it("loads real activity types and public places", async () => {
+    expect((await api.getActivityTypes()).map((t) => t.id)).toContain("type-chess");
+    expect((await api.getPublicPlaces()).map((p) => p.id)).toEqual(["place-court", "place-park"]);
+  });
+});
+
+describe("accounts", () => {
+  it("signs up with email and password and returns the real profile", async () => {
+    db().tables.profiles!.push({
+      id: "user:a@test.dev",
+      display_name: "Tester A",
+      total_points: 0,
+    });
+    const profile = await api.signUp(" a@test.dev ", "Tester A", "secret1");
+    expect(profile).toEqual({ id: "user:a@test.dev", display_name: "Tester A", total_points: 0 });
+    expect(await api.getMyProfile()).toEqual(profile);
+  });
+
+  it("validates sign-up input and explains email confirmation", async () => {
+    await expect(api.signUp("not-an-email", "A", "secret1")).rejects.toThrow(
+      "Enter your email and display name",
+    );
+    db().signUpHasSession = false;
+    await expect(api.signUp("a@test.dev", "A", "secret1")).rejects.toThrow("Check your inbox");
+  });
+
+  it("signs in, reports auth errors, and signs out", async () => {
+    db().tables.profiles!.push({
+      id: "user:b@test.dev",
+      display_name: "Tester B",
+      total_points: 15,
+    });
+    expect((await api.signIn("b@test.dev", "secret1")).total_points).toBe(15);
+    await api.signOut();
+    expect(await api.getMyProfile()).toBeNull();
+    db().signInError = "Invalid login credentials";
+    await expect(api.signIn("b@test.dev", "wrong")).rejects.toThrow("Invalid login credentials");
+  });
+
+  it("starts Google sign-in through Supabase with the return address", async () => {
+    await api.signInWithGoogle("http://localhost:8080/activity/act-1");
+    expect(db().oauthCalls).toEqual([
+      { provider: "google", redirectTo: "http://localhost:8080/activity/act-1" },
+    ]);
+  });
+});
+
+describe("join, leave and create through the Role B RPCs", () => {
+  it("joins and leaves with the activity id and returns the new count", async () => {
+    db().userId = "me";
+    db().rpc.join_activity = () => ({ data: { participant_count: 2 }, error: null });
+    db().rpc.leave_activity = () => ({ data: { participant_count: 1 }, error: null });
+    expect(await api.joinActivity("act-1")).toBe(2);
+    expect(await api.leaveActivity("act-1")).toBe(1);
+    expect(db().rpcCalls).toEqual([
+      { name: "join_activity", args: { p_activity_id: "act-1" } },
+      { name: "leave_activity", args: { p_activity_id: "act-1" } },
+    ]);
+  });
+
+  it("turns backend error codes into readable messages", async () => {
+    db().rpc.join_activity = () => ({ data: null, error: { message: "ACTIVITY_FULL" } });
+    await expect(api.joinActivity("act-1")).rejects.toThrow("Activity is full");
+    db().rpc.join_activity = () => ({ data: null, error: { message: "ACTIVITY_STARTED" } });
+    await expect(api.joinActivity("act-1")).rejects.toThrow("Registration is closed");
+    db().rpc.join_activity = () => ({ data: null, error: { message: "denied", code: "42501" } });
+    await expect(api.joinActivity("act-1")).rejects.toThrow("Sign in required");
+  });
+
+  it("creates a one-hour activity with real type and place ids", async () => {
+    db().rpc.create_activity = () => ({ data: { activity_id: "new-id" }, error: null });
+    const id = await api.createActivity({
+      type_id: "type-chess",
+      place_id: "place-park",
+      starts_at: "2099-01-05T19:00:00.000Z",
+      capacity: 6,
+      min_people: 2,
+    });
+    expect(id).toBe("new-id");
+    expect(db().rpcCalls.at(-1)).toEqual({
+      name: "create_activity",
+      args: {
+        p_type_id: "type-chess",
+        p_place_id: "place-park",
+        p_starts_at: "2099-01-05T19:00:00.000Z",
+        p_duration_min: 60,
+        p_capacity: 6,
+        p_min_people: 2,
+      },
+    });
+  });
+
+  it("reports invalid creation input from the backend", async () => {
+    db().rpc.create_activity = () => ({ data: null, error: { message: "INVALID_TIME" } });
     await expect(
       api.createActivity({
-        type_id: "walk",
-        place_id: "lafontaine",
-        starts_at: "2026-11-19T15:00:00Z",
+        type_id: "type-chess",
+        place_id: "place-park",
+        starts_at: "2000-01-01T00:00:00.000Z",
         capacity: 6,
         min_people: 2,
       }),
     ).rejects.toThrow("Start time must be in the future");
   });
-  it("search matches Friday afternoon basketball without reserving", async () => {
-    const result = await api.aiSearch("I have 1 hour Friday afternoon, I want to play basketball");
-    expect(result.status).toBe("match");
-    if (result.status !== "match") throw new Error("Expected match");
-    expect(result.matches[0]?.id).toBe("friday-basketball");
-    expect((await api.getActivity("friday-basketball")).joined_count).toBe(3);
+});
+
+describe("We're here: confirmation and points", () => {
+  it("first check-in waits for one more participant", async () => {
+    db().rpc.confirm_attendance = () => ({
+      data: { points_earned: 0, points_unlocked: false, waiting_for: 1, total_points: 0 },
+      error: null,
+    });
+    expect(await api.confirmAttendance("act-chess")).toEqual({
+      points_earned: 0,
+      points_unlocked: false,
+      waiting_for: 1,
+      total_points: 0,
+    });
+    expect(db().rpcCalls.at(-1)).toEqual({
+      name: "confirm_attendance",
+      args: { p_activity_id: "act-chess" },
+    });
   });
-  it("French keywords match activity types", async () => {
-    const result = await api.aiSearch("échecs");
-    expect(result.status).toBe("match");
-    if (result.status === "match")
-      expect(result.matches.every((r) => r.type_id === "chess")).toBe(true);
+
+  it("second check-in unlocks the niche-weighted points", async () => {
+    db().rpc.confirm_attendance = () => ({
+      data: { points_earned: 25, points_unlocked: true, waiting_for: 0, total_points: 25 },
+      error: null,
+    });
+    expect(await api.confirmAttendance("act-chess")).toMatchObject({
+      points_unlocked: true,
+      points_earned: 25,
+    });
   });
-  it("no match produces a six-person draft and leaves the board unchanged", async () => {
-    const before = (await api.getBoard()).length;
-    const result = await api.aiSearch("urban sketch Monday morning");
-    expect(result.status).toBe("no_match");
-    if (result.status === "no_match") {
-      expect(result.draft.capacity).toBe(6);
-      expect(result.draft.type_id).toBe("sketch");
-    }
-    expect((await api.getBoard()).length).toBe(before);
+
+  it("explains a check-in before the start", async () => {
+    db().rpc.confirm_attendance = () => ({
+      data: null,
+      error: { message: "ACTIVITY_NOT_STARTED" },
+    });
+    await expect(api.confirmAttendance("act-chess")).rejects.toThrow(
+      "You can confirm once the activity has started",
+    );
   });
-  it("simulated assistant failure returns keyword results", async () => {
-    const result = await api.aiSearch("assistant unavailable chess");
+
+  it("profile reads the account's points and activities", async () => {
+    db().userId = "me";
+    db().tables.points = [
+      { activity_id: "act-chess", amount: 25, created_at: "2099-01-03T16:00:00.000Z" },
+    ];
+    db().tables.activity_board!.push(
+      boardRow({
+        id: "mine",
+        my_status: "confirmed",
+        status: "done",
+        starts_at: "2000-01-01T00:00:00.000Z",
+      }),
+    );
+    expect(await api.getMyPoints()).toEqual([
+      {
+        id: "points-act-chess",
+        user_id: "me",
+        activity_id: "act-chess",
+        amount: 25,
+        created_at: "2099-01-03T16:00:00.000Z",
+      },
+    ]);
+    const mine = await api.getMyActivities();
+    expect(mine.map((m) => [m.activity_id, m.status])).toEqual([["mine", "confirmed"]]);
+  });
+
+  it("requires a session for personal data", async () => {
+    await expect(api.getMyPoints()).rejects.toThrow("Sign in required");
+    await expect(api.getMyActivities()).rejects.toThrow("Sign in required");
+  });
+});
+
+describe("search without AI", () => {
+  it("falls back to keyword search when the assistant answers filters only", async () => {
+    db().aiSearch = { filters: { activity: "chess" } };
+    const result = await api.aiSearch("chess anyone?");
     expect(result.status).toBe("fallback");
-    if (result.status === "fallback")
-      expect(result.matches.every((r) => r.type_id === "chess")).toBe(true);
+    expect(result.status !== "no_match" && result.matches.map((r) => r.id)).toEqual(["act-chess"]);
   });
-  it("fake sign-up and sign-out update session locally", async () => {
-    expect(await api.getMyProfile()).toBeNull();
-    expect((await api.signUp("test@example.com", "Ari")).display_name).toBe("Ari");
-    await api.signOut();
-    expect(await api.getMyProfile()).toBeNull();
+
+  it("uses the assistant's answer when it has the expected shape", async () => {
+    db().aiSearch = {
+      status: "match",
+      matches: [boardRow({ id: "from-ai" })],
+      message: "Found one",
+    };
+    const result = await api.aiSearch("basketball");
+    expect(result).toMatchObject({ status: "match", message: "Found one" });
+  });
+
+  it("offers a draft with real ids when nothing matches", async () => {
+    const result = await api.aiSearch("basketball on sunday 9am");
+    expect(result.status).toBe("no_match");
+    if (result.status !== "no_match") return;
+    expect(result.draft).toMatchObject({
+      type_id: "type-basket",
+      place_id: "place-court",
+      capacity: 6,
+    });
+    expect(new Date(result.draft.starts_at).getTime()).toBeGreaterThan(Date.now());
   });
 });

@@ -3,16 +3,13 @@ import { createContext, useContext, useEffect, useState, type ReactNode } from "
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import * as api from "@/api";
-import type { Profile } from "@/data/fixtures";
+import type { Profile } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { backendMode } from "@/lib/supabase";
-const live = backendMode === "supabase";
 
 type AppContextValue = {
   profile: Profile | null;
   openAuth: (after?: () => Promise<void>) => void;
-  switchAccount: (email: string) => Promise<void>;
   refreshProfile: () => Promise<void>;
   logout: () => Promise<void>;
 };
@@ -41,8 +38,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
         .then(setProfile)
         .catch(() => setProfile(null));
     load();
-    // Supabase mode: pick up the session restored after the Google redirect, token refreshes
-    // and sign-outs in other tabs. No-op in demo mode.
+    // Pick up the session restored after the Google redirect, token refreshes and
+    // sign-outs in other tabs.
     return api.onAuthChange(() => {
       load();
       void client.invalidateQueries();
@@ -64,9 +61,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }
     toast.success(tr(`You're in, ${p.display_name}!`));
   };
-  const switchAccount = async (e: string) => {
-    await finish(await api.signIn(e));
-  };
   return (
     <AppContext.Provider
       value={{
@@ -76,7 +70,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
           setError("");
           setOpen(true);
         },
-        switchAccount,
         refreshProfile,
         logout: async () => {
           await api.signOut();
@@ -164,19 +157,17 @@ export function AppProvider({ children }: { children: ReactNode }) {
                 placeholder={tr("you@example.com")}
               />
             </label>
-            {live && (
-              <label className="field">
-                {tr("Password")}
-                <input
-                  type="password"
-                  required
-                  minLength={6}
-                  autoComplete={signup ? "new-password" : "current-password"}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                />
-              </label>
-            )}
+            <label className="field">
+              {tr("Password")}
+              <input
+                type="password"
+                required
+                minLength={6}
+                autoComplete={signup ? "new-password" : "current-password"}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+            </label>
             {error && (
               <p role="alert" className="text-sm text-destructive">
                 {tr(error ?? "")}
@@ -187,54 +178,24 @@ export function AppProvider({ children }: { children: ReactNode }) {
               <span>{tr("↗")}</span>
             </Button>
           </form>
-          {live ? (
-            <Button
-              variant="outline"
-              className="w-full"
-              disabled={busy}
-              onClick={async () => {
-                setBusy(true);
-                setError("");
-                try {
-                  // Leaves the page; onAuthChange restores the profile when Google sends us back.
-                  await api.signInWithGoogle(window.location.href);
-                } catch (e) {
-                  setError(e instanceof Error ? e.message : "Please try again");
-                  setBusy(false);
-                }
-              }}
-            >
-              {tr("Continue with Google")}
-            </Button>
-          ) : (
-            <div className="demo-accounts">
-              <p>{tr("Or try a demo account")}</p>
-              <div className="flex gap-2">
-                {["Léa", "Sami", "Noa"].map((n, i) => (
-                  <Button
-                    key={n}
-                    variant="outline"
-                    disabled={busy}
-                    onClick={async () => {
-                      setBusy(true);
-                      try {
-                        await switchAccount(
-                          ["lea@example.com", "sami@example.com", "noa@example.com"][i] ??
-                            "lea@example.com",
-                        );
-                      } catch (e) {
-                        setError(String(e));
-                      } finally {
-                        setBusy(false);
-                      }
-                    }}
-                  >
-                    {n}
-                  </Button>
-                ))}
-              </div>
-            </div>
-          )}
+          <Button
+            variant="outline"
+            className="w-full"
+            disabled={busy}
+            onClick={async () => {
+              setBusy(true);
+              setError("");
+              try {
+                // Leaves the page; onAuthChange restores the profile when Google sends us back.
+                await api.signInWithGoogle(window.location.href);
+              } catch (e) {
+                setError(e instanceof Error ? e.message : "Please try again");
+                setBusy(false);
+              }
+            }}
+          >
+            {tr("Continue with Google")}
+          </Button>
         </DialogContent>
       </Dialog>
     </AppContext.Provider>

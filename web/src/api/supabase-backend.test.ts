@@ -1,8 +1,9 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { createSupabaseBackend, visualKind } from "./supabase-backend";
+import { createSupabaseBackend } from "./supabase-backend";
+import { visualKind } from "@/lib/activity-visuals";
 import { selectBoardRows } from "./board-options";
 import { googleCalendarUrl, icsContent } from "@/lib/calendar";
-import type { ActivityBoardRow } from "@/data/fixtures";
+import type { ActivityBoardRow } from "@/lib/types";
 
 const viewRow = {
   id: "a1",

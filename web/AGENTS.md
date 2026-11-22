@@ -33,15 +33,11 @@ use the editor.
 
 ## Front-end architecture
 
-- Keep fixture-backed, latency-simulating data access in `src/api/` and typed seed data in `src/data/fixtures.ts`; this isolates the UI for a later service replacement.
-- Fake session and mutations live only in module memory and are exposed through the app provider; no browser storage or real service is involved.
+- Keep all data access in `src/api/`: `index.ts` is the thin API the screens call and `supabase-backend.ts` maps the Role B tables, `activity_board` view and RPCs (docs/BACKEND.md). There is no in-memory demo backend; without Supabase configuration the root route shows a setup screen.
+- Keep shared types in `src/lib/types.ts`, Montréal date/time helpers in `src/lib/time.ts`, distance in `src/lib/geo.ts` and the activity type → photo/pictogram mapping in `src/lib/activity-visuals.ts`.
 - Use TanStack Query for async data reads and invalidate queries on account changes and mutations so participant and point totals remain consistent.
 - Interpret activity calendar dates and times in America/Toronto using centralized conversion helpers so filters and drafts share the same timezone.
-- Keep leaderboard geography and friendship demo fixtures separate from database-shaped profiles; merge current earned totals through the async API and use shared competition ranks for tied scores.
-- Pass time-relative board fixture snapshots through loader data for the initial render; independently seeded server and browser timestamps otherwise cause hydration mismatches.
+- Tests must never reach the hosted project: `vitest.config.ts` blanks the Supabase variables, and API tests inject the in-memory client from `src/test/fake-supabase.ts`.
 
-- Keep UI translations and locale-aware formatting in `src/i18n/`, with English fixture identifiers unchanged; language switches must not reset the fake session or alter activities.
-- Keep challenge definitions and demo introductions in `src/data/community.ts`; enforce chat membership and one-time challenge awards in the mock API so all screens share consistent access and totals.
-- Keep the reward catalog and credit conversion in `src/data/rewards.ts`; award credits alongside idempotent point awards and debit an account-scoped ledger for purchases so spending never changes ranking totals.
-- Keep demo roles separate from profiles and attendance/task requests in the mock API; only the event creator or demo admin may review others' requests, and rewards require approved attendance and task claims.
-- Keep place niche metadata and distance helpers in `src/data/place-discovery.ts`; request device location on explicit user action, do not retain coordinates, and award each account/place visit once after a fresh proximity check in the demo API.
+- Keep UI translations and locale-aware formatting in `src/i18n/`, with English source strings as keys.
+- Request device location only on explicit user action ("Nearest first") and never store or send coordinates.

@@ -1,18 +1,16 @@
 // Real implementations of the core API on top of the Supabase contract in docs/BACKEND.md.
-// src/api/index.ts calls these when VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY are set.
+// src/api/index.ts is the thin layer the screens call; it builds this from src/lib/supabase.ts.
 import type { PostgrestError, SupabaseClient } from "@supabase/supabase-js";
-import {
-  activityTypes as fixtureTypes,
-  torontoDate,
-  torontoTime,
-  type ActivityBoardRow,
-  type ActivityType,
-  type Participant,
-  type PointsEntry,
-  type Profile,
-} from "@/data/fixtures";
-import { placeDetails, type DiscoveryPlace } from "@/data/place-discovery";
-import type { RankingEntry } from "@/data/rankings";
+import { torontoDate, torontoTime } from "@/lib/time";
+import { visualKind } from "@/lib/activity-visuals";
+import type {
+  ActivityBoardRow,
+  ActivityType,
+  Participant,
+  Place,
+  PointsEntry,
+  Profile,
+} from "@/lib/types";
 
 /** Row shape of the public.activity_board view (migration 007). */
 type BoardViewRow = {
@@ -70,18 +68,6 @@ function fail(error: PostgrestError | { message: string; code?: string }): never
   if (error.code === "42501") throw new Error("Sign in required");
   const code = Object.keys(errorText).find((c) => error.message.includes(c));
   throw new Error(code ? errorText[code] : error.message);
-}
-
-/** Picks the local photo/icon key for a backend activity type, by name or keyword. */
-export function visualKind(name: string, keywords: string[] = []): string {
-  const words = [name, ...keywords].map((w) => w.toLowerCase());
-  const exact = fixtureTypes.find((t) => t.name.toLowerCase() === words[0]);
-  if (exact) return exact.id;
-  // Several types can share a word ("Photo walk" contains "walk"): prefer the most niche one.
-  const match = fixtureTypes
-    .filter((t) => t.keywords.some((k) => words.some((w) => w.includes(k.toLowerCase()))))
-    .sort((a, b) => b.niche_value - a.niche_value)[0];
-  return match?.id ?? "walk";
 }
 
 function toBoardRow(row: BoardViewRow, userId: string | null): ActivityBoardRow {
@@ -162,7 +148,7 @@ export function createSupabaseBackend(supabase: SupabaseClient) {
       return (data as ActivityType[]).map((t) => ({ ...t, keywords: t.keywords ?? [] }));
     },
 
-    async getPublicPlaces(): Promise<DiscoveryPlace[]> {
+    async getPublicPlaces(): Promise<Place[]> {
       const { data, error } = await supabase
         .from("places")
         .select("id, name, address, lat, lng, is_public")
@@ -185,11 +171,6 @@ export function createSupabaseBackend(supabase: SupabaseClient) {
         lat: p.lat ?? 0,
         lng: p.lng ?? 0,
         is_public: p.is_public,
-        ...(placeDetails[p.id] ?? {
-          niche_value: 1,
-          highlight: "A public Montréal place.",
-          image_type: visualKind(p.name),
-        }),
       }));
     },
 
@@ -319,29 +300,6 @@ export function createSupabaseBackend(supabase: SupabaseClient) {
         joined_at: r.starts_at,
         activity: toBoardRow(r, id),
       }));
-    },
-
-    async getLeaderboard(): Promise<RankingEntry[]> {
-      const { data, error } = await supabase
-        .from("profiles")
-        .select("id, display_name, total_points")
-        .order("total_points", { ascending: false })
-        .order("display_name")
-        .limit(100);
-      if (error) fail(error);
-      let rank = 0;
-      const people = data as Profile[];
-      return people.map((p, index) => {
-        if (index === 0 || people[index - 1]?.total_points !== p.total_points) rank = index + 1;
-        return {
-          id: p.id,
-          display_name: p.display_name,
-          total_points: p.total_points,
-          city: "Montréal",
-          country: "Canada",
-          rank,
-        };
-      });
     },
   };
 }

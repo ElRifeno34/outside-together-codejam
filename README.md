@@ -25,7 +25,7 @@ The database is the source of truth for activities, places, times, capacity, par
 
 | Folder | Contents |
 | --- | --- |
-| [`web/`](web/README.md) | Lovable front end. Uses Supabase when keys are configured, demo fixtures otherwise |
+| [`web/`](web/README.md) | Lovable front end on the Supabase backend (shows a setup screen when its keys are missing) |
 | [`supabase/`](supabase) | Role B migrations and RPCs, smoke test, seed, `ai-search` Edge Function |
 | [`docs/`](docs) | Backend contract, implementation handoff, QA checklist, Lovable brief and UML diagrams |
 
@@ -39,8 +39,7 @@ npm run dev
 
 The app opens at http://localhost:8080.
 
-- **Supabase mode:** copy `web/.env.example` to `web/.env.local` and set `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY`. The app then reads `activity_board` and writes through the RPCs.
-- **Demo mode:** with no keys set, the app runs on in-memory demo fixtures.
+Copy `web/.env.example` to `web/.env.local` and set `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY`. The app reads `activity_board` and writes through the RPCs. Without these keys it shows a "Supabase is not configured" screen; there is no offline demo mode.
 
 Never commit `.env.local` or private credentials. See [web/README.md](web/README.md).
 
@@ -72,7 +71,6 @@ No `create-activity` Edge Function exists yet. The front end creates activities 
 - English/French interface
 - Add-to-calendar: Google Calendar link and `.ics` download
 - Optional browser geolocation for nearest-first sorting
-- Demo fixtures when no Supabase keys are configured
 
 The Google Calendar API and maps are later features.
 

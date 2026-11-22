@@ -320,6 +320,9 @@ export const french: Record<string, string> = {
   "Refresh activities": "Actualiser les activités",
   "Activity counts are up to date": "Les inscriptions sont à jour",
   "Activity filters": "Filtres d’activités",
+  Filters: "Filtres",
+  Day: "Jour",
+  "Show activities": "Afficher les activités",
   "All activities": "Toutes les activités",
   "Any day": "Tous les jours",
   Today: "Aujourd’hui",
@@ -590,6 +593,8 @@ export const french: Record<string, string> = {
   "Your points and credits appear once 2 participants check in.":
     "Vos points et crédits apparaissent dès que 2 personnes confirment leur présence.",
   "Checked in": "Présence confirmée",
+  "Your points appear once 2 participants check in.":
+    "Vos points apparaissent dès que 2 personnes confirment leur présence.",
   "No activity types or public places are available yet.":
     "Aucun type d’activité ni lieu public n’est encore disponible.",
 };
